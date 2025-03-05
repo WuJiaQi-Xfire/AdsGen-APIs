@@ -23,6 +23,7 @@ To ensure a smooth and consistent workflow, please follow these guidelines.
      - `style`: Changes that do not affect the meaning of the code (white-space, formatting, etc.)
      - `refactor`: A code change that neither fixes a bug nor adds a feature
      - `test`: Adding missing tests or correcting existing tests
+     - `misc`: Miscellaneous changes that don't fit into other categories
 
 3. **Pull Requests:**
 
@@ -31,7 +32,7 @@ To ensure a smooth and consistent workflow, please follow these guidelines.
    - Request a review from at least one other team member.
    - Address any feedback and make necessary changes before merging.
 
-   
+
 ### Code Quality
 
 For frontend:

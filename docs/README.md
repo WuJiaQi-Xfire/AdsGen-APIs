@@ -53,4 +53,4 @@ Ensure you have the following installed on your system:
    ```
 ### Contribution Guidelines
 
-Refer to [contribution guide](docs\CONTRIBUTING.md)
+Refer to [contribution guide](CONTRIBUTING.md)
