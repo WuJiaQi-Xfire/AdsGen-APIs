@@ -27,7 +27,7 @@ To ensure a smooth and consistent workflow, please follow these guidelines.
 
 3. **Pull Requests:**
 
-   - Ensure your branch is up to date with the `develop` branch before submitting a pull request.
+   - Ensure your branch is up to date with the `main` branch before submitting a pull request.
    - Provide a clear description of the changes and any related issues.
    - Request a review from at least one other team member.
    - Address any feedback and make necessary changes before merging.

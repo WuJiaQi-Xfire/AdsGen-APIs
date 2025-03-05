@@ -9,7 +9,7 @@ An integrated prompt and image generation tool for advertisement/campaigns(Place
 - **Frontend:** React with TypeScript
 - **State Management:** Redux
 - **Styling:** TailwindCSS
-- **Backend:** Python with Flask
+- **Backend:** Python with FastAPI
 - **Database:** PostgreSQL
 
 ## Setup Instructions
