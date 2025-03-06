@@ -42,7 +42,8 @@ Ensure you have the following installed on your system:
 
    ```bash
    cd frontend
-   npm install
+   npm i
+   npm run dev
    ```
 
 ### Backend Setup
