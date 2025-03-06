@@ -24,7 +24,7 @@ export const ModelSelector = ({
   return (
     <div className="w-full animate-fade-in">
       <div className="flex flex-col space-y-3">
-        <p className="text-sm font-medium text-gray-700">AI Model</p>
+        <p className="text-sm font-medium text-gray-700 pt-2">AI Model</p>
         
         <div className="flex flex-col space-y-2">
           {options.map((option) => (
