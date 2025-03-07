@@ -1,68 +1,85 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: #f9fafb;
+    --foreground: #1a1d23;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
- 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
- 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
- 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
- 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --card: #ffffff;
+    --card-foreground: #1a1d23;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
- 
+    --popover: #ffffff;
+    --popover-foreground: #1a1d23;
+
+    --primary: #3498db;
+    --primary-foreground: #ffffff;
+
+    --secondary: #2ecc71;
+    --secondary-foreground: #1a1d23;
+
+    --muted: #95a5a6;
+    --muted-foreground: #1a1d23;
+
+    --accent: #e74c3c;
+    --accent-foreground: #ffffff;
+
+    --destructive: #e74c3c;
+    --destructive-foreground: #ffffff;
+
+    --border: #d1d5db;
+    --input: #ffffff;
+    --ring: #3498db;
+
     --radius: 0.5rem;
   }
 }
- 
+
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gray-100 text-gray-900;
     font-family: 'Roboto', sans-serif;
   }
 }
 
 @layer components {
   .primary-button {
-    @apply bg-brand-blue hover:bg-brand-blueHover text-white py-2 px-6 rounded-lg transition-colors;
+    @apply bg-blue-500 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-colors;
   }
-  
+
   .tab-active {
-    @apply text-brand-blue border-b-2 border-brand-blue;
+    @apply text-blue-500 border-b-2 border-blue-500;
   }
-  
+
   .tab-inactive {
     @apply text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300;
   }
-  
+
   .input-field {
-    @apply p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent;
+    @apply p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+}
+
+#toast-container-main {
+  @apply fixed top-20 right-12 z-50 flex flex-col w-64;
+}
+
+#toast-container-main > div {
+  @apply bg-gray-200 text-gray-900 w-full mb-4 p-4 rounded-lg shadow-md;
+  animation: slide-in 0.2s;
+  transition: all 0.3s ease;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0px);
+    opacity: 1;
   }
 }
