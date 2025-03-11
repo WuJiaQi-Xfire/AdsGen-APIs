@@ -252,9 +252,9 @@ const Index = () => {
                       
                       <PrimaryButton 
                         onClick={handleGenerateClick}
-                        disabled={keywords.length === 0}
+                        
                       >
-                        Start generation ({keywords.length})
+                        Start generation ({selectedModel})
                       </PrimaryButton>
                     </div>
                   </div>
