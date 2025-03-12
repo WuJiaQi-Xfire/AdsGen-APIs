@@ -1,4 +1,4 @@
-
+//Could be used when Ollama allows Vision
 import { cn } from '@/lib/utils';
 
 interface ModelOption {
