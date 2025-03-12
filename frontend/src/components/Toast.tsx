@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils';
-import { useEffect } from 'react';
+import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 export interface ToastProps {
   id: string;
@@ -23,7 +23,11 @@ const Toast: React.FC<ToastProps> = (props) => {
   }, [destroy, duration]);
 
   return (
-    <div className={cn("flex items-center bg-gray-100 border border-gray-300 rounded py-2 px-4 mb-4")}>
+    <div
+      className={cn(
+        "flex items-center bg-gray-100 border border-gray-300 rounded py-2 px-4 mb-4"
+      )}
+    >
       {icon}
       <span className="text-xs pl-2">{message}</span>
     </div>

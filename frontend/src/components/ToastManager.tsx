@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 import ReactDOM from "react-dom";
 import Toast, { ToastProps } from "./Toast";
 
@@ -17,7 +17,9 @@ export class ToastManager {
     const body = document.getElementsByTagName("body")[0] as HTMLBodyElement;
     const toastContainer = document.createElement("div") as HTMLDivElement;
     toastContainer.id = "toast-container-main";
-    toastContainer.className = cn("fixed top-0 right-0 z-50 flex flex-col items-end");
+    toastContainer.className = cn(
+      "fixed top-0 right-0 z-50 flex flex-col items-end"
+    );
     body.insertAdjacentElement("beforeend", toastContainer);
     this.containerRef = toastContainer;
   }
@@ -26,7 +28,7 @@ export class ToastManager {
     const toastId = Math.random().toString(36).substr(2, 9);
     const toast: ToastProps = {
       id: toastId,
-      ...options, 
+      ...options,
       destroy: () => this.destroy(options.id ?? toastId),
     };
 

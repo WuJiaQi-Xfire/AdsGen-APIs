@@ -5,39 +5,44 @@ import { Upload, ArrowRight, Check } from "lucide-react";
 import { toast } from "@/components/ToastManager";
 
 const PromptGeneration: React.FC = () => {
-  const [description, setDescription] = useState("Example: side by side, 50%");
+  const [description, setDescription] = useState(
+    "Example: 50/50 split image, depicting the evil and good side of a place"
+  );
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [hasReferenceImage, setHasReferenceImage] = useState(false);
   const [fileName, setFileName] = useState("");
 
-
   const handleGenerate = () => {
     setIsGenerating(true);
-    
-    // TODO Call GPT to generate prompt
+    // Text as placeholder for now, TODO Call GPT to generate prompt
     setTimeout(() => {
       setIsGenerating(false);
       setGeneratedPrompt(
-        "Create a side-by-side comparison image of two products with a 50/50 split layout. The left side shows Product A with its sleek metallic finish under soft, directional lighting that highlights its modern contours. The right side displays Product B with its organic, textured design under matching lighting conditions. Both products should be positioned against a neutral, gradient background that transitions from light to dark. Include subtle branding elements for both products. Maintain consistent scale, perspective, and lighting across both sides to ensure a fair visual comparison."
+        "You are an AI artist specializing in dynamic split-screen advertisements. " +
+          "Generate a detailed image description using:  " +
+          "- **Art Style**: [Use verbatim from {art_style_list}]" +
+          "- **Theme**: {Keywords}  - **Structure**: Central region (75%), vertical sidebar (25%)." +
+          "- **Intent**: Contrast 'problem state' (central) with 'solution state' (sidebar)."
       );
       toast.show({
-        id: 'my-id',
+        id: "my-id",
         icon: <Check className="h-4 w-4" />,
         message: "Your ad template prompt has been generated successfully.",
         duration: 1500,
       });
+    }, 2000);
+  };
 
-  },2000);
-};
-
-  const handleReferenceImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // TODO: file handling for image upload 
+  const handleReferenceImageUpload = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    // TODO: file handling for image upload
     if (e.target.files && e.target.files.length > 0) {
       setHasReferenceImage(true);
       setFileName(e.target.files[0].name);
       toast.show({
-        id: 'my-id',
+        id: "my-id",
         icon: <Check className="h-4 w-4" />,
         message: "Your reference image will be used in the prompt generation.",
         duration: 1500,
@@ -76,9 +81,9 @@ const PromptGeneration: React.FC = () => {
               hasReferenceImage ? "border-primary/50 bg-primary/5" : ""
             }`}
           >
-            <input 
-              type="file" 
-              className="hidden" 
+            <input
+              type="file"
+              className="hidden"
               accept="image/*"
               onChange={handleReferenceImageUpload}
             />
@@ -91,13 +96,11 @@ const PromptGeneration: React.FC = () => {
                 )}
               </div>
               <p className="text-sm font-medium">
-                {hasReferenceImage
-                  ? fileName
-                  : "Click to upload image"}
+                {hasReferenceImage ? fileName : "Click to upload image"}
               </p>
               {/* Supported image types by Vision */}
               <p className="text-xs text-muted-foreground mt-1">
-                PNG, JPEG, Webp, GIF 
+                PNG, JPEG, Webp, GIF
               </p>
             </div>
           </label>
@@ -128,7 +131,11 @@ const PromptGeneration: React.FC = () => {
                 className="min-h-32 bg-background"
               />
               <div className="flex justify-end mt-2">
-                <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(generatedPrompt)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigator.clipboard.writeText(generatedPrompt)}
+                >
                   Copy to Clipboard
                 </Button>
               </div>
