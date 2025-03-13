@@ -9,7 +9,7 @@ export interface ToastProps {
 }
 
 const Toast: React.FC<ToastProps> = (props) => {
-  const { destroy, message, duration = 0, id } = props;
+  const { destroy, message, duration = 0} = props;
 
   useEffect(() => {
     if (!duration) return;
