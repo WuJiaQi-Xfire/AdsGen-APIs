@@ -1,9 +1,9 @@
-
 import { useState } from "react";
-import { toast } from "@/components/ToastManager";
+import { showToast } from "@/lib/ShowToast";
 
 export const usePromptGeneration = () => {
-  const [description, setDescription] = useState( "Example: 50/50 split image, depicting the evil and good side of a place"
+  const [description, setDescription] = useState(
+    "Example: 50/50 split image, depicting the evil and good side of a place"
   );
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState("");
@@ -11,18 +11,10 @@ export const usePromptGeneration = () => {
   const [fileName, setFileName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
-  const showToast = (message: string) => {
-    toast.show({
-      id: "my-id",
-      message,
-      duration: 1500,
-    });
-  };
-
   const handleGenerate = () => {
     setIsGenerating(true);
-    
-     // Text as placeholder for now, TODO Call GPT to generate prompt
+
+    // Text as placeholder for now, TODO Call GPT to generate prompt
     //Loading time fix for now, TODO load prompt after receiving response
     setTimeout(() => {
       setIsGenerating(false);
@@ -33,12 +25,14 @@ export const usePromptGeneration = () => {
           "- **Theme**: {Keywords}  - **Structure**: Central region (75%), vertical sidebar (25%)." +
           "- **Intent**: Contrast 'problem state' (central) with 'solution state' (sidebar)."
       );
-      
+
       showToast("Your ad template prompt has been generated successfully.");
     }, 1500);
   };
 
-  const handleReferenceImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleReferenceImageUpload = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     // TODO: File handling for image upload
     if (e.target.files && e.target.files.length === 1) {
       setHasReferenceImage(true);
@@ -65,6 +59,6 @@ export const usePromptGeneration = () => {
     setImageUrl,
     handleGenerate,
     handleReferenceImageUpload,
-    clearReferenceImage
+    clearReferenceImage,
   };
 };
