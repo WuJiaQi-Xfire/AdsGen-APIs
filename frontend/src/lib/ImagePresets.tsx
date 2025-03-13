@@ -30,13 +30,9 @@ export const useImageSettings = () => {
     // TODO, encode image in base64 and pass to GPT and get the generated keywords
     // FOr now: Simulate keyword extraction from image
     setTimeout(() => {
-      const extractedKeywords = [
-        "chaos",
-        "war",
-        "fighting",
-      ];
+      const extractedKeywords = ["chaos", "war", "fighting"];
       setKeywords([...keywords, ...extractedKeywords]);
-      showToast ("Keywords generated from your reference image.");
+      showToast("Keywords generated from your reference image.");
     }, 1500);
   };
 
