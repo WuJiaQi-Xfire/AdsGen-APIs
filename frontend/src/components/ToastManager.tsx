@@ -5,7 +5,6 @@ import Toast, { ToastProps } from "./Toast";
 interface ToastOptions {
   id?: string;
   message: string;
-  icon: React.ReactNode;
   duration?: number;
 }
 
