@@ -1,4 +1,4 @@
-import { toast } from "@/components/ToastManager";
+import { toast } from "@/components/UI/ToastManager";
 
 export function showToast(message: string) {
   toast.show({

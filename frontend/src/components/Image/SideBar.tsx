@@ -1,0 +1,45 @@
+import React from "react";
+import { useImageSettings } from "@/lib/ImagePresets";
+import KeywordSection from "./KeywordSection";
+import ImageSettings from "./ImageSettings";
+
+const SidebarSettings: React.FC = () => {
+  const {
+    keyword,
+    setKeyword,
+    keywords,
+    handleAddKeyword,
+    handleRemoveKeyword,
+    handleKeywordImageUpload,
+    styleStrength,
+    setStyleStrength,
+    resolution,
+    handleResolutionChange,
+    batchSize,
+    setBatchSize,
+  } = useImageSettings();
+
+  return (
+    <div className="space-y-6 border rounded-lg p-4">
+      <KeywordSection
+        keyword={keyword}
+        setKeyword={setKeyword}
+        keywords={keywords}
+        handleAddKeyword={handleAddKeyword}
+        handleRemoveKeyword={handleRemoveKeyword}
+        handleKeywordImageUpload={handleKeywordImageUpload}
+      />
+
+      <ImageSettings
+        styleStrength={styleStrength}
+        setStyleStrength={setStyleStrength}
+        resolution={resolution}
+        handleResolutionChange={handleResolutionChange}
+        batchSize={batchSize}
+        setBatchSize={setBatchSize}
+      />
+    </div>
+  );
+};
+
+export default SidebarSettings;
