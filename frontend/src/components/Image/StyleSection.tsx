@@ -1,9 +1,10 @@
 import React from "react";
-import { Plus, Check, Sparkles, Palette } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/UI/PrimaryButton";
 import { Input } from "@/components/UI/Input";
 import { cn } from "@/lib/utils";
 import { Style } from "@/lib/ArtStyleList";
+import { Badge } from "@/components/UI/Badge";
 
 interface StyleSectionProps {
   styleType: "lora" | "art";
@@ -118,31 +119,28 @@ const StyleSection: React.FC<StyleSectionProps> = ({
             onClick={selectRandomStyle}
             className="text-xs h-7 flex items-center gap-1"
           >
-            <Sparkles className="h-3 w-3" />
             Random
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-60 overflow-y-auto p-1">
+        <div className="flex flex-wrap gap-1.5 max-h-60 overflow-y-auto p-1">
           {filteredStyles.map((style) => (
-            <Button
+            <Badge
               key={style.id}
               variant="outline"
-              size="sm"
               className={cn(
-                "h-16 flex flex-col justify-center items-center gap-1 transition-all",
+                "cursor-pointer py-1.5 px-3 transition-all duration-200 flex items-center gap-1.5",
                 selectedStyles.includes(style.id)
-                  ? "border-primary bg-primary/10"
-                  : "hover:border-primary/50"
+                  ? "border-primar/15 bg-primary/40 hover:bg-primary/20"
+                  : "hover:bg-accent"
               )}
               onClick={() => toggleStyleSelection(style.id)}
             >
-              <Palette className="h-4 w-4" />
-              <span className="text-xs line-clamp-1">{style.name}</span>
+              <span className="text-xs">{style.name}</span>
               {selectedStyles.includes(style.id) && (
-                <Check className="h-3 w-3 absolute top-1 right-1 text-primary" />
+                <Check className="h-3 w-3 text-primary flex-shrink-0 ml-1" />
               )}
-            </Button>
+            </Badge>
           ))}
         </div>
       </div>

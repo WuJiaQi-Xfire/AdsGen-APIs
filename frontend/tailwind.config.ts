@@ -89,11 +89,28 @@ const config: Config = {
           to: { transform: "translateX(10px)", opacity: "0" },
         },
       },
+      pulse: {
+        "0%, 100%": { opacity: "1" },
+        "50%": { opacity: "0.5" },
+      },
+
       animation: {
         "fade-in": "fade-in 0.3s ease-in-out",
         "fade-out": "fade-out 0.3s ease-out",
         "slide-in": "slide-in 0.3s ease-out",
         "slide-out": "slide-out 0.3s ease-out",
+        pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+      },
+
+      boxShadow: {
+        soft: "0 4px 20px -2px rgba(0, 0, 0, 0.1)",
+        glow: "0 0 20px rgba(137, 78, 255, 0.25)",
+      },
+
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
     },
   },
