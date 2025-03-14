@@ -5,6 +5,7 @@ import PromptInput from "./Prompt/PromptInput";
 import ReferenceImage from "./Prompt/ReferenceImage";
 import PromptOutput from "./Prompt/PromptOutput";
 import { PromptGeneration } from "@/lib/PromptGeneration";
+import { showToast } from "@/lib/ShowToast";
 
 const PromptGenerationTab: React.FC = () => {
   const {
@@ -21,6 +22,13 @@ const PromptGenerationTab: React.FC = () => {
     clearReferenceImage,
   } = PromptGeneration();
 
+  const validateAndGenerate = () => {
+    if (!description.trim()) {
+      showToast("Please enter a description for your image.");
+      return;
+    }
+    handleGenerate();
+  };
   return (
     <div className="w-full max-w-4xl mx-auto p-6 animate-fade-in">
       <div className="mb-8">
@@ -48,7 +56,7 @@ const PromptGenerationTab: React.FC = () => {
         />
 
         <Button
-          onClick={handleGenerate}
+          onClick={validateAndGenerate}
           disabled={isGenerating}
           className="w-full"
           size="lg"

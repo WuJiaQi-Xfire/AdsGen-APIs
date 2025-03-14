@@ -5,6 +5,7 @@ import { ImageGeneration } from "@/lib/ImageGeneration";
 import PromptSection from "./Image/PromptSection";
 import StyleSection from "./Image/StyleSection.tsx";
 import SideBar from "./Image/SideBar";
+import { showToast } from "@/lib/ShowToast";
 
 const ImageGenerationTab: React.FC = () => {
   const {
@@ -32,6 +33,20 @@ const ImageGenerationTab: React.FC = () => {
     filteredStyles,
     fileInputRef,
   } = ImageGeneration();
+
+  const validateAndGenerate = () => {
+    if (!hasPrompt) {
+      showToast("Please upload a prompt file first.");
+      return;
+    }
+
+    if (selectedStyles.length === 0) {
+      showToast("Please select at least one style.");
+      return;
+    }
+
+    handleGenerate();
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6 animate-fade-in">
@@ -73,7 +88,7 @@ const ImageGenerationTab: React.FC = () => {
 
           <div className="pt-4">
             <Button
-              onClick={handleGenerate}
+              onClick={validateAndGenerate}
               disabled={isGenerating}
               className="w-full"
               size="lg"
