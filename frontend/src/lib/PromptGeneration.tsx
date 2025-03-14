@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { showToast } from "@/lib/ShowToast";
 
-export const usePromptGeneration = () => {
+export const PromptGeneration = () => {
   const [description, setDescription] = useState(
     "Example: 50/50 split image, depicting the evil and good side of a place"
   );

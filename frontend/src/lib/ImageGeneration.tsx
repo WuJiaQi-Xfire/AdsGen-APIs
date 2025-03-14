@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { showToast } from "@/lib/ShowToast";
 import { getStyles } from "@/lib/ArtStyleList";
 
-export const useImageGeneration = () => {
+export const ImageGeneration = () => {
   const [prompt, setPrompt] = useState("");
   const [hasPrompt, setHasPrompt] = useState(false);
   const [promptText, setPromptText] = useState("");

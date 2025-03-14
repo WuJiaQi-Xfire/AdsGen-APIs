@@ -1,5 +1,5 @@
 import React from "react";
-import { useImageSettings } from "@/lib/ImagePresets";
+import { ImagePresets } from "@/lib/ImagePresets";
 import KeywordSection from "./KeywordSection";
 import ImageSettings from "./ImageSettings";
 
@@ -17,7 +17,7 @@ const SidebarSettings: React.FC = () => {
     handleResolutionChange,
     batchSize,
     setBatchSize,
-  } = useImageSettings();
+  } = ImagePresets();
 
   return (
     <div className="space-y-6 border rounded-lg p-4">

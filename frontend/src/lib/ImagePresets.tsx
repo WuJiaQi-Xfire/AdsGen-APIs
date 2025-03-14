@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { showToast } from "@/lib/ShowToast";
 
-export const useImageSettings = () => {
+export const ImagePresets = () => {
   const [keyword, setKeyword] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [styleStrength, setStyleStrength] = useState(80);
