@@ -1,13 +1,13 @@
 import React from "react";
 import { Textarea } from "@/components/UI/TextArea";
 import { Button } from "@/components/UI/PrimaryButton";
+import { showToast } from "@/lib/ShowToast";
 
 interface PromptOutputProps {
   generatedPrompt: string;
 }
 
 const PromptOutput: React.FC<PromptOutputProps> = ({ generatedPrompt }) => {
-
   const downloadAsTxtFile = () => {
     const blob = new Blob([generatedPrompt], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -19,7 +19,7 @@ const PromptOutput: React.FC<PromptOutputProps> = ({ generatedPrompt }) => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
-  
+
   return (
     <div className="space-y-2 mt-6 animate-fade-in">
       <label className="text-sm font-medium">Generated Prompt</label>
@@ -30,10 +30,13 @@ const PromptOutput: React.FC<PromptOutputProps> = ({ generatedPrompt }) => {
           className="min-h-32 bg-background"
         />
         <div className="flex justify-end mt-2">
-        <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={downloadAsTxtFile}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              downloadAsTxtFile;
+              showToast("Your prompt has been downloaded!");
+            }}
           >
             Download as .txt
           </Button>
@@ -41,7 +44,10 @@ const PromptOutput: React.FC<PromptOutputProps> = ({ generatedPrompt }) => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigator.clipboard.writeText(generatedPrompt)}
+            onClick={() => {
+              navigator.clipboard.writeText(generatedPrompt);
+              showToast("Your prompt has been copied to clipboard!");
+            }}
           >
             Copy to Clipboard
           </Button>
