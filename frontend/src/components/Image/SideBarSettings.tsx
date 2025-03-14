@@ -20,7 +20,7 @@ const SidebarSettings: React.FC = () => {
   } = ImagePresets();
 
   return (
-    <div className="space-y-6 border rounded-lg p-4">
+    <div className="space-y-6 border rounded-lg p-5 shadow-soft bg-white">
       <KeywordSection
         keyword={keyword}
         setKeyword={setKeyword}

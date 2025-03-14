@@ -30,17 +30,18 @@ const PromptOutput: React.FC<PromptOutputProps> = ({ generatedPrompt }) => {
           className="min-h-32 bg-background"
         />
         <div className="flex justify-end mt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              downloadAsTxtFile;
-              showToast("Your prompt has been downloaded!");
-            }}
-          >
-            Download as .txt
-          </Button>
-
+          <div className="px-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                downloadAsTxtFile;
+                showToast("Your prompt has been downloaded!");
+              }}
+            >
+              Download as .txt
+            </Button>
+          </div>
           <Button
             variant="outline"
             size="sm"

@@ -4,7 +4,7 @@ import { Button } from "@/components/UI/PrimaryButton";
 import { ImageGeneration } from "@/lib/ImageGeneration";
 import PromptSection from "./Image/PromptSection";
 import StyleSection from "./Image/StyleSection.tsx";
-import SideBar from "./Image/SideBar";
+import SideBarSettings from "./Image/SideBarSettings.tsx";
 import { showToast } from "@/lib/ShowToast";
 
 const ImageGenerationTab: React.FC = () => {
@@ -49,7 +49,7 @@ const ImageGenerationTab: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6 animate-fade-in">
+    <div className="w-full max-w-5xl mx-auto p-6 animate-fade-in">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-1">
           Image Generation
@@ -57,40 +57,43 @@ const ImageGenerationTab: React.FC = () => {
         <p className="text-muted-foreground">Generate custom images using AI</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <div className="md:col-span-8 space-y-6">
-          <PromptSection
-            hasPrompt={hasPrompt}
-            promptText={promptText}
-            promptFileName={promptFileName}
-            setPromptText={setPromptText}
-            setHasPrompt={setHasPrompt}
-            handlePromptUpload={handlePromptUpload}
-            promptFileInputRef={promptFileInputRef}
-            handlePromptFileUpload={handlePromptFileUpload}
-          />
-
-          <StyleSection
-            styleType={styleType}
-            setStyleType={setStyleType}
-            selectedStyles={selectedStyles}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            selectMode={selectMode}
-            setSelectMode={setSelectMode}
-            toggleStyleSelection={toggleStyleSelection}
-            filteredStyles={filteredStyles}
-            selectAllStyles={selectAllStyles}
-            clearStyleSelection={clearStyleSelection}
-            selectRandomStyle={selectRandomStyle}
-            fileInputRef={fileInputRef}
-          />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 space-y-6">
+          <div className="bg-white rounded-lg shadow-soft p-5 border">
+            <PromptSection
+              hasPrompt={hasPrompt}
+              promptText={promptText}
+              promptFileName={promptFileName}
+              setPromptText={setPromptText}
+              setHasPrompt={setHasPrompt}
+              handlePromptUpload={handlePromptUpload}
+              promptFileInputRef={promptFileInputRef}
+              handlePromptFileUpload={handlePromptFileUpload}
+            />
+          </div>
+          <div className="bg-white rounded-lg shadow-soft p-5 border">
+            <StyleSection
+              styleType={styleType}
+              setStyleType={setStyleType}
+              selectedStyles={selectedStyles}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              selectMode={selectMode}
+              setSelectMode={setSelectMode}
+              toggleStyleSelection={toggleStyleSelection}
+              filteredStyles={filteredStyles}
+              selectAllStyles={selectAllStyles}
+              clearStyleSelection={clearStyleSelection}
+              selectRandomStyle={selectRandomStyle}
+              fileInputRef={fileInputRef}
+            />
+          </div>
 
           <div className="pt-4">
             <Button
               onClick={validateAndGenerate}
               disabled={isGenerating}
-              className="w-full"
+              className="w-full bg-primary hover:bg-primary/90 text-white shadow-soft"
               size="lg"
             >
               {isGenerating ? (
@@ -104,8 +107,8 @@ const ImageGenerationTab: React.FC = () => {
           </div>
         </div>
 
-        <div className="md:col-span-4">
-          <SideBar />
+        <div className="md:col-span-1">
+          <SideBarSettings />
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus, X, ImagePlus, Upload, Link } from "lucide-react";
+import { Plus, X, Upload, Link } from "lucide-react";
 import { Input } from "@/components/UI/Input";
 import { Button } from "@/components/UI/PrimaryButton";
 import { Badge } from "@/components/UI/Badge";
@@ -41,15 +41,15 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
 
   return (
     <div className="space-y-4">
-      <h3 className="font-medium">Keywords</h3>
+      <h3 className="font-medium text-lg">Keywords</h3>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Tabs
           value={keywordTab}
           onValueChange={setKeywordTab}
           className="w-full"
         >
-          <TabsList className="grid grid-cols-3 mb-2">
+          <TabsList className="grid grid-cols-3 mb-2 w-full bg-secondary">
             <TabsTrigger value="text" className="text-xs">
               Text Input
             </TabsTrigger>
@@ -123,20 +123,26 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
           </TabsContent>
         </Tabs>
 
-        <div className="flex flex-wrap gap-2 min-h-24 p-2 border rounded-md bg-background overflow-y-auto max-h-48">
-          {keywords.map((k) => (
-            <Badge
-              key={k}
-              variant="secondary"
-              className="flex items-center gap-1"
-            >
-              {k}
-              <X
-                className="h-3 w-3 cursor-pointer"
-                onClick={() => handleRemoveKeyword(k)}
-              />
-            </Badge>
-          ))}
+        <div className="flex flex-wrap gap-2 min-h-28 p-3 border rounded-md bg-background overflow-y-auto max-h-60">
+          {keywords.length === 0 ? (
+            <p className="text-sm text-muted-foreground w-full text-center py-7">
+              No keywords added yet.
+            </p>
+          ) : (
+            keywords.map((k) => (
+              <Badge
+                key={k}
+                variant="secondary"
+                className="flex items-center gap-1 py-1.5 px-3"
+              >
+                {k}
+                <X
+                  className="h-3 w-3 cursor-pointer ml-1"
+                  onClick={() => handleRemoveKeyword(k)}
+                />
+              </Badge>
+            ))
+          )}
         </div>
       </div>
     </div>

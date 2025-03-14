@@ -5,6 +5,7 @@ import { Input } from "@/components/UI/Input";
 import { cn } from "@/lib/utils";
 import { Style } from "@/lib/ArtStyleList";
 import { Badge } from "@/components/UI/Badge";
+import { Separator } from "@/components/UI/Separator";
 
 interface StyleSectionProps {
   styleType: "lora" | "art";
@@ -122,6 +123,8 @@ const StyleSection: React.FC<StyleSectionProps> = ({
             Random
           </Button>
         </div>
+
+        <Separator />
 
         <div className="flex flex-wrap gap-1.5 max-h-60 overflow-y-auto p-1">
           {filteredStyles.map((style) => (

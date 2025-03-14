@@ -59,7 +59,7 @@ const PromptSection: React.FC<PromptSectionProps> = ({
             </div>
             <p className="text-sm font-medium">Upload prompt file</p>
             <p className="text-xs text-muted-foreground mt-1">
-              TXT or JSON (max. 1MB)
+              TXT (max. 32MB)
             </p>
           </div>
 
@@ -67,7 +67,7 @@ const PromptSection: React.FC<PromptSectionProps> = ({
             ref={promptFileInputRef}
             type="file"
             className="hidden"
-            accept=".txt,.json"
+            accept=".txt"
             onChange={handlePromptFileUpload}
           />
         </div>

@@ -41,24 +41,28 @@ const PromptGenerationTab: React.FC = () => {
       </div>
 
       <div className="space-y-6">
-        <PromptInput
-          description={description}
-          setDescription={setDescription}
-        />
+        <div className="bg-white rounded-lg shadow-soft p-5 border">
+          <PromptInput
+            description={description}
+            setDescription={setDescription}
+          />
+        </div>
 
-        <ReferenceImage
-          hasReferenceImage={hasReferenceImage}
-          fileName={fileName}
-          imageUrl={imageUrl}
-          setImageUrl={setImageUrl}
-          handleReferenceImageUpload={handleReferenceImageUpload}
-          clearReferenceImage={clearReferenceImage}
-        />
+        <div className="bg-white rounded-lg shadow-soft p-5 border">
+          <ReferenceImage
+            hasReferenceImage={hasReferenceImage}
+            fileName={fileName}
+            imageUrl={imageUrl}
+            setImageUrl={setImageUrl}
+            handleReferenceImageUpload={handleReferenceImageUpload}
+            clearReferenceImage={clearReferenceImage}
+          />
+        </div>
 
         <Button
           onClick={validateAndGenerate}
           disabled={isGenerating}
-          className="w-full"
+          className="w-full bg-primary hover:bg-primary/90 text-white shadow-soft"
           size="lg"
         >
           {isGenerating ? (
@@ -70,7 +74,11 @@ const PromptGenerationTab: React.FC = () => {
           )}
         </Button>
 
-        {generatedPrompt && <PromptOutput generatedPrompt={generatedPrompt} />}
+        {generatedPrompt && (
+          <div className="bg-white rounded-lg shadow-soft p-5 border animate-fade-in">
+            <PromptOutput generatedPrompt={generatedPrompt} />
+          </div>
+        )}
       </div>
     </div>
   );

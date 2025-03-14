@@ -79,7 +79,7 @@ const ReferenceImage: React.FC<ReferenceImageProps> = ({
                   : "Click to upload image"}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                JPG, PNG, WEBP (max. 5MB)
+                JPG, JPEG, PNG, WEBP, GIF (max. 20MB)
               </p>
             </div>
           </label>

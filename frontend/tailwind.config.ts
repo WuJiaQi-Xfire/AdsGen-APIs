@@ -22,54 +22,62 @@ const config: Config = {
         Roboto: ["Roboto", "sans-serif"],
       },
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: "hsl(215 16% 87%)",
+        input: "hsl(215 16% 87%)",
+        ring: "hsl(224 76% 48%)",
+        background: "hsl(0 0% 100%)",
+        foreground: "hsl(224 71% 4%)",
+
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "hsl(262 80% 50%)",
+          foreground: "hsl(0 0% 100%)",
         },
+
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "hsl(215 20% 95%)",
+          foreground: "hsl(222 47% 11%)",
         },
+
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "hsl(0 84% 60%)",
+          foreground: "hsl(0 0% 100%)",
         },
+
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "hsl(215 20% 95%)",
+          foreground: "hsl(215 16% 47%)",
         },
+
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "hsl(215 20% 95%)",
+          foreground: "hsl(222 47% 11%)",
         },
+
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "hsl(0 0% 100%)",
+          foreground: "hsl(224 71% 4%)",
         },
+
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "hsl(0 0% 100%)",
+          foreground: "hsl(224 71% 4%)",
         },
+
         sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+          DEFAULT: "hsl(260 60% 98%)",
+          foreground: "hsl(224 71% 4%)",
+          primary: "hsl(262 80% 50%)",
+          "primary-foreground": "hsl(0 0% 100%)",
+          accent: "hsl(260 50% 94%)",
+          "accent-foreground": "hsl(262 80% 50%)",
+          border: "hsl(260 50% 90%)",
+          ring: "hsl(262 80% 50%)",
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "1rem",
+        md: "0.75rem",
+        sm: "0.5rem",
       },
       keyframes: {
         "fade-in": {
@@ -81,36 +89,35 @@ const config: Config = {
           to: { opacity: "0" },
         },
         "slide-in": {
-          from: { transform: "translateX(-10px)", opacity: "0" },
+          from: { transform: "translateX(-20px)", opacity: "0" },
           to: { transform: "translateX(0)", opacity: "1" },
         },
         "slide-out": {
           from: { transform: "translateX(0)", opacity: "1" },
-          to: { transform: "translateX(10px)", opacity: "0" },
+          to: { transform: "translateX(20px)", opacity: "0" },
         },
       },
       pulse: {
         "0%, 100%": { opacity: "1" },
-        "50%": { opacity: "0.5" },
+        "50%": { opacity: "0.7" },
       },
 
       animation: {
-        "fade-in": "fade-in 0.3s ease-in-out",
-        "fade-out": "fade-out 0.3s ease-out",
-        "slide-in": "slide-in 0.3s ease-out",
-        "slide-out": "slide-out 0.3s ease-out",
-        pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "fade-in": "fade-in 0.4s ease-in-out",
+        "fade-out": "fade-out 0.4s ease-out",
+        "slide-in": "slide-in 0.4s ease-out",
+        "slide-out": "slide-out 0.4s ease-out",
+        pulse: "pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
 
       boxShadow: {
-        soft: "0 4px 20px -2px rgba(0, 0, 0, 0.1)",
-        glow: "0 0 20px rgba(137, 78, 255, 0.25)",
+        soft: "0 6px 24px -4px rgba(0, 0, 0, 0.1)",
+        glow: "0 0 20px rgba(124, 58, 237, 0.25)",
       },
 
       backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        "purple-gradient":
+          "linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%)",
       },
     },
   },
