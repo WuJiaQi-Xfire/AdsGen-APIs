@@ -10,3 +10,4 @@ openpyxl
 pywin32
 ujson
 fastapi
+uvicorn
