@@ -51,6 +51,7 @@ Ensure you have the following installed on your system:
    ```bash
    cd backend
    pip install -r requirements.txt
+   uvicorn src.main:app
    ```
 ### Contribution Guidelines
 

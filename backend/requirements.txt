@@ -11,3 +11,5 @@ pywin32
 ujson
 fastapi
 uvicorn
+pydantic
+python-multipart
