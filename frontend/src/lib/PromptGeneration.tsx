@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { showToast } from "@/lib/ShowToast";
+import { ApiService } from "@/lib/api";
 
 export const PromptGeneration = () => {
   const [description, setDescription] = useState(
@@ -13,35 +14,21 @@ export const PromptGeneration = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleGenerate = async () => {
+    if (!description.trim()) {
+      showToast("Please enter a description for your ad template.");
+      return;
+    }
     setIsGenerating(true);
     try {
-      const formData = new FormData();
-      formData.append("description", description);
-
-      if (imageFile) {
-        formData.append("reference_image", imageFile);
-      } else if (imageUrl) {
-        formData.append("reference_image_url", imageUrl);
-      }
-
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/generate-prompt/",
-        {
-          method: "POST",
-          body: formData,
-        }
+      const response = await ApiService.generatePrompt(
+        description,
+        imageFile,
+        imageUrl
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to generate prompt");
-      }
-
-      const data = await response.json();
-      setGeneratedPrompt(data.generated_prompt || "");
-      showToast("Your prompt has been generated successfully.");
+      setGeneratedPrompt(response.generated_prompt);
+      showToast("Your ad template prompt has been generated successfully.");
     } catch (error) {
-      console.error("Error generating prompt:", error);
-      showToast("There was an error generating your prompt. Please try again.");
+      console.error("Error in handleGenerate:", error);
     } finally {
       setIsGenerating(false);
     }

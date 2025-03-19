@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { showToast } from "@/lib/ShowToast";
+import { ApiService } from "@/lib/api";
 
 export const ImagePresets = () => {
   const [keyword, setKeyword] = useState("");
@@ -28,42 +29,27 @@ export const ImagePresets = () => {
 
   const handleKeywordImageUpload = async (file?: File, imageUrl?: string) => {
     try {
-      const formData = new FormData();
-
-      if (file) {
-        formData.append("image", file);
-      } else if (imageUrl) {
-        formData.append("image_url", imageUrl);
-      } else {
-        throw new Error("No image provided");
-      }
-
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/extract-keywords/",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to extract keywords");
-      }
-
-      const data = await response.json();
-      const extractedKeywords = data.keywords || [];
+      const response = await ApiService.extractKeywords(file, imageUrl);
+      const extractedKeywords = response.keywords || [];
 
       if (extractedKeywords.length > 0) {
-        setKeywords([...keywords, ...extractedKeywords]);
-        showToast(
-          "${extractedKeywords.length} keywords extracted from your image."
+        const newKeywords = extractedKeywords.filter(
+          (k) => !keywords.includes(k)
         );
+
+        if (newKeywords.length > 0) {
+          setKeywords([...keywords, ...newKeywords]);
+          showToast(
+            "${extractedKeywords.length} keywords extracted from your image."
+          );
+        } else {
+          showToast("All extracted keywords are already in your list.");
+        }
       } else {
         showToast("No keywords could be extracted from the image.");
       }
     } catch (error) {
-      console.error("Error extracting keywords:", error);
-      showToast("There was an error extracting keywords. Please try again.");
+      console.error("Error in handleKeywordImageUpload:", error);
     }
   };
 

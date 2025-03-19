@@ -1,12 +1,7 @@
 import { useState, useRef } from "react";
 import { showToast } from "@/lib/ShowToast";
 import { getStyles } from "@/lib/ArtStyleList";
-
-interface PromptFile {
-  id: string;
-  name: string;
-  selected: boolean;
-}
+import { ApiService, PromptFile } from "@/lib/api";
 
 export const ImageGeneration = () => {
   const [promptFiles, setPromptFiles] = useState<PromptFile[]>([]);
@@ -36,6 +31,7 @@ export const ImageGeneration = () => {
           const newFile: PromptFile = {
             id: crypto.randomUUID(),
             name: file.name,
+            content: event.target.result as string,
             selected: false,
           };
 
@@ -74,46 +70,38 @@ export const ImageGeneration = () => {
   };
 
   const handleGenerate = async () => {
+    if (promptFiles.length === 0) {
+      showToast("Please upload at least one prompt.");
+      return;
+    }
+    const selectedPrompts = promptFiles.filter((file) => file.selected);
+
+    if (selectedPrompts.length === 0) {
+      showToast("Please select at least one prompt.");
+      return;
+    }
+
+    if (selectedStyles.length === 0) {
+      showToast("Please select at least one style.");
+      return;
+    }
     setIsGenerating(true);
     try {
-      const selectedPrompts = promptFiles.filter((file) => file.selected);
-      if (selectedPrompts.length === 0) {
-        throw new Error("No prompts selected");
-      }
-
-      if (selectedStyles.length === 0) {
-        throw new Error("No styles selected");
-      }
-      const formData = new FormData();
-      formData.append("prompts", JSON.stringify(selectedPrompts));
-      formData.append("styles", JSON.stringify(selectedStyles));
-      formData.append("style_type", styleType);
-      formData.append("style_strength", styleStrength.toString());
-      formData.append("width", resolution.width.toString());
-      formData.append("height", resolution.height.toString());
-      formData.append("batch_size", batchSize.toString());
-      formData.append("keywords", JSON.stringify(keywords));
-
-      // Send request to backend
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/generate-image/",
-        {
-          method: "POST",
-          body: formData,
-        }
+      const response = await ApiService.generateImage(
+        selectedPrompts,
+        selectedStyles,
+        styleType,
+        styleStrength,
+        resolution.width,
+        resolution.height,
+        batchSize,
+        keywords
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to generate image");
-      }
-
-      const data = await response.json();
       showToast("Your image has been generated successfully.");
       // Testing backend output
-      console.log("Generated images:", data);
+      console.log("Generated images:", response);
     } catch (error: any) {
-      console.error("Error generating image:", error);
-      showToast("There was an error generating your image. Please try again.");
+      console.error("Error handleGenerate:", error);
     } finally {
       setIsGenerating(false);
     }
