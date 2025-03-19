@@ -25,6 +25,7 @@ export const PromptGeneration = () => {
         imageFile,
         imageUrl
       );
+      console.log(response)
       setGeneratedPrompt(response.generated_prompt);
       showToast("Your ad template prompt has been generated successfully.");
     } catch (error) {

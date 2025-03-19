@@ -7,7 +7,7 @@ const Index: React.FC = () => {
   const [activeTab, setActiveTab] = useState("prompt");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/backend")
+    fetch("http://127.0.0.1:8000/api/backend")
       .then((response) => response.json())
       .then((data) => console.log(data))
       .catch((error) => console.error("Error:", error));

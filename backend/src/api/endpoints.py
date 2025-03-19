@@ -1,95 +1,66 @@
 # For organising different api calls
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
-from typing import List
-import pandas as pd
 import base64
-from PIL import Image, UnidentifiedImageError
-from io import BytesIO
-import os
-import random
-import asyncio
-from ..services import gpt_service, sd_service, file_service
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from ..services import gpt_service, sd_service
 
 router = APIRouter()
 
-#For image uploads:
-@router.post("/upload-image/")
-async def upload_image(file: UploadFile = File(...)):
-    try:
-        contents = await file.read()
-        image = Image.open(BytesIO(contents))
-        #Could be one of these formats: 'PNG', 'JPEG', 'WEBP', or 'GIF'
-        format = image.format 
-        buffered = BytesIO()
-        image.save(buffered, format=format)
-        img_encoded = base64.b64encode(buffered.getvalue()).decode("utf-8")
-        return img_encoded
-    except UnidentifiedImageError:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Uploaded file '{file.filename}' is not a valid image or is corrupted."
-        )
-    except Exception as e:
-        error_message = (
-            f"Image processing error: '{file.filename}': {str(e)}"
-        )
-        raise HTTPException(status_code=500, detail=error_message)
+# For testing
+@router.get("/backend")
+async def read_root():
+    return {"message": "Connected to frontend"}
 
-@router.post("/upload-text-file/")
-async def upload_text_file(file: UploadFile = File(...)):
+@router.post("/generate-prompt/")
+async def generate_prompt(description: str = Form(...),
+    image: UploadFile = File(None),
+    image_url: str = Form(None)):
     try:
-        contents = await file.read()
-        text_content = contents.decode("utf-8") 
-        return text_content
-    except UnicodeDecodeError:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Uploaded file '{file.filename}' is not a valid UTF-8 text file."
-        )
+        image_base64 = None
+        if image:
+            contents = await image.read()
+            image_base64 = base64.b64encode(contents).decode('utf-8')
+        output = gpt_service.create_prompt(description, image_base64, image_url)
+        print(output)
+        return {"generated_prompt": output}
     except Exception as e:
-        error_message = (
-            f"An error occurred while processing the text file '{file.filename}': {str(e)}"
-        )
-        raise HTTPException(status_code=500, detail=error_message)
+        print(f"Error in endpoints.py: generate_prompt: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/extract-keywords/")
+async def extract_keywords(
+    image: UploadFile = File(None),
+    image_url: str = Form(None)
+):
+    try:
+        image_base64 = None
+        if image:
+            contents = await image.read()
+            image_base64 = base64.b64encode(contents).decode('utf-8')
+        keywords = gpt_service.extract_keywords(image_base64, image_url)
+        return {"keywords": keywords}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
-#Not sure if we are allowing csv uploads as prompt files since current prompt is saved as txt...   
-@router.post("/upload-csv/")
-async def upload_file(file: UploadFile = File(...)):
+@router.post("/generate-image/")
+async def generate_image(
+    prompts: str = Form(...),
+    styles: str = Form(...),
+    style_type: str = Form(...),
+    style_strength: int = Form(...),
+    width: int = Form(...),
+    height: int = Form(...),
+    batch_size: int = Form(...),
+    keywords: str = Form(...)
+):
     try:
-        contents = await file.read()
-        df = pd.read_csv(contents)
-        # Process the file and extract categories
-        if "categories" in df.columns:
-            categories = df["categories"].tolist()
-            return {"categories": categories}
-        else:
-            raise HTTPException(status_code=400, detail="File does not contain 'categories' column.")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # Parse JSON strings into Python objects
+        selected_prompts = [PromptFile(**pf) for pf in json.loads(prompts)]
+        selected_styles = json.loads(styles)
+        keywords_list = json.loads(keywords) 
 
-#Placeholder for now
-@router.get("/generate-prompts/")
-async def generate_prompts(categories: List[str], project_style: str):
-    try:
-        prompts = []
-        for category in categories:
-            prompt_template = file_service.load_prompt_template(project_style)
-            prompt = gpt_service.construct_llm_prompt(prompt_template, category)
-            response = await gpt_service.invoke_llm_async(prompt)
-            prompts.append(response)
-        return {"prompts": prompts}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/generate-images/")
-async def generate_images(prompt: str, num_images: int = Form(...)):
-    try:
-        images = []
-        for _ in range(num_images):
-            seed = random.randint(0, 4294967295)
-            image, _ = sd_service.call_sd_api(prompt, seed)
-            image_path = file_service.save_image_locally(image)
-            images.append(image_path)
+        images = sd_service.generate_images(
+            selected_prompts, selected_styles, style_type, style_strength, width, height, batch_size, keywords_list
+        )
         return {"images": images}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

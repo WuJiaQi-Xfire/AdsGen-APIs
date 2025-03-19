@@ -2,6 +2,9 @@ import requests
 from PIL import Image
 from io import BytesIO
 import base64
+import os
+
+sd_base_url: str = os.getenv("SD_BASE_URL")
 # Placeholder for now
 def call_sd_api(prompt: str, seed: int):
     # Call the Stable Diffusion API

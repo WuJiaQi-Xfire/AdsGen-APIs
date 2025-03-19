@@ -33,17 +33,17 @@ export const ApiService = {
   // Prompt Generation
   generatePrompt: async (
     description: string,
-    referenceImage?: File | null,
-    referenceImageUrl?: string | null
+    image?: File | null,
+    image_url?: string | null
   ): Promise<PromptGenerationResponse> => {
     try {
       const formData = new FormData();
       formData.append("description", description);
 
-      if (referenceImage) {
-        formData.append("reference_image", referenceImage);
-      } else if (referenceImageUrl) {
-        formData.append("reference_image_url", referenceImageUrl);
+      if (image) {
+        formData.append("image", image);
+      } else if (image_url) {
+        formData.append("image_url", image_url);
       }
 
       const response = await fetch(`${API_BASE_URL}/generate-prompt/`, {
@@ -101,7 +101,7 @@ export const ApiService = {
     width: number,
     height: number,
     batchSize: number,
-    keywords?: string[]
+    keywords: string[]
   ): Promise<ImageGenerationResponse> => {
     try {
       const formData = new FormData();
