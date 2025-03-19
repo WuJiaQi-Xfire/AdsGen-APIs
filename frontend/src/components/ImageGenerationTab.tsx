@@ -9,15 +9,13 @@ import { showToast } from "@/lib/ShowToast";
 
 const ImageGenerationTab: React.FC = () => {
   const {
-    promptText,
+    promptFiles,
     hasPrompt,
     isGenerating,
     handlePromptUpload,
     promptFileInputRef,
     promptFileName,
     handlePromptFileUpload,
-    setPromptText,
-    setHasPrompt,
     styleType,
     setStyleType,
     selectedStyles,
@@ -27,6 +25,7 @@ const ImageGenerationTab: React.FC = () => {
     setSelectMode,
     handleGenerate,
     toggleStyleSelection,
+    togglePromptSelection,
     selectAllStyles,
     clearStyleSelection,
     selectRandomStyle,
@@ -35,11 +34,17 @@ const ImageGenerationTab: React.FC = () => {
   } = ImageGeneration();
 
   const validateAndGenerate = () => {
-    if (!hasPrompt) {
-      showToast("Please upload a prompt file first.");
+    if (!hasPrompt || promptFiles.length === 0) {
+      showToast("Please upload at least one prompt file first.");
       return;
     }
 
+    const selectedPrompts = promptFiles.filter((file) => file.selected);
+    if (selectedPrompts.length === 0) {
+      showToast("Please select at least one prompt.");
+      return;
+    }
+    
     if (selectedStyles.length === 0) {
       showToast("Please select at least one style.");
       return;
@@ -62,10 +67,8 @@ const ImageGenerationTab: React.FC = () => {
           <div className="bg-white rounded-lg shadow-soft p-5 border">
             <PromptSection
               hasPrompt={hasPrompt}
-              promptText={promptText}
-              promptFileName={promptFileName}
-              setPromptText={setPromptText}
-              setHasPrompt={setHasPrompt}
+              promptFiles={promptFiles}
+              togglePromptSelection={togglePromptSelection}
               handlePromptUpload={handlePromptUpload}
               promptFileInputRef={promptFileInputRef}
               handlePromptFileUpload={handlePromptFileUpload}

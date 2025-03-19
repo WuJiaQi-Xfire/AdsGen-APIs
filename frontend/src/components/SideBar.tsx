@@ -36,7 +36,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
     >
       <div className="flex items-center justify-between p-4 border-b border-border">
         {!collapsed && (
-          <h1 className="text-xl font-semibold animate-fade-in">Ad Template</h1>
+          <h1 className="text-xl font-semibold animate-fade-in">
+            Ads Generator
+          </h1>
         )}
         <button
           onClick={toggleSidebar}

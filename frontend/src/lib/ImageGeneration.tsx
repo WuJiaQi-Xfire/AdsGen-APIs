@@ -2,10 +2,16 @@ import { useState, useRef } from "react";
 import { showToast } from "@/lib/ShowToast";
 import { getStyles } from "@/lib/ArtStyleList";
 
+interface PromptFile {
+  id: string;
+  name: string;
+  selected: boolean;
+}
+
 export const ImageGeneration = () => {
   const [prompt, setPrompt] = useState("");
   const [hasPrompt, setHasPrompt] = useState(false);
-  const [promptText, setPromptText] = useState("");
+  const [promptFiles, setPromptFiles] = useState<PromptFile[]>([]);
   const [keyword, setKeyword] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -25,32 +31,55 @@ export const ImageGeneration = () => {
   const { filteredStyles } = getStyles(styleType, searchQuery);
 
   const handlePromptFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length === 1) {
-      const file = e.target.files[0];
-      setPromptFileName(file.name);
+    if (!e.target.files || e.target.files.length === 0) return;
 
+    const filesArray = Array.from(e.target.files);
+    const newPromptFiles: PromptFile[] = [];
+    let filesProcessed = 0;
+    filesArray.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
-          setPromptText(event.target.result as string);
-          setHasPrompt(true);
+          const newFile: PromptFile = {
+            id: crypto.randomUUID(),
+            name: file.name,
+            selected: false,
+          };
 
-          showToast("${file.name} has been loaded successfully.");
+          newPromptFiles.push(newFile);
+          filesProcessed++;
+          if (filesProcessed === filesArray.length) {
+            setPromptFiles((prev) => [...prev, ...newPromptFiles]);
+            setHasPrompt(true);
+
+            showToast(
+              "Upload successful. Please select the prompts you want to use."
+            );
+          }
         }
       };
 
       reader.onerror = () => {
-        showToast("There was an error reading the file content.");
+        showToast("There was an error reading the file ${file.name}.");
+        filesProcessed++;
       };
 
       reader.readAsText(file);
-    }
+    });
   };
 
   const handlePromptUpload = () => {
     if (promptFileInputRef.current) {
       promptFileInputRef.current.click();
     }
+  };
+
+  const togglePromptSelection = (id: string) => {
+    setPromptFiles((prev) =>
+      prev.map((file) =>
+        file.id === id ? { ...file, selected: !file.selected } : file
+      )
+    );
   };
 
   const handleReferenceImageUpload = (
@@ -111,8 +140,8 @@ export const ImageGeneration = () => {
     setPrompt,
     hasPrompt,
     setHasPrompt,
-    promptText,
-    setPromptText,
+    promptFiles,
+    promptFileName,
     keyword,
     setKeyword,
     keywords,
@@ -133,7 +162,6 @@ export const ImageGeneration = () => {
     setBatchSize,
     fileInputRef,
     promptFileInputRef,
-    promptFileName,
     handlePromptUpload,
     handlePromptFileUpload,
     toggleStyleSelection,
@@ -141,6 +169,7 @@ export const ImageGeneration = () => {
     clearStyleSelection,
     selectRandomStyle,
     filteredStyles,
+    togglePromptSelection,
     hasReferenceImage,
     referenceImageFileName,
     referenceImageUrl,
