@@ -26,14 +26,45 @@ export const ImagePresets = () => {
     setKeywords(keywords.filter((k) => k !== keywordToRemove));
   };
 
-  const handleKeywordImageUpload = () => {
-    // TODO, encode image in base64 and pass to GPT and get the generated keywords
-    // FOr now: Simulate keyword extraction from image
-    setTimeout(() => {
-      const extractedKeywords = ["chaos", "war", "fighting"];
-      setKeywords([...keywords, ...extractedKeywords]);
-      showToast("Keywords generated from your reference image.");
-    }, 1500);
+  const handleKeywordImageUpload = async (file?: File, imageUrl?: string) => {
+    try {
+      const formData = new FormData();
+
+      if (file) {
+        formData.append("image", file);
+      } else if (imageUrl) {
+        formData.append("image_url", imageUrl);
+      } else {
+        throw new Error("No image provided");
+      }
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/extract-keywords/",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to extract keywords");
+      }
+
+      const data = await response.json();
+      const extractedKeywords = data.keywords || [];
+
+      if (extractedKeywords.length > 0) {
+        setKeywords([...keywords, ...extractedKeywords]);
+        showToast(
+          "${extractedKeywords.length} keywords extracted from your image."
+        );
+      } else {
+        showToast("No keywords could be extracted from the image.");
+      }
+    } catch (error) {
+      console.error("Error extracting keywords:", error);
+      showToast("There was an error extracting keywords. Please try again.");
+    }
   };
 
   const handleResolutionChange = (

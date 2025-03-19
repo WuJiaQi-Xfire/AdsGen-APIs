@@ -9,10 +9,7 @@ interface PromptFile {
 }
 
 export const ImageGeneration = () => {
-  const [prompt, setPrompt] = useState("");
-  const [hasPrompt, setHasPrompt] = useState(false);
   const [promptFiles, setPromptFiles] = useState<PromptFile[]>([]);
-  const [keyword, setKeyword] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
@@ -24,10 +21,6 @@ export const ImageGeneration = () => {
   const [batchSize, setBatchSize] = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const promptFileInputRef = useRef<HTMLInputElement>(null);
-  const [promptFileName, setPromptFileName] = useState("");
-  const [hasReferenceImage, setHasReferenceImage] = useState(false);
-  const [referenceImageFileName, setReferenceImageFileName] = useState("");
-  const [referenceImageUrl, setReferenceImageUrl] = useState("");
   const { filteredStyles } = getStyles(styleType, searchQuery);
 
   const handlePromptFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,8 +43,6 @@ export const ImageGeneration = () => {
           filesProcessed++;
           if (filesProcessed === filesArray.length) {
             setPromptFiles((prev) => [...prev, ...newPromptFiles]);
-            setHasPrompt(true);
-
             showToast(
               "Upload successful. Please select the prompts you want to use."
             );
@@ -82,32 +73,50 @@ export const ImageGeneration = () => {
     );
   };
 
-  const handleReferenceImageUpload = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (e.target.files && e.target.files.length === 1) {
-      const file = e.target.files[0];
-      setReferenceImageFileName(file.name);
-      setHasReferenceImage(true);
-      setReferenceImageUrl("");
-
-      showToast("${file.name} has been selected as reference.");
-    }
-  };
-
-  const clearReferenceImage = () => {
-    setHasReferenceImage(false);
-    setReferenceImageFileName("");
-    setReferenceImageUrl("");
-  };
-
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
-    // Simulate generation
-    setTimeout(() => {
-      setIsGenerating(false);
+    try {
+      const selectedPrompts = promptFiles.filter((file) => file.selected);
+      if (selectedPrompts.length === 0) {
+        throw new Error("No prompts selected");
+      }
+
+      if (selectedStyles.length === 0) {
+        throw new Error("No styles selected");
+      }
+      const formData = new FormData();
+      formData.append("prompts", JSON.stringify(selectedPrompts));
+      formData.append("styles", JSON.stringify(selectedStyles));
+      formData.append("style_type", styleType);
+      formData.append("style_strength", styleStrength.toString());
+      formData.append("width", resolution.width.toString());
+      formData.append("height", resolution.height.toString());
+      formData.append("batch_size", batchSize.toString());
+      formData.append("keywords", JSON.stringify(keywords));
+
+      // Send request to backend
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/generate-image/",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to generate image");
+      }
+
+      const data = await response.json();
       showToast("Your image has been generated successfully.");
-    }, 1500);
+      // Testing backend output
+      console.log("Generated images:", data);
+    } catch (error: any) {
+      console.error("Error generating image:", error);
+      showToast("There was an error generating your image. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const toggleStyleSelection = (styleId: string) => {
@@ -136,30 +145,17 @@ export const ImageGeneration = () => {
   };
 
   return {
-    prompt,
-    setPrompt,
-    hasPrompt,
-    setHasPrompt,
     promptFiles,
-    promptFileName,
-    keyword,
-    setKeyword,
     keywords,
-    setKeywords,
     isGenerating,
     selectedStyles,
     styleType,
-    setStyleType,
     searchQuery,
-    setSearchQuery,
     selectMode,
     setSelectMode,
     styleStrength,
-    setStyleStrength,
     resolution,
-    setResolution,
     batchSize,
-    setBatchSize,
     fileInputRef,
     promptFileInputRef,
     handlePromptUpload,
@@ -170,12 +166,6 @@ export const ImageGeneration = () => {
     selectRandomStyle,
     filteredStyles,
     togglePromptSelection,
-    hasReferenceImage,
-    referenceImageFileName,
-    referenceImageUrl,
-    setReferenceImageUrl,
     handleGenerate,
-    handleReferenceImageUpload,
-    clearReferenceImage,
   };
 };

@@ -10,33 +10,50 @@ export const PromptGeneration = () => {
   const [hasReferenceImage, setHasReferenceImage] = useState(false);
   const [fileName, setFileName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
+    try {
+      const formData = new FormData();
+      formData.append("description", description);
 
-    // Text as placeholder for now, TODO Call GPT to generate prompt
-    //Loading time fix for now, TODO load prompt after receiving response
-    setTimeout(() => {
-      setIsGenerating(false);
-      setGeneratedPrompt(
-        "You are an AI artist specializing in dynamic split-screen advertisements. " +
-          "Generate a detailed image description using:  " +
-          "- **Art Style**: [Use verbatim from {art_style_list}]" +
-          "- **Theme**: {Keywords}  - **Structure**: Central region (75%), vertical sidebar (25%)." +
-          "- **Intent**: Contrast 'problem state' (central) with 'solution state' (sidebar)."
+      if (imageFile) {
+        formData.append("reference_image", imageFile);
+      } else if (imageUrl) {
+        formData.append("reference_image_url", imageUrl);
+      }
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/generate-prompt/",
+        {
+          method: "POST",
+          body: formData,
+        }
       );
 
-      showToast("Your ad template prompt has been generated successfully.");
-    }, 1500);
+      if (!response.ok) {
+        throw new Error("Failed to generate prompt");
+      }
+
+      const data = await response.json();
+      setGeneratedPrompt(data.generated_prompt || "");
+      showToast("Your prompt has been generated successfully.");
+    } catch (error) {
+      console.error("Error generating prompt:", error);
+      showToast("There was an error generating your prompt. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleReferenceImageUpload = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // TODO: File handling for image upload
     if (e.target.files && e.target.files.length === 1) {
+      const file = e.target.files[0];
       setHasReferenceImage(true);
-      setFileName(e.target.files[0].name);
+      setFileName(file.name);
       setImageUrl("");
       showToast("Your reference image will be used in the prompt generation.");
     }
@@ -46,6 +63,7 @@ export const PromptGeneration = () => {
     setHasReferenceImage(false);
     setFileName("");
     setImageUrl("");
+    setImageFile(null);
   };
 
   return {

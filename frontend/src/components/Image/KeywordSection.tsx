@@ -11,7 +11,7 @@ interface KeywordSectionProps {
   keywords: string[];
   handleAddKeyword: () => void;
   handleRemoveKeyword: (keyword: string) => void;
-  handleKeywordImageUpload: () => void;
+  handleKeywordImageUpload: (file?: File, imageUrl?: string) => void;
 }
 
 const KeywordSection: React.FC<KeywordSectionProps> = ({
@@ -32,9 +32,18 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
     }
   };
 
+  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      handleKeywordImageUpload(file);
+      if (keywordFileRef.current) {
+        keywordFileRef.current.value = "";
+      }
+    }
+  };
   const handleKeywordImageUrl = () => {
     if (keywordImageUrl.trim()) {
-      handleKeywordImageUpload();
+      handleKeywordImageUpload(undefined, keywordImageUrl);
       setKeywordImageUrl("");
     }
   };
@@ -98,7 +107,7 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
                 ref={keywordFileRef}
                 className="hidden"
                 accept=".png, .jpeg, .jpg, .webp, .gif"
-                onChange={() => handleKeywordImageUpload()}
+                onChange={handleFileSelection}
               />
             </div>
           </TabsContent>
