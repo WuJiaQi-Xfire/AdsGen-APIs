@@ -3,9 +3,7 @@ import { showToast } from "@/lib/ShowToast";
 import { ApiService } from "@/lib/api";
 
 export const PromptGeneration = () => {
-  const [description, setDescription] = useState(
-    "Example: 50/50 split image, depicting the evil and good side of a place"
-  );
+  const [description, setDescription] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [hasReferenceImage, setHasReferenceImage] = useState(false);
@@ -25,7 +23,7 @@ export const PromptGeneration = () => {
         imageFile,
         imageUrl
       );
-      console.log(response)
+      //console.log(response);
       setGeneratedPrompt(response.generated_prompt);
       showToast("Your ad template prompt has been generated successfully.");
     } catch (error) {
@@ -40,6 +38,7 @@ export const PromptGeneration = () => {
   ) => {
     if (e.target.files && e.target.files.length === 1) {
       const file = e.target.files[0];
+      setImageFile(file);
       setHasReferenceImage(true);
       setFileName(file.name);
       setImageUrl("");

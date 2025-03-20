@@ -64,7 +64,7 @@ export const ApiService = {
   // Keyword Extraction
   extractKeywords: async (
     image?: File | null,
-    imageUrl?: string
+    imageUrl?: string | null
   ): Promise<KeywordExtractionResponse> => {
     try {
       const formData = new FormData();
