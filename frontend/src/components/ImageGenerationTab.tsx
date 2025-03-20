@@ -44,7 +44,7 @@ const ImageGenerationTab: React.FC = () => {
       showToast("Please select at least one prompt.");
       return;
     }
-    
+
     if (selectedStyles.length === 0) {
       showToast("Please select at least one style.");
       return;

@@ -6,6 +6,8 @@ import { ApiService, PromptFile } from "@/lib/api";
 export const ImageGeneration = () => {
   const [promptFiles, setPromptFiles] = useState<PromptFile[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
+  const [hasPrompt, setHasPrompt] = useState(false);
+  const [promptFileName, setPromptFileName] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [styleType, setStyleType] = useState<"lora" | "art">("lora");
@@ -39,6 +41,7 @@ export const ImageGeneration = () => {
           filesProcessed++;
           if (filesProcessed === filesArray.length) {
             setPromptFiles((prev) => [...prev, ...newPromptFiles]);
+            setHasPrompt(true);
             showToast(
               "Upload successful. Please select the prompts you want to use."
             );
@@ -134,11 +137,15 @@ export const ImageGeneration = () => {
 
   return {
     promptFiles,
+    hasPrompt,
+    promptFileName,
     keywords,
     isGenerating,
     selectedStyles,
     styleType,
+    setStyleType,
     searchQuery,
+    setSearchQuery,
     selectMode,
     setSelectMode,
     styleStrength,

@@ -35,7 +35,7 @@ const PromptOutput: React.FC<PromptOutputProps> = ({ generatedPrompt }) => {
               variant="outline"
               size="sm"
               onClick={() => {
-                downloadAsTxtFile;
+                downloadAsTxtFile();
                 showToast("Your prompt has been downloaded!");
               }}
             >
