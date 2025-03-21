@@ -4,10 +4,7 @@ from PIL import Image
 
 def load_prompt_from_file(file_path: str) -> str:
     try:
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        absolute_path = os.path.join(base_dir, file_path)
-
-        with open(absolute_path, "r", encoding="utf-8") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             prompt = file.read()
         return prompt
     except FileNotFoundError:

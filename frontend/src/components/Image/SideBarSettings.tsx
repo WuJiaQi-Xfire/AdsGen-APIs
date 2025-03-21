@@ -17,6 +17,7 @@ const SidebarSettings: React.FC = () => {
     handleResolutionChange,
     batchSize,
     setBatchSize,
+    isLoadingKeywords,
   } = ImagePresets();
 
   return (
@@ -27,6 +28,7 @@ const SidebarSettings: React.FC = () => {
         keywords={keywords}
         handleAddKeyword={handleAddKeyword}
         handleRemoveKeyword={handleRemoveKeyword}
+        isLoadingKeywords={isLoadingKeywords}
         handleKeywordImageUpload={handleKeywordImageUpload}
       />
 

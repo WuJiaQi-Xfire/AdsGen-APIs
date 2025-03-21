@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus, X, Upload, Link } from "lucide-react";
+import { Plus, X, Upload, Link, Loader } from "lucide-react";
 import { Input } from "@/components/UI/Input";
 import { Button } from "@/components/UI/PrimaryButton";
 import { Badge } from "@/components/UI/Badge";
@@ -9,6 +9,7 @@ interface KeywordSectionProps {
   keyword: string;
   setKeyword: (keyword: string) => void;
   keywords: string[];
+  isLoadingKeywords: boolean;
   handleAddKeyword: () => void;
   handleRemoveKeyword: (keyword: string) => void;
   handleKeywordImageUpload: (file?: File, imageUrl?: string) => void;
@@ -19,6 +20,7 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
   setKeyword,
   keywords,
   handleAddKeyword,
+  isLoadingKeywords,
   handleRemoveKeyword,
   handleKeywordImageUpload,
 }) => {
@@ -27,7 +29,7 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
   const keywordFileRef = React.useRef<HTMLInputElement>(null);
 
   const handleKeywordFileClick = () => {
-    if (keywordFileRef.current) {
+    if (keywordFileRef.current && !isLoadingKeywords) {
       keywordFileRef.current.click();
     }
   };
@@ -41,6 +43,7 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
       }
     }
   };
+
   const handleKeywordImageUrl = () => {
     if (keywordImageUrl.trim()) {
       handleKeywordImageUpload(undefined, keywordImageUrl);
@@ -77,11 +80,13 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
                 onChange={(e) => setKeyword(e.target.value)}
                 placeholder="Enter keywords..."
                 className="flex-1 rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                disabled={isLoadingKeywords}
               />
               <Button
                 onClick={handleAddKeyword}
                 variant="default"
                 className="rounded-l-none"
+                disabled={isLoadingKeywords}
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -90,17 +95,31 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
 
           <TabsContent value="file">
             <div
-              className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:border-primary/50 hover:bg-accent/50 transition-all"
-              onClick={handleKeywordFileClick}
+              className={`border-2 border-dashed rounded-md p-4 text-center ${
+                isLoadingKeywords
+                  ? "cursor-not-allowed opacity-70"
+                  : "cursor-pointer hover:border-primary/50 hover:bg-accent/50"
+              } transition-all`}
+              onClick={!isLoadingKeywords ? handleKeywordFileClick : undefined}
             >
               <div className="flex flex-col items-center justify-center py-2">
                 <div className="bg-primary/10 rounded-full p-2 mb-1">
-                  <Upload className="h-4 w-4 text-primary" />
+                  {isLoadingKeywords ? (
+                    <Loader className="h-4 w-4 text-primary animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4 text-primary" />
+                  )}
                 </div>
-                <p className="text-sm font-medium">Upload image for keywords</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  JPG, JPEG, PNG, WEBP, GIF (max. 20MB)
+                <p className="text-sm font-medium">
+                  {isLoadingKeywords
+                    ? "Extracting keywords..."
+                    : "Upload image for keywords"}
                 </p>
+                {!isLoadingKeywords && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    JPG, JPEG, PNG, WEBP, GIF (max. 20MB)
+                  </p>
+                )}
               </div>
               <input
                 type="file"
@@ -108,6 +127,7 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
                 className="hidden"
                 accept=".png, .jpeg, .jpg, .webp, .gif"
                 onChange={handleFileSelection}
+                disabled={isLoadingKeywords}
               />
             </div>
           </TabsContent>
@@ -119,21 +139,33 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
                 onChange={(e) => setKeywordImageUrl(e.target.value)}
                 placeholder="Enter image URL..."
                 className="flex-1 rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                disabled={isLoadingKeywords}
               />
               <Button
                 onClick={handleKeywordImageUrl}
                 variant="default"
                 className="rounded-l-none"
-                disabled={!keywordImageUrl.trim()}
+                disabled={!keywordImageUrl.trim() || isLoadingKeywords}
               >
-                <Link className="h-4 w-4" />
+                {isLoadingKeywords ? (
+                  <Loader className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Link className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </TabsContent>
         </Tabs>
 
         <div className="flex flex-wrap gap-2 min-h-28 p-3 border rounded-md bg-background overflow-y-auto max-h-60">
-          {keywords.length === 0 ? (
+          {isLoadingKeywords && keywords.length === 0 ? (
+            <div className="w-full flex items-center justify-center py-7">
+              <Loader className="h-5 w-5 text-primary animate-spin mr-2" />
+              <p className="text-sm text-muted-foreground">
+                Extracting keywords...
+              </p>
+            </div>
+          ) : keywords.length === 0 ? (
             <p className="text-sm text-muted-foreground w-full text-center py-7">
               No keywords added yet.
             </p>

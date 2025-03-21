@@ -8,6 +8,7 @@ export const ImagePresets = () => {
   const [styleStrength, setStyleStrength] = useState(80);
   const [resolution, setResolution] = useState({ width: 1024, height: 1024 });
   const [batchSize, setBatchSize] = useState(1);
+  const [isLoadingKeywords, setIsLoadingKeywords] = useState(false);
 
   const handleAddKeyword = () => {
     if (keyword.trim()) {
@@ -29,12 +30,12 @@ export const ImagePresets = () => {
 
   const handleKeywordImageUpload = async (file?: File, imageUrl?: string) => {
     try {
+      setIsLoadingKeywords(true);
       const response = await ApiService.extractKeywords(file, imageUrl);
       const extractedKeywords = response.keywords || [];
-
       if (extractedKeywords.length > 0) {
         const newKeywords = extractedKeywords.filter(
-          (k) => !keywords.includes(k)
+          (k: string) => !keywords.includes(k)
         );
 
         if (newKeywords.length > 0) {
@@ -50,6 +51,8 @@ export const ImagePresets = () => {
       }
     } catch (error) {
       console.error("Error in handleKeywordImageUpload:", error);
+    } finally {
+      setIsLoadingKeywords(false);
     }
   };
 
@@ -71,6 +74,7 @@ export const ImagePresets = () => {
     setKeywords,
     styleStrength,
     setStyleStrength,
+    isLoadingKeywords,
     resolution,
     setResolution,
     batchSize,

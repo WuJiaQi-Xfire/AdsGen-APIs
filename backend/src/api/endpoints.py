@@ -1,16 +1,11 @@
-# For organising different api calls
+"""Module for routing different endpoints"""
+
 import base64
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from typing import Optional
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from ..services import gpt_service, sd_service
 
 router = APIRouter()
-
-
-# For testing
-@router.get("/backend")
-async def read_root():
-    return {"message": "Connected to frontend"}
 
 
 @router.post("/generate-prompt/")
@@ -19,30 +14,39 @@ async def generate_prompt(
     image: Optional[UploadFile] = File(None),
     image_url: Optional[str] = Form(None),
 ):
+    """Method to handle prompt generation request"""
     try:
         image_base64 = None
         if image:
             contents = await image.read()
             image_base64 = base64.b64encode(contents).decode("utf-8")
         output = gpt_service.create_prompt(description, image_base64, image_url)
-        print("Output: ", output)
+        # For debugging:
+        print("Generated Prompt: ", output)
         return {"generated_prompt": output}
     except Exception as e:
         print(f"Error in endpoints.py: generate_prompt: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/extract-keywords/")
-async def extract_keywords(image: UploadFile = File(None), image_url: str = Form(None)):
+async def extract_keywords(
+    image: Optional[UploadFile] = File(None),
+    image_url: Optional[str] = Form(None),
+):
+    """Method to extract keywords from image"""
     try:
         image_base64 = None
         if image:
             contents = await image.read()
             image_base64 = base64.b64encode(contents).decode("utf-8")
         keywords = gpt_service.extract_keywords(image_base64, image_url)
+        # For debugging:
+        print("Extracted keywords: ", keywords)
         return {"keywords": keywords}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error in endpoints.py: extract_keywords: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/generate-image/")

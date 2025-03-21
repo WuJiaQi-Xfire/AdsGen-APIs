@@ -79,7 +79,7 @@ export const ApiService = {
 
       const response = await fetch(`${API_BASE_URL}/extract-keywords/`, {
         method: "POST",
-        body: formData,
+        body: formData
       });
 
       if (!response.ok) {
