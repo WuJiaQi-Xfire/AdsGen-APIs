@@ -28,6 +28,14 @@ export interface PromptFile {
   content: string;
   selected: boolean;
 }
+export interface Style {
+  id: string;
+  name: string;
+}
+export interface StyleResponse {
+  loraStyles: Style[];
+  artStyles: Style[];
+}
 
 export const ApiService = {
   // Prompt Generation
@@ -79,7 +87,7 @@ export const ApiService = {
 
       const response = await fetch(`${API_BASE_URL}/extract-keywords/`, {
         method: "POST",
-        body: formData
+        body: formData,
       });
 
       if (!response.ok) {
@@ -89,6 +97,23 @@ export const ApiService = {
       return await response.json();
     } catch (error) {
       return handleApiError(error, "Failed to extract keywords");
+    }
+  },
+
+  //Get lora and art styles
+  getStyles: async (): Promise<StyleResponse> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/get-styles/`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get styles: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      return handleApiError(error, "Failed to get styles");
     }
   },
 

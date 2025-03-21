@@ -13,7 +13,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">
-        Describe the image you want to generate:
+        Describe the ads template you want to generate:
       </label>
       <Textarea
         value={description}

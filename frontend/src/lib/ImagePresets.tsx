@@ -41,7 +41,7 @@ export const ImagePresets = () => {
         if (newKeywords.length > 0) {
           setKeywords([...keywords, ...newKeywords]);
           showToast(
-            "${extractedKeywords.length} keywords extracted from your image."
+             `${newKeywords.length} new keyword${newKeywords.length !== 1 ? 's' : ''} extracted from your image.`
           );
         } else {
           showToast("All extracted keywords are already in your list.");

@@ -1,8 +1,16 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { showToast } from "@/lib/ShowToast";
-import { getStyles } from "@/lib/ArtStyleList";
 import { ApiService, PromptFile } from "@/lib/api";
 
+export interface Style {
+  id: string;
+  name: string;
+}
+
+export interface StyleResponse {
+  loraStyles: Style[];
+  artStyles: Style[];
+}
 export const ImageGeneration = () => {
   const [promptFiles, setPromptFiles] = useState<PromptFile[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -18,7 +26,29 @@ export const ImageGeneration = () => {
   const [batchSize, setBatchSize] = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const promptFileInputRef = useRef<HTMLInputElement>(null);
-  const { filteredStyles } = getStyles(styleType, searchQuery);
+  const [loraStyles, setLoraStyles] = useState<Style[]>([]);
+  const [artStyles, setArtStyles] = useState<Style[]>([]);
+
+  useEffect(() => {
+    const fetchStyles = async () => {
+      try {
+        const styles = await ApiService.getStyles();
+        setLoraStyles(styles.loraStyles);
+        setArtStyles(styles.artStyles);
+      } catch (error) {
+        console.error("Error fetching styles:", error);
+      }
+    };
+    fetchStyles();
+  }, []);
+
+  const currentStyles = styleType === "lora" ? loraStyles : artStyles;
+
+  const filteredStyles = searchQuery
+    ? currentStyles.filter((style) =>
+        style.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : currentStyles;
 
   const handlePromptFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -162,5 +192,7 @@ export const ImageGeneration = () => {
     filteredStyles,
     togglePromptSelection,
     handleGenerate,
+    loraStyles,
+    artStyles,
   };
 };

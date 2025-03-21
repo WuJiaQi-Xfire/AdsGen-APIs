@@ -3,7 +3,7 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/UI/PrimaryButton";
 import { Input } from "@/components/UI/Input";
 import { cn } from "@/lib/utils";
-import { Style } from "@/lib/ArtStyleList";
+import { Style } from "@/lib/ImageGeneration";
 import { Badge } from "@/components/UI/Badge";
 import { Separator } from "@/components/UI/Separator";
 
