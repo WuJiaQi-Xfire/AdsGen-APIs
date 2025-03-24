@@ -1,10 +1,10 @@
-"<lora:Cyberpunk Anime Style:1> anime, cyberpunk",Cyberpunk Anime
+<lora:Cyberpunk Anime Style:1> anime/cyberpunk,Cyberpunk Anime
 <lora:GTA Style for FLUX:0.8> gtayuvai,GTA Style
 <lora:NeonFantasy style:1> ne0nfant4sy,NeonFantasy style
 <lora:Limited Animation:1> LMTDANI,Limited Animation
 <lora:Marco Checchetto Style:1> ch3co style,Marco Checchetto Style
 <lora:reedy-art-style:1> reedyart 0.9,Reedy Style
-<lora:chrotoart:1> chrotoart 0.8,Chrotoart
+<lora:chrotoart:1> chrotoart, Chrotoart
 <lora:Synthetic_Comics_Flux:1> ,Synthetic Comics
 <lora:style of Robert McGinnis:1> style of Robert McGinnis,Robert McGinnis Style
 <lora:zavy-ctcmcs-flx:1> zavy-ctcmcs,Zavy's Cute Comics
@@ -17,5 +17,4 @@ Mobile Game Art,No Lora (General Art Style)
 <lora:FTS_1:1> ,FTS_1
 <lora:FTS_2:1> ,FTS_2
 <lora:FTS_3:1> ,FTS_3
-"<lora:Cyberpunk Edgerunners Lucy:1> LUCY
-",Cyberpunk Edgerunners Lucy
+<lora:Cyberpunk Edgerunners Lucy:1> LUCY,Cyberpunk Edgerunners Lucy

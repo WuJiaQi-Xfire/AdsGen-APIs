@@ -5,7 +5,6 @@ import { ApiService } from "@/lib/api";
 export const ImagePresets = () => {
   const [keyword, setKeyword] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
-  const [styleStrength, setStyleStrength] = useState(80);
   const [resolution, setResolution] = useState({ width: 1024, height: 1024 });
   const [batchSize, setBatchSize] = useState(1);
   const [isLoadingKeywords, setIsLoadingKeywords] = useState(false);
@@ -41,7 +40,9 @@ export const ImagePresets = () => {
         if (newKeywords.length > 0) {
           setKeywords([...keywords, ...newKeywords]);
           showToast(
-             `${newKeywords.length} new keyword${newKeywords.length !== 1 ? 's' : ''} extracted from your image.`
+            `${newKeywords.length} new keyword${
+              newKeywords.length !== 1 ? "s" : ""
+            } extracted from your image.`
           );
         } else {
           showToast("All extracted keywords are already in your list.");
@@ -72,8 +73,6 @@ export const ImagePresets = () => {
     setKeyword,
     keywords,
     setKeywords,
-    styleStrength,
-    setStyleStrength,
     isLoadingKeywords,
     resolution,
     setResolution,

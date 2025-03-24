@@ -1,6 +1,7 @@
 """Module for routing different endpoints"""
 
 import base64
+import json
 from typing import Optional
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from ..services import gpt_service, sd_service, file_service
@@ -69,29 +70,30 @@ async def get_styles():
 async def generate_image(
     prompts: str = Form(...),
     styles: str = Form(...),
-    style_type: str = Form(...),
-    style_strength: int = Form(...),
     width: int = Form(...),
     height: int = Form(...),
     batch_size: int = Form(...),
     keywords: str = Form(...),
 ):
+    """Function to generate image"""
     try:
-        # Parse JSON strings into Python objects
-        selected_prompts = [PromptFile(**pf) for pf in json.loads(prompts)]
+        prompt_list = json.loads(prompts)
         selected_styles = json.loads(styles)
-        keywords_list = json.loads(keywords)
-
-        images = sd_service.generate_images(
-            selected_prompts,
-            selected_styles,
-            style_type,
-            style_strength,
-            width,
-            height,
-            batch_size,
-            keywords_list,
-        )
-        return {"images": images}
+        keywords = json.loads(keywords)
+        for prompt in prompt_list:
+            print("Keywords list: ", keywords)
+            prompt_content = prompt["content"]
+            prompt_content = prompt_content.replace("{Keywords}", keywords)
+            for style in selected_styles:
+                prompt_content = prompt_content.replace("{Art_Style}", style)
+                print("New Prompt: ", prompt_content)
+                images = sd_service.call_sd_api(
+                    prompt_content,
+                    width,
+                    height,
+                    batch_size,
+                )
+            return {"images": images}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error in endpoints.py: generate_image: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e)) from e

@@ -11,19 +11,19 @@ export interface StyleResponse {
   loraStyles: Style[];
   artStyles: Style[];
 }
+export interface GeneratedImage {
+  url: string;
+  seed: number;
+}
+
 export const ImageGeneration = () => {
   const [promptFiles, setPromptFiles] = useState<PromptFile[]>([]);
-  const [keywords, setKeywords] = useState<string[]>([]);
   const [hasPrompt, setHasPrompt] = useState(false);
   const [promptFileName, setPromptFileName] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [styleType, setStyleType] = useState<"lora" | "art">("lora");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectMode, setSelectMode] = useState<"single" | "multiple">("single");
-  const [styleStrength, setStyleStrength] = useState(80);
-  const [resolution, setResolution] = useState({ width: 1024, height: 1024 });
-  const [batchSize, setBatchSize] = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const promptFileInputRef = useRef<HTMLInputElement>(null);
   const [loraStyles, setLoraStyles] = useState<Style[]>([]);
@@ -102,44 +102,6 @@ export const ImageGeneration = () => {
     );
   };
 
-  const handleGenerate = async () => {
-    if (promptFiles.length === 0) {
-      showToast("Please upload at least one prompt.");
-      return;
-    }
-    const selectedPrompts = promptFiles.filter((file) => file.selected);
-
-    if (selectedPrompts.length === 0) {
-      showToast("Please select at least one prompt.");
-      return;
-    }
-
-    if (selectedStyles.length === 0) {
-      showToast("Please select at least one style.");
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      const response = await ApiService.generateImage(
-        selectedPrompts,
-        selectedStyles,
-        styleType,
-        styleStrength,
-        resolution.width,
-        resolution.height,
-        batchSize,
-        keywords
-      );
-      showToast("Your image has been generated successfully.");
-      // Testing backend output
-      console.log("Generated images:", response);
-    } catch (error: any) {
-      console.error("Error handleGenerate:", error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   const toggleStyleSelection = (styleId: string) => {
     if (selectMode === "single") {
       setSelectedStyles([styleId]);
@@ -169,8 +131,6 @@ export const ImageGeneration = () => {
     promptFiles,
     hasPrompt,
     promptFileName,
-    keywords,
-    isGenerating,
     selectedStyles,
     styleType,
     setStyleType,
@@ -178,9 +138,6 @@ export const ImageGeneration = () => {
     setSearchQuery,
     selectMode,
     setSelectMode,
-    styleStrength,
-    resolution,
-    batchSize,
     fileInputRef,
     promptFileInputRef,
     handlePromptUpload,
@@ -191,7 +148,6 @@ export const ImageGeneration = () => {
     selectRandomStyle,
     filteredStyles,
     togglePromptSelection,
-    handleGenerate,
     loraStyles,
     artStyles,
   };

@@ -19,7 +19,7 @@ export interface KeywordExtractionResponse {
 
 export interface ImageGenerationResponse {
   images: string[];
-  job_id?: string;
+  seed: number[];
 }
 
 export interface PromptFile {
@@ -121,8 +121,6 @@ export const ApiService = {
   generateImage: async (
     selectedPrompts: PromptFile[],
     selectedStyles: string[],
-    styleType: "lora" | "art",
-    styleStrength: number,
     width: number,
     height: number,
     batchSize: number,
@@ -132,8 +130,6 @@ export const ApiService = {
       const formData = new FormData();
       formData.append("prompts", JSON.stringify(selectedPrompts));
       formData.append("styles", JSON.stringify(selectedStyles));
-      formData.append("style_type", styleType);
-      formData.append("style_strength", styleStrength.toString());
       formData.append("width", width.toString());
       formData.append("height", height.toString());
       formData.append("batch_size", batchSize.toString());
