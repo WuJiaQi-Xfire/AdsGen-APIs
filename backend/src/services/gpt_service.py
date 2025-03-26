@@ -62,7 +62,7 @@ def make_api_call(data):
         response = requests.post(api_endpoint, headers=headers, json=data, timeout=25)
         response.raise_for_status()
         response_data = response.json()
-        print("Full Response Data:", response_data)  # Debugging
+        #print("Full Response Data:", response_data)  # Debugging
 
         if "choices" in response_data:
             return response_data["choices"][0]["message"]["content"]

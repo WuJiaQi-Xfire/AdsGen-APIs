@@ -14,14 +14,13 @@ load_dotenv(dotenv_path=env_path)
 
 sd_base_url: str = os.getenv("SD_BASE_URL")
 
-seed = random.randint(0, 4294967295)
-
 def call_sd_api(
     prompt,
     width,
     height,
     batch_size
 ):
+    seed = random.randint(0, 4294967295)
     url=sd_base_url
     payload={
         "batch size": batch_size,
@@ -39,8 +38,7 @@ def call_sd_api(
     response = requests.post(url, json=payload)
     if response.status_code == 200:
         r = response.json()
-        image_data = base64.b64decode(r["images"][0])
-        image = Image.open(BytesIO(image_data))
+        image = r["images"][0]
         return image, seed
     else:
         raise Exception(f"Failed to get response from SD API: {response.text}")

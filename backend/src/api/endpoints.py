@@ -78,22 +78,33 @@ async def generate_image(
     """Function to generate image"""
     try:
         prompt_list = json.loads(prompts)
-        selected_styles = json.loads(styles)
-        keywords = json.loads(keywords)
+        styles = json.loads(styles)
+        images = []
+        seeds = []
         for prompt in prompt_list:
-            print("Keywords list: ", keywords)
+            # For debugging:
+            # print("Keywords list: ", keywords)
             prompt_content = prompt["content"]
+            prompt_name = prompt["name"]
             prompt_content = prompt_content.replace("{Keywords}", keywords)
-            for style in selected_styles:
-                prompt_content = prompt_content.replace("{Art_Style}", style)
-                print("New Prompt: ", prompt_content)
-                images = sd_service.call_sd_api(
+            for style in styles:
+                prompt_content = prompt_content.replace("{art_style_list}", style)
+                # For debugging:
+                # print("New Prompt: ", prompt_content)
+                image, seed = sd_service.call_sd_api(
                     prompt_content,
                     width,
                     height,
                     batch_size,
                 )
-            return {"images": images}
+                output_path = file_service.save_image_locally(
+                    prompt_name, style, image, seed
+                )
+                images.append(f"data:image/png;base64,{image}")
+                seeds.append(seed)
+                print("Image saved at: ", output_path)
+        return {"images": images, "seeds": seeds}
     except Exception as e:
         print(f"Error in endpoints.py: generate_image: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e)) from e
+

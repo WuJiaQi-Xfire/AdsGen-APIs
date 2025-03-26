@@ -19,7 +19,7 @@ export interface KeywordExtractionResponse {
 
 export interface ImageGenerationResponse {
   images: string[];
-  seed: number[];
+  seeds: number[];
 }
 
 export interface PromptFile {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { showToast } from "@/lib/ShowToast";
+import { v4 as uuidv4 } from "uuid";
 import { ApiService, PromptFile } from "@/lib/api";
 
 export interface Style {
@@ -61,7 +62,7 @@ export const ImageGeneration = () => {
       reader.onload = (event) => {
         if (event.target?.result) {
           const newFile: PromptFile = {
-            id: crypto.randomUUID(),
+            id: uuidv4(),
             name: file.name,
             content: event.target.result as string,
             selected: false,

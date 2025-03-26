@@ -1,6 +1,7 @@
 """Module for file operations"""
 
 import os
+import base64
 import pandas as pd
 from PIL import Image
 
@@ -37,18 +38,23 @@ def read_art_file():
     return styles
 
 
-# Placeholder for now, TODO auto save with session_ID/image seed -> naming convention tbc
-def save_image_locally(image: Image.Image):
+def sanitize_filename(filename: str) -> str:
+    """Replace invalid characters in filenames"""
+    invalid_chars = '<>:"/\\|?*'
+    for char in invalid_chars:
+        filename = filename.replace(char, "_")
+    return filename.strip()
+
+
+def save_image_locally(prompt_name, style_name, image, seed):
     """Save the image locally and return the path"""
-    image_path = os.path.join("output", "image.png")
-    image.save(image_path)
+    prompt_name = sanitize_filename(prompt_name)
+    style_name = sanitize_filename(style_name)
+    output_folder = f"{prompt_name}_output"
+    os.makedirs(output_folder, exist_ok=True)
+    style_folder = os.path.join(output_folder, style_name)
+    os.makedirs(style_folder, exist_ok=True)
+    image_path = os.path.join(style_folder, f"{seed}.png")
+    with open(image_path, "wb") as img_file:
+        img_file.write(base64.b64decode(image))
     return image_path
-
-
-def resize_and_save_image(image, save_path, width):
-    """Function to save and display image thumbnail"""
-    ratio = width / float(image.width)
-    height = int(image.height * ratio)
-    img = image.resize((width, height), Image.LANCZOS)
-    img.save(save_path, format="PNG")
-    return img

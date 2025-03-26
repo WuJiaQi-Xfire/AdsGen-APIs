@@ -11,15 +11,10 @@ import { ImagePresets } from "@/lib/ImagePresets";
 import { ScrollArea } from "@/components/UI/ScrollArea.tsx";
 import { ApiService, PromptFile } from "@/lib/api";
 
-export interface GeneratedImage {
-  url: string;
-  seed: number;
-}
-
 const ImageGenerationTab: React.FC = () => {
   const [hasGenerated, setHasGenerated] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
 
   const {
     promptFiles,
@@ -89,14 +84,14 @@ const ImageGenerationTab: React.FC = () => {
         batchSize,
         keywords
       );
-      const newImages: GeneratedImage[] = response.images.map((url, index) => ({
-        url,
-        seed: response.seed[index],
-      }));
-
+      //console.log("Image: ", response.images);
+      const newImages = response.images;
       setGeneratedImages((prev) => {
         const combined = [...newImages, ...prev];
-        return combined.slice(0, 10); // Display only 10
+        if (combined.length > 10) {
+          return combined.slice(0, 10); // Display only up to 10
+        }
+        return combined;
       });
       setHasGenerated(true);
       showToast("Your image has been generated successfully.");
@@ -180,21 +175,23 @@ const ImageGenerationTab: React.FC = () => {
           {generatedImages.length > 0 && (
             <div className="pt-6">
               <h3 className="text-lg font-medium mb-3">Generated Images</h3>
+              <Button
+                //onClick={}
+                className="w-full bg-primary hover:bg-primary/90 text-white shadow-soft"
+                size="lg"
+              >
+                Download Image
+              </Button>
               <ScrollArea className="w-full">
                 <div className="flex space-x-4 pb-4">
                   {generatedImages.map((image, index) => (
                     <div key={index} className="flex-shrink-0 w-48">
                       <div className="relative rounded-md overflow-hidden border shadow-sm">
                         <img
-                          src={image.url}
+                          src={image}
                           alt={`Generated image ${index + 1}`}
                           className="w-full h-48 object-cover"
                         />
-                        {image.seed && (
-                          <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-xs truncate">
-                            Image Seed: {image.seed}
-                          </div>
-                        )}
                       </div>
                     </div>
                   ))}
