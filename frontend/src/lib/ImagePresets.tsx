@@ -5,6 +5,7 @@ import { ApiService } from "@/lib/api";
 export const ImagePresets = () => {
   const [keyword, setKeyword] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
+  const [styleStrength, setStyleStrength] = useState(1);
   const [resolution, setResolution] = useState({ width: 1024, height: 1024 });
   const [batchSize, setBatchSize] = useState(1);
   const [isLoadingKeywords, setIsLoadingKeywords] = useState(false);
@@ -74,6 +75,8 @@ export const ImagePresets = () => {
     keywords,
     setKeywords,
     isLoadingKeywords,
+    styleStrength,
+    setStyleStrength,
     resolution,
     setResolution,
     batchSize,

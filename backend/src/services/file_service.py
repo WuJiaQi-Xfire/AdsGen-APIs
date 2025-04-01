@@ -20,15 +20,6 @@ def load_prompt_from_file(file_path: str) -> str:
         ) from e
 
 
-def read_lora_file():
-    """Function to read Lora styles"""
-    base_dir = os.path.dirname(os.path.dirname(__file__))
-    template_path = os.path.join(base_dir, "styles", "loras_list.csv")
-    df = pd.read_csv(template_path, header=None)
-    styles = [{"id": row[0], "name": row[1]} for index, row in df.iterrows()]
-    return styles
-
-
 def read_art_file():
     """Function to read Art styles"""
     base_dir = os.path.dirname(os.path.dirname(__file__))
@@ -46,7 +37,7 @@ def sanitize_filename(filename: str) -> str:
     return filename.strip()
 
 
-def save_image_locally(prompt_name, style_name, image, seed):
+def file_name(prompt_name, style_name, seed):
     """Save the image locally and return the path"""
     prompt_name = sanitize_filename(prompt_name)
     style_name = sanitize_filename(style_name)
@@ -55,6 +46,4 @@ def save_image_locally(prompt_name, style_name, image, seed):
     style_folder = os.path.join(output_folder, style_name)
     os.makedirs(style_folder, exist_ok=True)
     image_path = os.path.join(style_folder, f"{seed}.png")
-    with open(image_path, "wb") as img_file:
-        img_file.write(base64.b64decode(image))
     return image_path

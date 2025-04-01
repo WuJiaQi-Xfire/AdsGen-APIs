@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, RefreshCw } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/UI/PrimaryButton";
 import { ImageGeneration } from "@/lib/ImageGeneration";
 import PromptSection from "./Image/PromptSection";
@@ -8,13 +8,12 @@ import KeywordSection from "./Image/KeywordSection";
 import ImageSettings from "./Image/ImageSettings";
 import { showToast } from "@/lib/ShowToast";
 import { ImagePresets } from "@/lib/ImagePresets";
-import { ScrollArea } from "@/components/UI/ScrollArea.tsx";
+import ImageGallery, { GeneratedImage } from "./Image/ImageGallery";
 import { ApiService, PromptFile } from "@/lib/api";
 
 const ImageGenerationTab: React.FC = () => {
-  const [hasGenerated, setHasGenerated] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
 
   const {
     promptFiles,
@@ -45,6 +44,8 @@ const ImageGenerationTab: React.FC = () => {
     handleAddKeyword,
     handleRemoveKeyword,
     handleKeywordImageUpload,
+    styleStrength,
+    setStyleStrength,
     resolution,
     handleResolutionChange,
     batchSize,
@@ -53,6 +54,7 @@ const ImageGenerationTab: React.FC = () => {
   } = ImagePresets();
 
   const handleGenerate = async () => {
+    console.log("Style strength:  ", styleStrength)
     if (promptFiles.length === 0) {
       showToast("Please upload at least one prompt.");
       return;
@@ -82,21 +84,19 @@ const ImageGenerationTab: React.FC = () => {
         resolution.width,
         resolution.height,
         batchSize,
-        keywords
+        keywords,
+        styleStrength
       );
-      //console.log("Image: ", response.images);
-      const newImages = response.images;
-      setGeneratedImages((prev) => {
-        const combined = [...newImages, ...prev];
-        if (combined.length > 10) {
-          return combined.slice(0, 10); // Display only up to 10
-        }
-        return combined;
-      });
-      setHasGenerated(true);
+      const newImages: GeneratedImage[] = response.images.map((url, index) => ({
+        url,
+        seed:
+          response.seeds && index < response.seeds.length
+            ? response.seeds[index]
+            : undefined,
+        selected: false,
+      }));
+      setGeneratedImages((prev) => [...newImages, ...prev]);
       showToast("Your image has been generated successfully.");
-      // Testing backend output
-      console.log("Generated images:", response);
     } catch (error: any) {
       console.error("Error in handleGenerate image:", error);
     } finally {
@@ -104,12 +104,37 @@ const ImageGenerationTab: React.FC = () => {
     }
   };
 
-  const handleRegenerate = () => {
-    if (hasGenerated) {
-      window.location.reload();
-    } else {
-      handleGenerate();
+  const handleSelectImage = (index: number) => {
+    setGeneratedImages((prev) =>
+      prev.map((img, i) =>
+        i === index ? { ...img, selected: !img.selected } : img
+      )
+    );
+  };
+
+  const handleDownloadSelected = () => {
+    const selectedImages = generatedImages.filter((img) => img.selected);
+
+    if (selectedImages.length === 0) {
+      showToast("Please select at least one image to download");
+      return;
     }
+
+    selectedImages.forEach((image, index) => {
+      // Create a temporary link
+      const link = document.createElement("a");
+      link.href = image.url;
+      link.download = `generated-image-${image.seed || index}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    showToast(
+      `Downloaded ${selectedImages.length} image${
+        selectedImages.length !== 1 ? "s" : ""
+      }`
+    );
   };
 
   return (
@@ -153,17 +178,13 @@ const ImageGenerationTab: React.FC = () => {
 
           <div className="pt-4">
             <Button
-              onClick={handleRegenerate}
+              onClick={handleGenerate}
               disabled={isGenerating}
               className="w-full bg-primary hover:bg-primary/90 text-white shadow-soft"
               size="lg"
             >
               {isGenerating ? (
                 "Generating..."
-              ) : hasGenerated ? (
-                <>
-                  Regenerate <RefreshCw className="ml-2 h-4 w-4" />
-                </>
               ) : (
                 <>
                   Generate Image <ArrowRight className="ml-2 h-4 w-4" />
@@ -173,30 +194,13 @@ const ImageGenerationTab: React.FC = () => {
           </div>
 
           {generatedImages.length > 0 && (
-            <div className="pt-6">
-              <h3 className="text-lg font-medium mb-3">Generated Images</h3>
-              <Button
-                //onClick={}
-                className="w-full bg-primary hover:bg-primary/90 text-white shadow-soft"
-                size="lg"
-              >
-                Download Image
-              </Button>
-              <ScrollArea className="w-full">
-                <div className="flex space-x-4 pb-4">
-                  {generatedImages.map((image, index) => (
-                    <div key={index} className="flex-shrink-0 w-48">
-                      <div className="relative rounded-md overflow-hidden border shadow-sm">
-                        <img
-                          src={image}
-                          alt={`Generated image ${index + 1}`}
-                          className="w-full h-48 object-cover"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
+            <div className="pt-6 bg-white rounded-lg shadow-soft p-5 border">
+              <ImageGallery
+                images={generatedImages}
+                onSelectImage={handleSelectImage}
+                onDownloadSelected={handleDownloadSelected}
+                isLoading={isGenerating}
+              />
             </div>
           )}
         </div>
@@ -216,6 +220,8 @@ const ImageGenerationTab: React.FC = () => {
             <ImageSettings
               resolution={resolution}
               handleResolutionChange={handleResolutionChange}
+              styleStrength={styleStrength}
+              setStyleStrength={setStyleStrength}
               batchSize={batchSize}
               setBatchSize={setBatchSize}
             />

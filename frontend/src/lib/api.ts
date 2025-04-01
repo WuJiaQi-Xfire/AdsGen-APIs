@@ -124,7 +124,8 @@ export const ApiService = {
     width: number,
     height: number,
     batchSize: number,
-    keywords: string[]
+    keywords: string[],
+    styleStrength: number
   ): Promise<ImageGenerationResponse> => {
     try {
       const formData = new FormData();
@@ -134,6 +135,7 @@ export const ApiService = {
       formData.append("height", height.toString());
       formData.append("batch_size", batchSize.toString());
       formData.append("keywords", JSON.stringify(keywords));
+      formData.append("style_strength", styleStrength.toString());
 
       const response = await fetch(`${API_BASE_URL}/generate-image/`, {
         method: "POST",

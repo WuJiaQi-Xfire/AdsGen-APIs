@@ -1,6 +1,7 @@
 import React from "react";
 import { Input } from "@/components/UI/Input";
 import { Separator } from "@/components/UI/Separator";
+import { Slider } from "@/components/UI/Slider";
 
 interface ImageSettingsProps {
   resolution: { width: number; height: number };
@@ -9,10 +10,14 @@ interface ImageSettingsProps {
     value: string
   ) => void;
   batchSize: number;
+  styleStrength: number;
+  setStyleStrength: (value: number) => void;
   setBatchSize: (value: number) => void;
 }
 
 const ImageSettings: React.FC<ImageSettingsProps> = ({
+  styleStrength,
+  setStyleStrength,
   resolution,
   handleResolutionChange,
   batchSize,
@@ -62,6 +67,22 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
                 />
               </div>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <label className="text-xs text-muted-foreground">
+                Style Strength
+              </label>
+              <span className="text-xs">{styleStrength}%</span>
+            </div>
+            <Slider
+              value={[styleStrength]}
+              min={0}
+              max={2}
+              step={0.1}
+              onValueChange={(values) => setStyleStrength(values[0])}
+            />
           </div>
 
           <div className="space-y-2">

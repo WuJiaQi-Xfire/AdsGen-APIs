@@ -2,9 +2,11 @@
 
 import base64
 import json
+import random
 from typing import Optional
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
-from ..services import gpt_service, sd_service, file_service
+import requests
+from ..services import gpt_service, file_service, comfy_service
 
 router = APIRouter()
 
@@ -56,15 +58,17 @@ async def extract_keywords(
 async def get_styles():
     """Method to get Lora and Art styles."""
     try:
-        lora_styles = file_service.read_lora_file()
+        response = requests.get("http://127.0.0.1:8188/models/loras")
+        loras = response.json()
+        lora_styles = [{"id": lora, "name": lora} for lora in loras]
+        if response.status_code != 200:
+            raise ConnectionError("Could not connect to ComfyUI server")
+
         art_styles = file_service.read_art_file()
-        # For debugging
-        # print("loraStyles: ", lora_styles, " artStyles: ", art_styles)
         return {"loraStyles": lora_styles, "artStyles": art_styles}
     except Exception as e:
         print(f"Error fetching styles: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
+        raise HTTPException(status_code=500, detail=str(e)) from e 
 
 @router.post("/generate-image/")
 async def generate_image(
@@ -74,6 +78,7 @@ async def generate_image(
     height: int = Form(...),
     batch_size: int = Form(...),
     keywords: str = Form(...),
+    style_strength: int = Form(...),
 ):
     """Function to generate image"""
     try:
@@ -81,30 +86,28 @@ async def generate_image(
         styles = json.loads(styles)
         images = []
         seeds = []
+        style_strength += 0.000000000000002
+        print("batch: ", batch_size)
+        print("Style strength: ", style_strength)
+        print("batch type: ", type(batch_size))
+        print("Style strength type: ", type(style_strength))
         for prompt in prompt_list:
-            # For debugging:
-            # print("Keywords list: ", keywords)
             prompt_content = prompt["content"]
-            prompt_name = prompt["name"]
             prompt_content = prompt_content.replace("{Keywords}", keywords)
             for style in styles:
                 prompt_content = prompt_content.replace("{art_style_list}", style)
-                # For debugging:
-                # print("New Prompt: ", prompt_content)
-                image, seed = sd_service.call_sd_api(
-                    prompt_content,
-                    width,
-                    height,
-                    batch_size,
+                output = gpt_service.create_prompt(prompt_content)
+                seed = random.randint(0, 4294967295)
+                img_str = comfy_service.get_img_str(
+                    output, style, seed, batch_size, style_strength, width, height
                 )
-                output_path = file_service.save_image_locally(
-                    prompt_name, style, image, seed
-                )
+                if img_str:
+                    image = img_str
+                else:
+                    raise ValueError("ComfyUI did not return expected outputs")
                 images.append(f"data:image/png;base64,{image}")
                 seeds.append(seed)
-                print("Image saved at: ", output_path)
         return {"images": images, "seeds": seeds}
     except Exception as e:
         print(f"Error in endpoints.py: generate_image: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e)) from e
-
