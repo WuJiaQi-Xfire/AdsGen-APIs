@@ -68,45 +68,49 @@ async def get_styles():
         return {"loraStyles": lora_styles, "artStyles": art_styles}
     except Exception as e:
         print(f"Error fetching styles: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e 
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
 
 @router.post("/generate-image/")
 async def generate_image(
     prompts: str = Form(...),
-    styles: str = Form(...),
-    width: int = Form(...),
-    height: int = Form(...),
-    batch_size: int = Form(...),
+    style_settings: str = Form(...),
     keywords: str = Form(...),
-    style_strength: int = Form(...),
 ):
-    """Function to generate image"""
+    """Function to generate images with comfyui api"""
     try:
         prompt_list = json.loads(prompts)
-        styles = json.loads(styles)
+        style_settings_list = json.loads(style_settings)
+        print("All settings: ", style_settings_list)
         images = []
         seeds = []
-        style_strength += 0.000000000000002
-        print("batch: ", batch_size)
-        print("Style strength: ", style_strength)
-        print("batch type: ", type(batch_size))
-        print("Style strength type: ", type(style_strength))
+
         for prompt in prompt_list:
             prompt_content = prompt["content"]
             prompt_content = prompt_content.replace("{Keywords}", keywords)
-            for style in styles:
-                prompt_content = prompt_content.replace("{art_style_list}", style)
-                output = gpt_service.create_prompt(prompt_content)
+
+            for style_setting in style_settings_list:
+                style_name = style_setting["name"]
+                style_strength = float(style_setting["styleStrength"])
+                batch_size = int(style_setting["batchSize"])
+                width = int(style_setting["width"])
+                height = int(style_setting["height"])
+                current_prompt = prompt_content.replace("{art_style_list}", style_name)
+                output = gpt_service.create_prompt(current_prompt)
                 seed = random.randint(0, 4294967295)
-                img_str = comfy_service.get_img_str(
-                    output, style, seed, batch_size, style_strength, width, height
-                )
+                # img_str = comfy_service.get_img_str(
+                #    output, style_name, seed, batch_size, style_strength, width, height
+                # )
+                img_str = ""
                 if img_str:
                     image = img_str
                 else:
-                    raise ValueError("ComfyUI did not return expected outputs")
+                    raise ValueError(
+                        f"ComfyUI did not return expected outputs for style: {style_name}"
+                    )
                 images.append(f"data:image/png;base64,{image}")
                 seeds.append(seed)
+
         return {"images": images, "seeds": seeds}
     except Exception as e:
         print(f"Error in endpoints.py: generate_image: {str(e)}")

@@ -11,7 +11,7 @@ def comfy_api(prompt, lora, seed, batch_size, style_strength, width, height):
         model, clip, vae = CheckpointLoaderSimple(
             "juggernautXL_v8Rundiffusion.safetensors"
         )
-        model, clip = LoraLoader(model, clip, lora, 1, 1)
+        model, clip = LoraLoader(model, clip, lora, style_strength, 1)
         conditioning = CLIPTextEncode(prompt, clip)
         conditioning2 = CLIPTextEncode("text, watermark", clip)
         latent = EmptyLatentImage(width, height, batch_size)

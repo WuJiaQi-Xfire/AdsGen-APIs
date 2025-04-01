@@ -21,6 +21,10 @@ interface StyleSectionProps {
   clearStyleSelection: () => void;
   selectRandomStyle: () => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
+  setActiveStyleId: (id: string | null) => void;
+  activeStyleId: string | null;
+  addStyleSetting: (id: string, name: string) => void;
+  removeStyleSetting: (id: string) => void;
 }
 
 const StyleSection: React.FC<StyleSectionProps> = ({
@@ -37,7 +41,23 @@ const StyleSection: React.FC<StyleSectionProps> = ({
   clearStyleSelection,
   selectRandomStyle,
   fileInputRef,
+  setActiveStyleId,
+  activeStyleId,
+  addStyleSetting,
+  removeStyleSetting,
 }) => {
+  const handleStyleSelection = (style: Style) => {
+    const isSelected = selectedStyles.includes(style.id);
+    
+    toggleStyleSelection(style.id);
+    
+    if (!isSelected) {
+      addStyleSetting(style.id, style.name);
+    } else {
+      removeStyleSetting(style.id);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -135,9 +155,15 @@ const StyleSection: React.FC<StyleSectionProps> = ({
                 "cursor-pointer py-1.5 px-3 transition-all duration-200 flex items-center gap-1.5",
                 selectedStyles.includes(style.id)
                   ? "border-primar/15 bg-primary/40 hover:bg-primary/20"
-                  : "hover:bg-accent"
+                  : "hover:bg-accent",
+                activeStyleId === style.id ? "ring-2 ring-primary" : ""
               )}
-              onClick={() => toggleStyleSelection(style.id)}
+              onClick={() => handleStyleSelection(style)}
+              onDoubleClick={() => {
+                if (selectedStyles.includes(style.id)) {
+                  setActiveStyleId(style.id);
+                }
+              }}
             >
               <span className="text-xs">{style.name}</span>
               {selectedStyles.includes(style.id) && (
@@ -146,6 +172,12 @@ const StyleSection: React.FC<StyleSectionProps> = ({
             </Badge>
           ))}
         </div>
+        
+        {selectedStyles.length > 0 && (
+          <div className="mt-2 text-xs text-muted-foreground">
+            <p>Double-click on a selected style to edit its settings</p>
+          </div>
+        )}
       </div>
     </div>
   );

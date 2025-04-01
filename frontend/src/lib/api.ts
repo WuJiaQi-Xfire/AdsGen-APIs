@@ -37,6 +37,16 @@ export interface StyleResponse {
   artStyles: Style[];
 }
 
+// New interface for style settings
+export interface StyleSetting {
+  id: string;
+  name: string;
+  styleStrength: number;
+  batchSize: number;
+  width: number;
+  height: number;
+}
+
 export const ApiService = {
   // Prompt Generation
   generatePrompt: async (
@@ -120,22 +130,14 @@ export const ApiService = {
   // Image Generation
   generateImage: async (
     selectedPrompts: PromptFile[],
-    selectedStyles: string[],
-    width: number,
-    height: number,
-    batchSize: number,
-    keywords: string[],
-    styleStrength: number
+    styleSettings: StyleSetting[],
+    keywords: string[]
   ): Promise<ImageGenerationResponse> => {
     try {
       const formData = new FormData();
       formData.append("prompts", JSON.stringify(selectedPrompts));
-      formData.append("styles", JSON.stringify(selectedStyles));
-      formData.append("width", width.toString());
-      formData.append("height", height.toString());
-      formData.append("batch_size", batchSize.toString());
+      formData.append("style_settings", JSON.stringify(styleSettings));
       formData.append("keywords", JSON.stringify(keywords));
-      formData.append("style_strength", styleStrength.toString());
 
       const response = await fetch(`${API_BASE_URL}/generate-image/`, {
         method: "POST",

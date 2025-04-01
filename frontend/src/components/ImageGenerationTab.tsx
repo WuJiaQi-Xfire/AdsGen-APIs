@@ -35,6 +35,7 @@ const ImageGenerationTab: React.FC = () => {
     selectRandomStyle,
     filteredStyles,
     fileInputRef,
+    loraStyles,
   } = ImageGeneration();
 
   const {
@@ -51,10 +52,26 @@ const ImageGenerationTab: React.FC = () => {
     batchSize,
     setBatchSize,
     isLoadingKeywords,
+    // New style-specific settings
+    addStyleSetting,
+    removeStyleSetting,
+    updateStyleSetting,
+    getStyleSettings,
+    getAllStyleSettings,
+    activeStyleId,
+    setActiveStyleId,
+    styleSettings
   } = ImagePresets();
 
+  // Get the name of the active style
+  const getActiveStyleName = () => {
+    if (!activeStyleId) return undefined;
+    
+    const style = filteredStyles.find(s => s.id === activeStyleId);
+    return style?.name;
+  };
+
   const handleGenerate = async () => {
-    console.log("Style strength:  ", styleStrength)
     if (promptFiles.length === 0) {
       showToast("Please upload at least one prompt.");
       return;
@@ -78,15 +95,43 @@ const ImageGenerationTab: React.FC = () => {
 
     setIsGenerating(true);
     try {
+      // Get all style settings for selected styles
+      const styleSettingsToSend = styleSettings
+        .filter(setting => selectedStyles.includes(setting.id))
+        .map(setting => ({
+          id: setting.id,
+          name: setting.name,
+          styleStrength: setting.styleStrength,
+          batchSize: setting.batchSize,
+          width: setting.width,
+          height: setting.height
+        }));
+      
+      // If any selected styles don't have settings, use default values
+      const missingStyles = selectedStyles.filter(
+        styleId => !styleSettingsToSend.some(setting => setting.id === styleId)
+      );
+      
+      for (const styleId of missingStyles) {
+        const style = filteredStyles.find(s => s.id === styleId);
+        if (style) {
+          styleSettingsToSend.push({
+            id: style.id,
+            name: style.name,
+            styleStrength,
+            batchSize,
+            width: resolution.width,
+            height: resolution.height
+          });
+        }
+      }
+
       const response = await ApiService.generateImage(
         selectedPrompts,
-        selectedStyles,
-        resolution.width,
-        resolution.height,
-        batchSize,
-        keywords,
-        styleStrength
+        styleSettingsToSend,
+        keywords
       );
+      
       const newImages: GeneratedImage[] = response.images.map((url, index) => ({
         url,
         seed:
@@ -173,6 +218,11 @@ const ImageGenerationTab: React.FC = () => {
               clearStyleSelection={clearStyleSelection}
               selectRandomStyle={selectRandomStyle}
               fileInputRef={fileInputRef}
+              // New props
+              setActiveStyleId={setActiveStyleId}
+              activeStyleId={activeStyleId}
+              addStyleSetting={addStyleSetting}
+              removeStyleSetting={removeStyleSetting}
             />
           </div>
 
@@ -218,12 +268,29 @@ const ImageGenerationTab: React.FC = () => {
             />
 
             <ImageSettings
-              resolution={resolution}
+              resolution={
+                activeStyleId && styleSettings.find(s => s.id === activeStyleId)
+                  ? { 
+                      width: styleSettings.find(s => s.id === activeStyleId)!.width,
+                      height: styleSettings.find(s => s.id === activeStyleId)!.height
+                    }
+                  : resolution
+              }
               handleResolutionChange={handleResolutionChange}
-              styleStrength={styleStrength}
+              styleStrength={
+                activeStyleId && styleSettings.find(s => s.id === activeStyleId)
+                  ? styleSettings.find(s => s.id === activeStyleId)!.styleStrength
+                  : styleStrength
+              }
               setStyleStrength={setStyleStrength}
-              batchSize={batchSize}
+              batchSize={
+                activeStyleId && styleSettings.find(s => s.id === activeStyleId)
+                  ? styleSettings.find(s => s.id === activeStyleId)!.batchSize
+                  : batchSize
+              }
               setBatchSize={setBatchSize}
+              activeStyleId={activeStyleId}
+              activeStyleName={getActiveStyleName()}
             />
           </div>
         </div>
