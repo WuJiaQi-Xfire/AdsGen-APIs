@@ -52,7 +52,6 @@ const ImageGenerationTab: React.FC = () => {
     batchSize,
     setBatchSize,
     isLoadingKeywords,
-    // New style-specific settings
     addStyleSetting,
     removeStyleSetting,
     updateStyleSetting,
@@ -60,14 +59,13 @@ const ImageGenerationTab: React.FC = () => {
     getAllStyleSettings,
     activeStyleId,
     setActiveStyleId,
-    styleSettings
+    styleSettings,
   } = ImagePresets();
 
-  // Get the name of the active style
   const getActiveStyleName = () => {
     if (!activeStyleId) return undefined;
-    
-    const style = filteredStyles.find(s => s.id === activeStyleId);
+
+    const style = filteredStyles.find((s) => s.id === activeStyleId);
     return style?.name;
   };
 
@@ -95,33 +93,30 @@ const ImageGenerationTab: React.FC = () => {
 
     setIsGenerating(true);
     try {
-      // Get all style settings for selected styles
       const styleSettingsToSend = styleSettings
-        .filter(setting => selectedStyles.includes(setting.id))
-        .map(setting => ({
+        .filter((setting) => selectedStyles.includes(setting.id))
+        .map((setting) => ({
           id: setting.id,
-          name: setting.name,
           styleStrength: setting.styleStrength,
           batchSize: setting.batchSize,
           width: setting.width,
-          height: setting.height
+          height: setting.height,
         }));
-      
-      // If any selected styles don't have settings, use default values
+
       const missingStyles = selectedStyles.filter(
-        styleId => !styleSettingsToSend.some(setting => setting.id === styleId)
+        (styleId) =>
+          !styleSettingsToSend.some((setting) => setting.id === styleId)
       );
-      
+
       for (const styleId of missingStyles) {
-        const style = filteredStyles.find(s => s.id === styleId);
+        const style = filteredStyles.find((s) => s.id === styleId);
         if (style) {
           styleSettingsToSend.push({
-            id: style.id,
-            name: style.name,
+            id: styleId,
             styleStrength,
             batchSize,
             width: resolution.width,
-            height: resolution.height
+            height: resolution.height,
           });
         }
       }
@@ -131,7 +126,7 @@ const ImageGenerationTab: React.FC = () => {
         styleSettingsToSend,
         keywords
       );
-      
+
       const newImages: GeneratedImage[] = response.images.map((url, index) => ({
         url,
         seed:
@@ -166,7 +161,6 @@ const ImageGenerationTab: React.FC = () => {
     }
 
     selectedImages.forEach((image, index) => {
-      // Create a temporary link
       const link = document.createElement("a");
       link.href = image.url;
       link.download = `generated-image-${image.seed || index}.png`;
@@ -218,7 +212,6 @@ const ImageGenerationTab: React.FC = () => {
               clearStyleSelection={clearStyleSelection}
               selectRandomStyle={selectRandomStyle}
               fileInputRef={fileInputRef}
-              // New props
               setActiveStyleId={setActiveStyleId}
               activeStyleId={activeStyleId}
               addStyleSetting={addStyleSetting}
@@ -269,23 +262,29 @@ const ImageGenerationTab: React.FC = () => {
 
             <ImageSettings
               resolution={
-                activeStyleId && styleSettings.find(s => s.id === activeStyleId)
-                  ? { 
-                      width: styleSettings.find(s => s.id === activeStyleId)!.width,
-                      height: styleSettings.find(s => s.id === activeStyleId)!.height
+                activeStyleId &&
+                styleSettings.find((s) => s.id === activeStyleId)
+                  ? {
+                      width: styleSettings.find((s) => s.id === activeStyleId)!
+                        .width,
+                      height: styleSettings.find((s) => s.id === activeStyleId)!
+                        .height,
                     }
                   : resolution
               }
               handleResolutionChange={handleResolutionChange}
               styleStrength={
-                activeStyleId && styleSettings.find(s => s.id === activeStyleId)
-                  ? styleSettings.find(s => s.id === activeStyleId)!.styleStrength
+                activeStyleId &&
+                styleSettings.find((s) => s.id === activeStyleId)
+                  ? styleSettings.find((s) => s.id === activeStyleId)!
+                      .styleStrength
                   : styleStrength
               }
               setStyleStrength={setStyleStrength}
               batchSize={
-                activeStyleId && styleSettings.find(s => s.id === activeStyleId)
-                  ? styleSettings.find(s => s.id === activeStyleId)!.batchSize
+                activeStyleId &&
+                styleSettings.find((s) => s.id === activeStyleId)
+                  ? styleSettings.find((s) => s.id === activeStyleId)!.batchSize
                   : batchSize
               }
               setBatchSize={setBatchSize}

@@ -81,12 +81,22 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
                 placeholder="Enter keywords..."
                 className="flex-1 rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 disabled={isLoadingKeywords}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    !isLoadingKeywords &&
+                    keyword.trim()
+                  ) {
+                    e.preventDefault();
+                    handleAddKeyword();
+                  }
+                }}
               />
               <Button
                 onClick={handleAddKeyword}
                 variant="default"
                 className="rounded-l-none"
-                disabled={isLoadingKeywords}
+                disabled={isLoadingKeywords || !keyword.trim()}
               >
                 <Plus className="h-4 w-4" />
               </Button>

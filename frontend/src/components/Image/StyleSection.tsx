@@ -1,5 +1,5 @@
 import React from "react";
-import { Check } from "lucide-react";
+import { Check, Square, CheckSquare } from "lucide-react";
 import { Button } from "@/components/UI/PrimaryButton";
 import { Input } from "@/components/UI/Input";
 import { cn } from "@/lib/utils";
@@ -46,15 +46,27 @@ const StyleSection: React.FC<StyleSectionProps> = ({
   addStyleSetting,
   removeStyleSetting,
 }) => {
-  const handleStyleSelection = (style: Style) => {
+  const handleStyleSelection = (style: Style, e: React.MouseEvent) => {
+    e.stopPropagation();
+
     const isSelected = selectedStyles.includes(style.id);
-    
+
     toggleStyleSelection(style.id);
-    
+
     if (!isSelected) {
       addStyleSetting(style.id, style.name);
     } else {
       removeStyleSetting(style.id);
+
+      if (activeStyleId === style.id) {
+        setActiveStyleId(null);
+      }
+    }
+  };
+
+  const handleStyleClick = (style: Style) => {
+    if (selectedStyles.includes(style.id)) {
+      setActiveStyleId(style.id);
     }
   };
 
@@ -158,24 +170,27 @@ const StyleSection: React.FC<StyleSectionProps> = ({
                   : "hover:bg-accent",
                 activeStyleId === style.id ? "ring-2 ring-primary" : ""
               )}
-              onClick={() => handleStyleSelection(style)}
-              onDoubleClick={() => {
-                if (selectedStyles.includes(style.id)) {
-                  setActiveStyleId(style.id);
-                }
-              }}
+              onClick={() => handleStyleClick(style)}
             >
-              <span className="text-xs">{style.name}</span>
-              {selectedStyles.includes(style.id) && (
-                <Check className="h-3 w-3 text-primary flex-shrink-0 ml-1" />
+              {selectedStyles.includes(style.id) ? (
+                <CheckSquare
+                  className="h-3.5 w-3.5 text-primary flex-shrink-0 mr-1 cursor-pointer"
+                  onClick={(e) => handleStyleSelection(style, e)}
+                />
+              ) : (
+                <Square
+                  className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mr-1 cursor-pointer"
+                  onClick={(e) => handleStyleSelection(style, e)}
+                />
               )}
+              <span className="text-xs">{style.name}</span>
             </Badge>
           ))}
         </div>
-        
+
         {selectedStyles.length > 0 && (
           <div className="mt-2 text-xs text-muted-foreground">
-            <p>Double-click on a selected style to edit its settings</p>
+            <p>Click on a selected style to edit its settings</p>
           </div>
         )}
       </div>

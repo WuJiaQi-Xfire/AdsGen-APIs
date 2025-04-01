@@ -37,10 +37,8 @@ export interface StyleResponse {
   artStyles: Style[];
 }
 
-// New interface for style settings
 export interface StyleSetting {
   id: string;
-  name: string;
   styleStrength: number;
   batchSize: number;
   width: number;

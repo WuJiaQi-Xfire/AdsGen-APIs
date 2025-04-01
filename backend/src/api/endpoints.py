@@ -81,35 +81,40 @@ async def generate_image(
     try:
         prompt_list = json.loads(prompts)
         style_settings_list = json.loads(style_settings)
-        print("All settings: ", style_settings_list)
         images = []
         seeds = []
 
-        for prompt in prompt_list:
+        for prompt in prompt_list: 
             prompt_content = prompt["content"]
             prompt_content = prompt_content.replace("{Keywords}", keywords)
 
             for style_setting in style_settings_list:
-                style_name = style_setting["name"]
+                style_id = style_setting["id"]
                 style_strength = float(style_setting["styleStrength"])
                 batch_size = int(style_setting["batchSize"])
                 width = int(style_setting["width"])
                 height = int(style_setting["height"])
-                current_prompt = prompt_content.replace("{art_style_list}", style_name)
+                current_prompt = prompt_content.replace("{art_style_list}", style_id)
                 output = gpt_service.create_prompt(current_prompt)
+                
+                # Generate a unique seed for each style
                 seed = random.randint(0, 4294967295)
-                # img_str = comfy_service.get_img_str(
-                #    output, style_name, seed, batch_size, style_strength, width, height
-                # )
-                img_str = ""
-                if img_str:
-                    image = img_str
+                
+                # Get all images generated for this batch
+                img_str_list = comfy_service.get_img_str(
+                    output, style_id, seed, batch_size, style_strength, width, height
+                )
+                
+                if img_str_list and len(img_str_list) > 0:
+                    # Add all images from this batch to the results
+                    for img_str in img_str_list:
+                        images.append(f"data:image/png;base64,{img_str}")
+                        seeds.append(seed)
+                    print(f"Generated {len(img_str_list)} images for style: {style_id}")
                 else:
                     raise ValueError(
-                        f"ComfyUI did not return expected outputs for style: {style_name}"
+                        f"ComfyUI did not return expected outputs for style: {style_id}"
                     )
-                images.append(f"data:image/png;base64,{image}")
-                seeds.append(seed)
 
         return {"images": images, "seeds": seeds}
     except Exception as e:
