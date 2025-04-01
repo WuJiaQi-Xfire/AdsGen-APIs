@@ -1,11 +1,12 @@
 import React from "react";
-import { Check, Square, CheckSquare } from "lucide-react";
+import { Square, CheckSquare } from "lucide-react";
 import { Button } from "@/components/UI/PrimaryButton";
 import { Input } from "@/components/UI/Input";
 import { cn } from "@/lib/utils";
 import { Style } from "@/lib/ImageGeneration";
 import { Badge } from "@/components/UI/Badge";
 import { Separator } from "@/components/UI/Separator";
+import { StyleSettings } from "@/lib/ImagePresets";
 
 interface StyleSectionProps {
   styleType: "lora" | "art";
@@ -25,6 +26,12 @@ interface StyleSectionProps {
   activeStyleId: string | null;
   addStyleSetting: (id: string, name: string) => void;
   removeStyleSetting: (id: string) => void;
+  styleSettings: StyleSettings[];
+  updateStyleSetting: (
+    id: string,
+    setting: keyof Omit<StyleSettings, "id" | "name">,
+    value: number
+  ) => void;
 }
 
 const StyleSection: React.FC<StyleSectionProps> = ({
@@ -45,6 +52,8 @@ const StyleSection: React.FC<StyleSectionProps> = ({
   activeStyleId,
   addStyleSetting,
   removeStyleSetting,
+  styleSettings,
+  updateStyleSetting,
 }) => {
   const handleStyleSelection = (style: Style, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -166,23 +175,27 @@ const StyleSection: React.FC<StyleSectionProps> = ({
               className={cn(
                 "cursor-pointer py-1.5 px-3 transition-all duration-200 flex items-center gap-1.5",
                 selectedStyles.includes(style.id)
-                  ? "border-primar/15 bg-primary/40 hover:bg-primary/20"
+                  ? "border-primary/15 bg-primary/40 hover:bg-primary/20"
                   : "hover:bg-accent",
                 activeStyleId === style.id ? "ring-2 ring-primary" : ""
               )}
               onClick={() => handleStyleClick(style)}
             >
-              {selectedStyles.includes(style.id) ? (
-                <CheckSquare
-                  className="h-3.5 w-3.5 text-primary flex-shrink-0 mr-1 cursor-pointer"
-                  onClick={(e) => handleStyleSelection(style, e)}
-                />
-              ) : (
-                <Square
-                  className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mr-1 cursor-pointer"
-                  onClick={(e) => handleStyleSelection(style, e)}
-                />
-              )}
+              <div
+                className="flex items-center cursor-pointer p-1 rounded hover:bg-black/10 mr-1.5"
+                onClick={(e) => handleStyleSelection(style, e)}
+                title={
+                  selectedStyles.includes(style.id)
+                    ? "Click to deselect"
+                    : "Click to select"
+                }
+              >
+                {selectedStyles.includes(style.id) ? (
+                  <CheckSquare className="h-5 w-5 text-primary flex-shrink-0" />
+                ) : (
+                  <Square className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                )}
+              </div>
               <span className="text-xs">{style.name}</span>
             </Badge>
           ))}
@@ -190,7 +203,12 @@ const StyleSection: React.FC<StyleSectionProps> = ({
 
         {selectedStyles.length > 0 && (
           <div className="mt-2 text-xs text-muted-foreground">
-            <p>Click on a selected style to edit its settings</p>
+            <p>
+              Click on the{" "}
+              <Square className="h-4 w-4 inline-block mx-1 align-text-bottom" />{" "}
+              checkbox to select/deselect styles
+            </p>
+            <p>Click on a selected style name to edit its settings</p>
           </div>
         )}
       </div>

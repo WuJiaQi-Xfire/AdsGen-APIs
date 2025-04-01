@@ -29,8 +29,6 @@ async def generate_prompt(
     try:
         image_base64 = await process_image(image)
         output = gpt_service.create_prompt(description, image_base64, image_url)
-        # For debugging:
-        # print("Generated Prompt: ", output)
         return {"generated_prompt": output}
     except Exception as e:
         print(f"Error in endpoints.py: generate_prompt: {str(e)}")
@@ -46,8 +44,6 @@ async def extract_keywords(
     try:
         image_base64 = await process_image(image)
         keywords = gpt_service.extract_keywords(image_base64, image_url)
-        # For debugging:
-        # print("Extracted keywords: ", keywords)
         return {"keywords": keywords}
     except Exception as e:
         print(f"Error in endpoints.py: extract_keywords: {str(e)}")
@@ -81,36 +77,30 @@ async def generate_image(
     try:
         prompt_list = json.loads(prompts)
         style_settings_list = json.loads(style_settings)
+        print("Style list settings: ", style_settings)
         images = []
         seeds = []
 
-        for prompt in prompt_list: 
+        for prompt in prompt_list:
             prompt_content = prompt["content"]
             prompt_content = prompt_content.replace("{Keywords}", keywords)
 
             for style_setting in style_settings_list:
                 style_id = style_setting["id"]
+                print("Style setting is:", style_setting)
                 style_strength = float(style_setting["styleStrength"])
                 batch_size = int(style_setting["batchSize"])
                 width = int(style_setting["width"])
                 height = int(style_setting["height"])
                 current_prompt = prompt_content.replace("{art_style_list}", style_id)
                 output = gpt_service.create_prompt(current_prompt)
-                
-                # Generate a unique seed for each style
                 seed = random.randint(0, 4294967295)
-                
-                # Get all images generated for this batch
-                img_str_list = comfy_service.get_img_str(
+                img_str = comfy_service.get_img_str(
                     output, style_id, seed, batch_size, style_strength, width, height
                 )
-                
-                if img_str_list and len(img_str_list) > 0:
-                    # Add all images from this batch to the results
-                    for img_str in img_str_list:
-                        images.append(f"data:image/png;base64,{img_str}")
-                        seeds.append(seed)
-                    print(f"Generated {len(img_str_list)} images for style: {style_id}")
+                if img_str:
+                    images.append(f"data:image/png;base64,{img_str}")
+                    seeds.append(seed)
                 else:
                     raise ValueError(
                         f"ComfyUI did not return expected outputs for style: {style_id}"

@@ -45,13 +45,13 @@ export interface StyleSetting {
   height: number;
 }
 
-export const ApiService = {
+export class ApiService {
   // Prompt Generation
-  generatePrompt: async (
+  static async generatePrompt(
     description: string,
     image?: File | null,
     image_url?: string | null
-  ): Promise<PromptGenerationResponse> => {
+  ): Promise<PromptGenerationResponse> {
     try {
       const formData = new FormData();
       formData.append("description", description);
@@ -75,13 +75,13 @@ export const ApiService = {
     } catch (error) {
       return handleApiError(error, "Failed to generate prompt");
     }
-  },
+  }
 
   // Keyword Extraction
-  extractKeywords: async (
+  static async extractKeywords(
     image?: File | null,
     imageUrl?: string | null
-  ): Promise<KeywordExtractionResponse> => {
+  ): Promise<KeywordExtractionResponse> {
     try {
       const formData = new FormData();
 
@@ -106,10 +106,10 @@ export const ApiService = {
     } catch (error) {
       return handleApiError(error, "Failed to extract keywords");
     }
-  },
+  }
 
   //Get lora and art styles
-  getStyles: async (): Promise<StyleResponse> => {
+  static async getStyles(): Promise<StyleResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/get-styles/`, {
         method: "GET",
@@ -123,14 +123,14 @@ export const ApiService = {
     } catch (error) {
       return handleApiError(error, "Failed to get styles");
     }
-  },
+  }
 
   // Image Generation
-  generateImage: async (
+  static async generateImage(
     selectedPrompts: PromptFile[],
     styleSettings: StyleSetting[],
     keywords: string[]
-  ): Promise<ImageGenerationResponse> => {
+  ): Promise<ImageGenerationResponse> {
     try {
       const formData = new FormData();
       formData.append("prompts", JSON.stringify(selectedPrompts));
@@ -150,5 +150,5 @@ export const ApiService = {
     } catch (error) {
       return handleApiError(error, "Failed to generate image");
     }
-  },
-};
+  }
+}

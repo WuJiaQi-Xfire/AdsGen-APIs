@@ -10,7 +10,7 @@ interface KeywordSectionProps {
   setKeyword: (keyword: string) => void;
   keywords: string[];
   isLoadingKeywords: boolean;
-  handleAddKeyword: () => void;
+  handleAddKeyword: (keyword: string) => void;
   handleRemoveKeyword: (keyword: string) => void;
   handleKeywordImageUpload: (file?: File, imageUrl?: string) => void;
 }
@@ -51,6 +51,12 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && keyword.trim()) {
+      handleAddKeyword(keyword);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="font-medium text-lg">Keywords</h3>
@@ -74,31 +80,22 @@ const KeywordSection: React.FC<KeywordSectionProps> = ({
           </TabsList>
 
           <TabsContent value="text" className="space-y-2">
-            <div className="flex">
+            <div className="flex gap-2">
               <Input
+                placeholder="Enter keyword..."
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                placeholder="Enter keywords..."
-                className="flex-1 rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                onKeyPress={handleKeyPress}
+                className="flex-1"
                 disabled={isLoadingKeywords}
-                onKeyDown={(e) => {
-                  if (
-                    e.key === "Enter" &&
-                    !isLoadingKeywords &&
-                    keyword.trim()
-                  ) {
-                    e.preventDefault();
-                    handleAddKeyword();
-                  }
-                }}
               />
               <Button
-                onClick={handleAddKeyword}
-                variant="default"
-                className="rounded-l-none"
-                disabled={isLoadingKeywords || !keyword.trim()}
+                onClick={() => handleAddKeyword(keyword)}
+                disabled={!keyword.trim() || isLoadingKeywords}
+                className="flex-shrink-0"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4 mr-1" />
+                Add
               </Button>
             </div>
           </TabsContent>

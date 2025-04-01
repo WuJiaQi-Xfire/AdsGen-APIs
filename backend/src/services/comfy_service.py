@@ -5,7 +5,6 @@ load("http://127.0.0.1:8188/")
 from comfy_script.runtime.nodes import *
 from comfy_script.runtime import util
 
-
 def comfy_api(prompt, lora, seed, batch_size, style_strength, width, height):
     with Workflow():
         model, clip, vae = CheckpointLoaderSimple(
@@ -33,11 +32,5 @@ def comfy_api(prompt, lora, seed, batch_size, style_strength, width, height):
 
 def get_img_str(output, style, seed, batch_size, style_strength, width, height):
     img = comfy_api(output, style, seed, batch_size, style_strength, width, height)
-    
-    # Handle both single images and batches
-    if isinstance(img, list):
-        # If it's a batch, convert each image to base64
-        return [util.get_str(single_img) for single_img in img]
-    else:
-        # If it's a single image, convert it to base64
-        return [util.get_str(img)]
+    img_str=util.get_str(img)
+    return img_str

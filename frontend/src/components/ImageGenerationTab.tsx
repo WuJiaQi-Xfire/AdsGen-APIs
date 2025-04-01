@@ -216,6 +216,8 @@ const ImageGenerationTab: React.FC = () => {
               activeStyleId={activeStyleId}
               addStyleSetting={addStyleSetting}
               removeStyleSetting={removeStyleSetting}
+              styleSettings={styleSettings}
+              updateStyleSetting={updateStyleSetting}
             />
           </div>
 
@@ -256,40 +258,24 @@ const ImageGenerationTab: React.FC = () => {
               keywords={keywords}
               handleAddKeyword={handleAddKeyword}
               handleRemoveKeyword={handleRemoveKeyword}
-              isLoadingKeywords={isLoadingKeywords}
               handleKeywordImageUpload={handleKeywordImageUpload}
+              isLoadingKeywords={isLoadingKeywords}
             />
 
             <ImageSettings
-              resolution={
-                activeStyleId &&
-                styleSettings.find((s) => s.id === activeStyleId)
-                  ? {
-                      width: styleSettings.find((s) => s.id === activeStyleId)!
-                        .width,
-                      height: styleSettings.find((s) => s.id === activeStyleId)!
-                        .height,
-                    }
-                  : resolution
-              }
+              resolution={resolution}
               handleResolutionChange={handleResolutionChange}
-              styleStrength={
-                activeStyleId &&
-                styleSettings.find((s) => s.id === activeStyleId)
-                  ? styleSettings.find((s) => s.id === activeStyleId)!
-                      .styleStrength
-                  : styleStrength
-              }
+              styleStrength={styleStrength}
               setStyleStrength={setStyleStrength}
-              batchSize={
-                activeStyleId &&
-                styleSettings.find((s) => s.id === activeStyleId)
-                  ? styleSettings.find((s) => s.id === activeStyleId)!.batchSize
-                  : batchSize
-              }
+              batchSize={batchSize}
               setBatchSize={setBatchSize}
               activeStyleId={activeStyleId}
               activeStyleName={getActiveStyleName()}
+              selectedStyles={selectedStyles}
+              styleSettings={styleSettings}
+              updateStyleSetting={updateStyleSetting}
+              setActiveStyleId={setActiveStyleId}
+              filteredStyles={filteredStyles}
             />
           </div>
         </div>
