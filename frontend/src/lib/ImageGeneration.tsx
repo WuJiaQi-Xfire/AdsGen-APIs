@@ -6,6 +6,7 @@ import { ApiService, PromptFile } from "@/lib/api";
 export interface Style {
   id: string;
   name: string;
+  styleType: "lora" | "art";
 }
 
 export interface StyleResponse {
@@ -24,7 +25,7 @@ export const ImageGeneration = () => {
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [styleType, setStyleType] = useState<"lora" | "art">("lora");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectMode, setSelectMode] = useState<"single" | "multiple">("single");
+  const [selectMode, setSelectMode] = useState<"multiple">("multiple");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const promptFileInputRef = useRef<HTMLInputElement>(null);
   const [loraStyles, setLoraStyles] = useState<Style[]>([]);
@@ -104,14 +105,10 @@ export const ImageGeneration = () => {
   };
 
   const toggleStyleSelection = (styleId: string) => {
-    if (selectMode === "single") {
-      setSelectedStyles([styleId]);
+    if (selectedStyles.includes(styleId)) {
+      setSelectedStyles(selectedStyles.filter((id) => id !== styleId));
     } else {
-      if (selectedStyles.includes(styleId)) {
-        setSelectedStyles(selectedStyles.filter((id) => id !== styleId));
-      } else {
-        setSelectedStyles([...selectedStyles, styleId]);
-      }
+      setSelectedStyles([...selectedStyles, styleId]);
     }
   };
 

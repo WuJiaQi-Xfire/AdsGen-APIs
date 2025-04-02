@@ -110,32 +110,6 @@ const StyleSection: React.FC<StyleSectionProps> = ({
             onChange={(e) => setSearchQuery(e.target.value)}
             className="max-w-60"
           />
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectMode("single")}
-              className={cn(
-                "text-xs h-8",
-                selectMode === "single" ? "bg-primary/10 border-primary/30" : ""
-              )}
-            >
-              Single
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectMode("multiple")}
-              className={cn(
-                "text-xs h-8",
-                selectMode === "multiple"
-                  ? "bg-primary/10 border-primary/30"
-                  : ""
-              )}
-            >
-              Multiple
-            </Button>
-          </div>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-2">
