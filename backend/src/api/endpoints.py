@@ -56,7 +56,9 @@ async def get_styles():
     try:
         response = requests.get("http://127.0.0.1:8188/models/loras")
         loras = response.json()
-        lora_styles = [{"id": lora, "name": lora} for lora in loras]
+        lora_styles = [
+            {"id": lora, "name": lora, "styleType": "lora"} for lora in loras
+        ]
         if response.status_code != 200:
             raise ConnectionError("Could not connect to ComfyUI server")
 
@@ -72,22 +74,23 @@ async def generate_image(
     prompts: str = Form(...),
     style_settings: str = Form(...),
     keywords: str = Form(...),
+    stack_loras: bool = Form(...),
 ):
     """Function to generate images with comfyui api"""
     try:
         prompt_list = json.loads(prompts)
         style_settings_list = json.loads(style_settings)
-        print("Style list settings: ", style_settings)
+        lora_list = [l for l in style_settings_list if l["styleType"] == "lora"]
+        art_list = [l for l in style_settings_list if l["styleType"] == "art"]
         images = []
         seeds = []
-
         for prompt in prompt_list:
             prompt_content = prompt["content"]
             prompt_content = prompt_content.replace("{Keywords}", keywords)
 
             for style_setting in style_settings_list:
                 style_id = style_setting["id"]
-                print("Style setting is:", style_setting)
+
                 style_strength = float(style_setting["styleStrength"])
                 batch_size = int(style_setting["batchSize"])
                 width = int(style_setting["width"])

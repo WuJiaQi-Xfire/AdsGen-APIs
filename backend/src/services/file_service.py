@@ -25,7 +25,10 @@ def read_art_file():
     base_dir = os.path.dirname(os.path.dirname(__file__))
     template_path = os.path.join(base_dir, "styles", "game_art_styles.csv")
     df = pd.read_csv(template_path, header=None)
-    styles = [{"id": row[0], "name": row[0]} for index, row in df.iterrows()]
+    styles = [
+        {"id": row[0], "name": row[0], "styleType": "art"}
+        for index, row in df.iterrows()
+    ]
     return styles
 
 

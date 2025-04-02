@@ -1,5 +1,5 @@
 import React from "react";
-import { Square, CheckSquare } from "lucide-react";
+import { Square, CheckSquare, Layers, Split } from "lucide-react";
 import { Button } from "@/components/UI/PrimaryButton";
 import { Input } from "@/components/UI/Input";
 import { cn } from "@/lib/utils";
@@ -7,6 +7,7 @@ import { Style } from "@/lib/ImageGeneration";
 import { Badge } from "@/components/UI/Badge";
 import { Separator } from "@/components/UI/Separator";
 import { StyleSettings } from "@/lib/ImagePresets";
+import { Switch } from "@/components/UI/Switch";
 
 interface StyleSectionProps {
   styleType: "lora" | "art";
@@ -14,8 +15,6 @@ interface StyleSectionProps {
   selectedStyles: string[];
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  selectMode: "single" | "multiple";
-  setSelectMode: (mode: "single" | "multiple") => void;
   toggleStyleSelection: (styleId: string) => void;
   filteredStyles: Style[];
   selectAllStyles: () => void;
@@ -24,14 +23,20 @@ interface StyleSectionProps {
   fileInputRef: React.RefObject<HTMLInputElement>;
   setActiveStyleId: (id: string | null) => void;
   activeStyleId: string | null;
-  addStyleSetting: (id: string, name: string) => void;
+  addStyleSetting: (
+    id: string,
+    name: string,
+    styleType: "lora" | "art"
+  ) => void;
   removeStyleSetting: (id: string) => void;
   styleSettings: StyleSettings[];
   updateStyleSetting: (
     id: string,
     setting: keyof Omit<StyleSettings, "id" | "name">,
-    value: number
+    value: number | "lora" | "art"
   ) => void;
+  stackLoRAs: boolean;
+  setStackLoRAs: (stack: boolean) => void;
 }
 
 const StyleSection: React.FC<StyleSectionProps> = ({
@@ -40,8 +45,6 @@ const StyleSection: React.FC<StyleSectionProps> = ({
   selectedStyles,
   searchQuery,
   setSearchQuery,
-  selectMode,
-  setSelectMode,
   toggleStyleSelection,
   filteredStyles,
   selectAllStyles,
@@ -54,6 +57,8 @@ const StyleSection: React.FC<StyleSectionProps> = ({
   removeStyleSetting,
   styleSettings,
   updateStyleSetting,
+  stackLoRAs,
+  setStackLoRAs,
 }) => {
   const handleStyleSelection = (style: Style, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -63,7 +68,7 @@ const StyleSection: React.FC<StyleSectionProps> = ({
     toggleStyleSelection(style.id);
 
     if (!isSelected) {
-      addStyleSetting(style.id, style.name);
+      addStyleSetting(style.id, style.name, style.styleType);
     } else {
       removeStyleSetting(style.id);
 
@@ -99,6 +104,22 @@ const StyleSection: React.FC<StyleSectionProps> = ({
           >
             Art Styles
           </Button>
+        </div>
+
+        <div className="flex items-center gap-3 p-2 bg-muted rounded-lg">
+          <div className="flex items-center gap-2">
+            <Split className="h-5 w-5 text-muted-foreground" />
+            <span className="text-sm">Separate</span>
+          </div>
+          <Switch
+            checked={stackLoRAs}
+            onCheckedChange={setStackLoRAs}
+            className="data-[state=checked]:bg-primary"
+          />
+          <div className="flex items-center gap-2">
+            <Layers className="h-5 w-5 text-muted-foreground" />
+            <span className="text-sm">Stacked</span>
+          </div>
         </div>
       </div>
 

@@ -26,8 +26,6 @@ const ImageGenerationTab: React.FC = () => {
     selectedStyles,
     searchQuery,
     setSearchQuery,
-    selectMode,
-    setSelectMode,
     toggleStyleSelection,
     togglePromptSelection,
     selectAllStyles,
@@ -36,6 +34,7 @@ const ImageGenerationTab: React.FC = () => {
     filteredStyles,
     fileInputRef,
     loraStyles,
+    artStyles,
   } = ImageGeneration();
 
   const {
@@ -47,7 +46,7 @@ const ImageGenerationTab: React.FC = () => {
     handleKeywordImageUpload,
     styleStrength,
     setStyleStrength,
-    resolution,
+    aspectRatio,
     handleResolutionChange,
     batchSize,
     setBatchSize,
@@ -60,6 +59,8 @@ const ImageGenerationTab: React.FC = () => {
     activeStyleId,
     setActiveStyleId,
     styleSettings,
+    stackLoRAs,
+    setStackLoRAs,
   } = ImagePresets();
 
   const getActiveStyleName = () => {
@@ -93,15 +94,35 @@ const ImageGenerationTab: React.FC = () => {
 
     setIsGenerating(true);
     try {
+      const styleTypeMap = new Map<string, "lora" | "art">();
+
+      // Add all LoRA styles to the map
+      loraStyles.forEach((style) => {
+        styleTypeMap.set(style.id, "lora");
+      });
+
+      // Add all art styles to the map
+      artStyles.forEach((style) => {
+        styleTypeMap.set(style.id, "art");
+      });
+
       const styleSettingsToSend = styleSettings
         .filter((setting) => selectedStyles.includes(setting.id))
-        .map((setting) => ({
-          id: setting.id,
-          styleStrength: setting.styleStrength,
-          batchSize: setting.batchSize,
-          width: setting.width,
-          height: setting.height,
-        }));
+        .map((setting) => {
+          const styleType = setting.styleType || styleTypeMap.get(setting.id);
+
+          if (!styleType) {
+            console.warn(`No styleType found for style: ${setting.id}`);
+          }
+
+          return {
+            id: setting.id,
+            styleStrength: setting.styleStrength,
+            batchSize: setting.batchSize,
+            aspectRatio: setting.aspectRatio,
+            styleType: styleType || "art",
+          };
+        });
 
       const missingStyles = selectedStyles.filter(
         (styleId) =>
@@ -109,22 +130,27 @@ const ImageGenerationTab: React.FC = () => {
       );
 
       for (const styleId of missingStyles) {
-        const style = filteredStyles.find((s) => s.id === styleId);
-        if (style) {
+        // First try to find the style in the complete style list (both LoRA and art)
+        const styleType = styleTypeMap.get(styleId);
+        
+        if (styleType) {
           styleSettingsToSend.push({
             id: styleId,
             styleStrength,
             batchSize,
-            width: resolution.width,
-            height: resolution.height,
+            aspectRatio,
+            styleType,
           });
+        } else {
+          console.warn(`No style found for ID: ${styleId}`);
         }
       }
 
       const response = await ApiService.generateImage(
         selectedPrompts,
         styleSettingsToSend,
-        keywords
+        keywords,
+        stackLoRAs
       );
 
       const newImages: GeneratedImage[] = response.images.map((url, index) => ({
@@ -204,8 +230,6 @@ const ImageGenerationTab: React.FC = () => {
               selectedStyles={selectedStyles}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
-              selectMode={selectMode}
-              setSelectMode={setSelectMode}
               toggleStyleSelection={toggleStyleSelection}
               filteredStyles={filteredStyles}
               selectAllStyles={selectAllStyles}
@@ -218,6 +242,8 @@ const ImageGenerationTab: React.FC = () => {
               removeStyleSetting={removeStyleSetting}
               styleSettings={styleSettings}
               updateStyleSetting={updateStyleSetting}
+              stackLoRAs={stackLoRAs}
+              setStackLoRAs={setStackLoRAs}
             />
           </div>
 
@@ -263,8 +289,8 @@ const ImageGenerationTab: React.FC = () => {
             />
 
             <ImageSettings
-              resolution={resolution}
-              handleResolutionChange={handleResolutionChange}
+              aspectRatio={aspectRatio}
+              handleAspectRatioChange={handleResolutionChange}
               styleStrength={styleStrength}
               setStyleStrength={setStyleStrength}
               batchSize={batchSize}

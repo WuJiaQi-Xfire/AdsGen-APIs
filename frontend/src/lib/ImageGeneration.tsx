@@ -113,7 +113,16 @@ export const ImageGeneration = () => {
   };
 
   const selectAllStyles = () => {
-    setSelectedStyles(filteredStyles.map((style) => style.id));
+    // Get all currently filtered styles
+    const filteredStyleIds = filteredStyles.map((style) => style.id);
+    
+    // Keep existing selections that aren't in the current filtered list
+    const existingSelections = selectedStyles.filter(
+      (id) => !currentStyles.some((style) => style.id === id)
+    );
+    
+    // Combine with all filtered styles
+    setSelectedStyles([...existingSelections, ...filteredStyleIds]);
   };
 
   const clearStyleSelection = () => {

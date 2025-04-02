@@ -31,6 +31,7 @@ export interface PromptFile {
 export interface Style {
   id: string;
   name: string;
+  styleType: "lora" | "art";
 }
 export interface StyleResponse {
   loraStyles: Style[];
@@ -41,8 +42,15 @@ export interface StyleSetting {
   id: string;
   styleStrength: number;
   batchSize: number;
-  width: number;
-  height: number;
+  aspectRatio: "1:1" | "16:9" | "9:16";
+  styleType: "lora" | "art";
+}
+
+export interface ImageGenerationRequest {
+  prompts: PromptFile[];
+  style_settings: StyleSetting[];
+  keywords: string[];
+  stack_loras: boolean;
 }
 
 export class ApiService {
@@ -129,13 +137,15 @@ export class ApiService {
   static async generateImage(
     selectedPrompts: PromptFile[],
     styleSettings: StyleSetting[],
-    keywords: string[]
+    keywords: string[],
+    stackLoras: boolean
   ): Promise<ImageGenerationResponse> {
     try {
       const formData = new FormData();
       formData.append("prompts", JSON.stringify(selectedPrompts));
       formData.append("style_settings", JSON.stringify(styleSettings));
       formData.append("keywords", JSON.stringify(keywords));
+      formData.append("stack_loras", JSON.stringify(stackLoras));
 
       const response = await fetch(`${API_BASE_URL}/generate-image/`, {
         method: "POST",
