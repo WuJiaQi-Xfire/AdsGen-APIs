@@ -1,6 +1,7 @@
 """Module for routing different endpoints"""
 
 import base64
+import os
 import json
 import random
 from typing import Optional
@@ -82,10 +83,11 @@ async def generate_image(
         style_settings_list = json.loads(style_settings)
         lora_list = [l for l in style_settings_list if l["styleType"] == "lora"]
         art_list = [l for l in style_settings_list if l["styleType"] == "art"]
-        images = []
-        seeds = []
+        file_service.clear_image_folders()
+        
         for prompt in prompt_list:
             prompt_content = prompt["content"]
+            prompt_name = prompt["name"]
             prompt_content = prompt_content.replace("{Keywords}", keywords)
             if lora_list:
                 if stack_loras:
@@ -93,25 +95,30 @@ async def generate_image(
                         [f"{l["id"]}:{l["styleStrength"]}" for l in lora_list]
                     )
                     prompt = prompt_content.replace("{art_style_list}", style_str)
+                    output = gpt_service.create_prompt(prompt)
+                    output+=", dynamic pose, Detailed hand, Hand, Perfect hand"
+                    print(prompt_name,", Prompt used is: ", output)
                     seed = random.randint(0, 4294967295)
                     batch_size = int(lora_list[0]["batchSize"])
                     ratio = lora_list[0]["aspectRatio"]
                     print("Stacked style calling comfyui with: ", lora_list)
-                    results = comfy_service.stacked_style_str(
-                        prompt, lora_list, seed, batch_size, ratio
+                    comfy_service.comfy_call_stacked_lora(
+                        prompt_name, output, lora_list, seed, batch_size, ratio
                     )
                 else:
                     for l in lora_list:
                         prompt = prompt_content.replace(
-                            "{art_style_list}", f"{l[id]}:{l["styleStrength"]}"
+                            "{art_style_list}", f"{l["id"]}:{l["styleStrength"]}"
                         )
+                        output = gpt_service.create_prompt(prompt)
                         batch_size = int(l["batchSize"])
                         ratio = l["aspectRatio"]
                         seed = random.randint(0, 4294967295)
                         style_strength = float(l["styleStrength"])
                         print("Single style calling comfyui with: ", lora_list)
-                        results = comfy_service.single_style_str(
-                            prompt,
+                        comfy_service.comfy_call_single_lora(
+                            prompt_name,
+                            output,
                             l["id"],
                             seed,
                             batch_size,
@@ -124,32 +131,32 @@ async def generate_image(
                         [f"{a["id"]}:{a["styleStrength"]}" for a in art_list]
                     )
                     prompt = prompt_content.replace("{art_style_list}", style_str)
+                    output = gpt_service.create_prompt(prompt)
                     seed = random.randint(0, 4294967295)
                     batch_size = int(art_list[0]["batchSize"])
                     ratio = art_list[0]["aspectRatio"]
                     print("Stacked style calling comfyui with: ", art_list)
-                    results = comfy_service.stacked_style_str(
-                        prompt, "", seed, batch_size, ratio
+                    comfy_service.comfy_call_stacked_art(
+                        prompt_name, output, seed, batch_size, ratio
                     )
                 else:
                     for a in art_list:
                         prompt = prompt_content.replace(
-                            "{art_style_list}", f"{a[id]}:{a["styleStrength"]}"
+                            "{art_style_list}", f"{a["id"]}:{a["styleStrength"]}"
                         )
+                        output = gpt_service.create_prompt(prompt)
                         batch_size = int(a["batchSize"])
                         ratio = a["aspectRatio"]
                         seed = random.randint(0, 4294967295)
                         print("Single style calling comfyui with: ", art_list)
-                        results = comfy_service.single_style_str(
-                            prompt, "", seed, batch_size, 1.0, ratio
+                        comfy_service.comfy_call_single_art(
+                            prompt_name, output, a["id"], seed, batch_size, ratio
                         )
-                if results:
-                    images.append(f"data:image/png;base64,{results}")
-                    seeds.append(seed)
-                else:
-                    raise ValueError(f"ComfyUI did not return any image string")
+                        
+        
+        generated_images = comfy_service.get_generated_images()
+        return {"images": generated_images}
 
-        return {"images": images, "seeds": seeds}
     except Exception as e:
         print(f"Error in endpoints.py: generate_image: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e)) from e

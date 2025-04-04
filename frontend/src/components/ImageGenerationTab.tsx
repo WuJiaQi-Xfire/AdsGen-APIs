@@ -132,7 +132,7 @@ const ImageGenerationTab: React.FC = () => {
       for (const styleId of missingStyles) {
         // First try to find the style in the complete style list (both LoRA and art)
         const styleType = styleTypeMap.get(styleId);
-        
+
         if (styleType) {
           styleSettingsToSend.push({
             id: styleId,
@@ -152,19 +152,20 @@ const ImageGenerationTab: React.FC = () => {
         keywords,
         stackLoRAs
       );
+      if (response.images && response.images.length > 0) {
+        const images: GeneratedImage[] = response.images.map((img) => ({
+          url: img.data,
+          filename: img.filename,
+          selected: false,
+        }));
 
-      const newImages: GeneratedImage[] = response.images.map((url, index) => ({
-        url,
-        seed:
-          response.seeds && index < response.seeds.length
-            ? response.seeds[index]
-            : undefined,
-        selected: false,
-      }));
-      setGeneratedImages((prev) => [...newImages, ...prev]);
-      showToast("Your image has been generated successfully.");
+        setGeneratedImages(images);
+        showToast("Images generated successfully!");
+      } else {
+        showToast("No images were generated. Please try again.");
+      }
     } catch (error: any) {
-      console.error("Error in handleGenerate image:", error);
+      console.error("Error generating images:", error);
     } finally {
       setIsGenerating(false);
     }
@@ -189,7 +190,7 @@ const ImageGenerationTab: React.FC = () => {
     selectedImages.forEach((image, index) => {
       const link = document.createElement("a");
       link.href = image.url;
-      link.download = `generated-image-${image.seed || index}.png`;
+      link.download = `generated-image-${image.filename || index}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

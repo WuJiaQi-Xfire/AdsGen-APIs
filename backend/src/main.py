@@ -1,13 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .api.endpoints import router as api_router
+from .services import file_service
 
 app = FastAPI()
 
 # Configure CORS to allow requests from frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080","http://10.10.205.180:8080", "http://2.0.1.1:8080/"],
+    allow_origins=[
+        "http://localhost:8080",
+        "http://10.10.205.180:8080",
+        "http://2.0.1.1:8080/",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -15,3 +20,10 @@ app.add_middleware(
 
 # Include the API router
 app.include_router(api_router, prefix="/api")
+
+
+# Clear image folders on startup
+@app.on_event("startup")
+def startup_event():
+    print("Clearing image folders on startup...")
+    file_service.clear_image_folders()

@@ -17,9 +17,13 @@ export interface KeywordExtractionResponse {
   keywords: string[];
 }
 
+export interface GeneratedImageData {
+  filename: string;
+  data: string;
+}
+
 export interface ImageGenerationResponse {
-  images: string[];
-  seeds: number[];
+  images: GeneratedImageData[];
 }
 
 export interface PromptFile {
@@ -159,6 +163,23 @@ export class ApiService {
       return await response.json();
     } catch (error) {
       return handleApiError(error, "Failed to generate image");
+    }
+  }
+
+  // Get Generated Images
+  static async getGeneratedImages(): Promise<{images: GeneratedImageData[]}> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/get-generated-images/`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get generated images: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      return handleApiError(error, "Failed to get generated images");
     }
   }
 }
