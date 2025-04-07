@@ -17,6 +17,7 @@ def comfy_call_single_lora(
     prompt_name, prompt, lora, seed, batch_size, style_strength, ratio
 ):
     for i in range(batch_size):
+        seed+=i
         single_lora(prompt_name, prompt, lora, seed, style_strength, ratio)
 
 
@@ -272,6 +273,7 @@ def single_lora(prompt_name, prompt, lora, seed, style_strength, ratio):
 
 def comfy_call_stacked_lora(prompt_name, prompt, lora_list, seed, batch_size, ratio):
     for i in range(batch_size):
+        seed+=i
         stacked_lora(prompt_name, prompt, lora_list, seed, ratio)
 
 
@@ -526,6 +528,7 @@ def stacked_lora(prompt_name, prompt, lora_list, seed, ratio):
 
 def comfy_call_single_art(prompt_name, prompt, art, seed, batch_size, ratio):
     for i in range(batch_size):
+        seed+=i
         single_art(prompt_name, prompt, art, seed, ratio)
 
 
@@ -634,10 +637,10 @@ def single_art(prompt_name, prompt, art, seed, ratio):
         image3, mask = ExtendCanvasByPercentage(
             image3, True, False, 5, 0, 8, 8, 8, "#7f7f7f", mask
         )
-        positive, negative, latent2 = InpaintModelConditioning(
+        positive, negative, latent = InpaintModelConditioning(
             conditioning, conditioning2, vae, image3, mask, False
         )
-        latent2 = KSampler(
+        latent = KSampler(
             model2,
             785164945698779,
             20,
@@ -649,7 +652,7 @@ def single_art(prompt_name, prompt, art, seed, ratio):
             latent,
             1,
         )
-        image4 = VAEDecode(latent2, vae)
+        image4 = VAEDecode(latent, vae)
         upscale_model = UpscaleModelLoader("RealESRGAN_x4plus.pth")
         if ratio == "16:9":
             _, mask2 = LayerMaskTransparentBackgroundUltra(
@@ -778,6 +781,7 @@ def single_art(prompt_name, prompt, art, seed, ratio):
 
 def comfy_call_stacked_art(prompt_name, prompt, seed, batch_size, ratio):
     for i in range(batch_size):
+        seed+=i
         stacked_art(prompt_name, prompt, seed, ratio)
 
 
