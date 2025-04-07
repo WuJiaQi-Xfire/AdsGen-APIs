@@ -19,11 +19,7 @@ export const Select: React.FC<SelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
-  const [dropdownPosition, setDropdownPosition] = useState({
-    top: 0,
-    left: 0,
-    width: 0,
-  });
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find((option) => option.value === value);
 
@@ -44,13 +40,33 @@ export const Select: React.FC<SelectProps> = ({
   }, []);
 
   useEffect(() => {
-    if (isOpen && selectRef.current) {
+    if (isOpen && selectRef.current && dropdownRef.current) {
       const rect = selectRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-      });
+      const dropdownHeight = Math.min(dropdownRef.current.scrollHeight, 240);
+
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      const showBelow =
+        spaceBelow >= dropdownHeight || spaceBelow >= spaceAbove;
+
+      dropdownRef.current.style.width = `${rect.width}px`;
+
+      if (showBelow) {
+        dropdownRef.current.style.top = `${rect.bottom}px`;
+        dropdownRef.current.style.left = `${rect.left}px`;
+        dropdownRef.current.style.maxHeight = `${Math.min(
+          spaceBelow - 10,
+          240
+        )}px`;
+      } else {
+        dropdownRef.current.style.bottom = `${window.innerHeight - rect.top}px`;
+        dropdownRef.current.style.left = `${rect.left}px`;
+        dropdownRef.current.style.maxHeight = `${Math.min(
+          spaceAbove - 10,
+          240
+        )}px`;
+      }
     }
   }, [isOpen]);
 
@@ -65,33 +81,28 @@ export const Select: React.FC<SelectProps> = ({
         </span>
         <ChevronDown className="h-4 w-4 opacity-50" />
       </div>
+
       {isOpen && (
         <div
-          className="fixed z-50 rounded-md border border-input bg-background shadow-md"
-          style={{
-            top: `${dropdownPosition.top}px`,
-            left: `${dropdownPosition.left}px`,
-            width: `${dropdownPosition.width}px`,
-          }}
+          ref={dropdownRef}
+          className="fixed z-[999] rounded-md border border-input bg-background shadow-md overflow-auto"
+          style={{ maxHeight: "240px" }}
         >
-          <div className="py-1 max-h-60 overflow-auto">
-            {options.map((option) => (
-              <div
-                key={option.value}
-                className={cn(
-                  "px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground",
-                  option.value === value &&
-                    "bg-accent/50 text-accent-foreground"
-                )}
-                onClick={() => {
-                  onValueChange(option.value);
-                  setIsOpen(false);
-                }}
-              >
-                {option.label}
-              </div>
-            ))}
-          </div>
+          {options.map((option) => (
+            <div
+              key={option.value}
+              className={cn(
+                "px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground",
+                option.value === value && "bg-accent/50 text-accent-foreground"
+              )}
+              onClick={() => {
+                onValueChange(option.value);
+                setIsOpen(false);
+              }}
+            >
+              {option.label}
+            </div>
+          ))}
         </div>
       )}
     </div>

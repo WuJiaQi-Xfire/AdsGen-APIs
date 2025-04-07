@@ -303,6 +303,7 @@ const ImageGenerationTab: React.FC = () => {
               updateStyleSetting={updateStyleSetting}
               setActiveStyleId={setActiveStyleId}
               filteredStyles={filteredStyles}
+              stackLoRAs={stackLoRAs}
             />
           </div>
         </div>

@@ -20,26 +20,28 @@ def comfy_call_single_lora(
         single_lora(prompt_name, prompt, lora, seed, style_strength, ratio)
 
 
-def single_lora(
-    prompt_name, prompt, lora, seed, style_strength, ratio
-):
+def single_lora(prompt_name, prompt, lora, seed, style_strength, ratio):
     clean_prompt_name = prompt_name.replace(".txt", "")
     clean_lora_name = lora.replace(".safetensors", "")
 
     with Workflow():
         noise = RandomNoise(119501675105851)
-        model, _, _ = CheckpointLoaderSimple('flux1-dev-fp8.safetensors')
-        clip = DualCLIPLoader('t5xxl_fp8_e4m3fn.safetensors', 'clip_l.safetensors', 'flux', 'default')
+        model, _, _ = CheckpointLoaderSimple("flux1-dev-fp8.safetensors")
+        clip = DualCLIPLoader(
+            "t5xxl_fp8_e4m3fn.safetensors", "clip_l.safetensors", "flux", "default"
+        )
         model, clip = LoraLoader(model, clip, lora, style_strength, 1)
         model = ModelSamplingFlux(model, 1.12, 0.5000000000000001, 1024, 1024)
         clip_text_encode_positive_prompt_conditioning = CLIPTextEncode(prompt, clip)
-        clip_text_encode_positive_prompt_conditioning = FluxGuidance(clip_text_encode_positive_prompt_conditioning, 3.5)
+        clip_text_encode_positive_prompt_conditioning = FluxGuidance(
+            clip_text_encode_positive_prompt_conditioning, 3.5
+        )
         guider = BasicGuider(model, clip_text_encode_positive_prompt_conditioning)
-        sampler = KSamplerSelect('euler')
-        sigmas = BasicScheduler(model, 'simple', 20, 1)
+        sampler = KSamplerSelect("euler")
+        sigmas = BasicScheduler(model, "simple", 20, 1)
         latent = EmptyLatentImage(1080, 1080, 1)
         latent, _ = SamplerCustomAdvanced(noise, guider, sampler, sigmas, latent)
-        vae = VAELoader('ae.safetensors')
+        vae = VAELoader("ae.safetensors")
         image = VAEDecode(latent, vae)
         filename = f"{clean_prompt_name}_{clean_lora_name}_{seed}"
         _, _ = GregSaveImageWithSuffix(
@@ -63,6 +65,30 @@ def single_lora(
             "true",
             "false",
         )
+        if ratio == "1:1":
+            new_filename = f"{filename}_1_1"
+            _, _ = GregSaveImageWithSuffix(
+                image,
+                True,
+                preview_path,
+                new_filename,
+                "_",
+                "",
+                4,
+                "false",
+                "true",
+                "png",
+                300,
+                100,
+                "true",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "false",
+            )
+            return
         model2 = UnetLoaderGGUF("flux1-fill-dev-Q4_K_S.gguf")
         model2 = DifferentialDiffusion(model2)
         model3, processor = JanusModelLoader("deepseek-ai/Janus-Pro-1B")
@@ -194,7 +220,6 @@ def single_lora(
                 "false",
             )
         elif ratio == "9:16":
-            upscale_model = UpscaleModelLoader("RealESRGAN_x4plus.pth")
             _, mask2 = LayerMaskSegmentAnythingUltraV2(
                 image4,
                 "sam_vit_l (1.25GB)",
@@ -254,19 +279,23 @@ def stacked_lora(prompt_name, prompt, lora_list, seed, ratio):
     clean_prompt_name = prompt_name.replace(".txt", "")
     with Workflow():
         noise = RandomNoise(119501675105851)
-        model, _, _ = CheckpointLoaderSimple('flux1-dev-fp8.safetensors')
-        clip = DualCLIPLoader('t5xxl_fp8_e4m3fn.safetensors', 'clip_l.safetensors', 'flux', 'default')
+        model, _, _ = CheckpointLoaderSimple("flux1-dev-fp8.safetensors")
+        clip = DualCLIPLoader(
+            "t5xxl_fp8_e4m3fn.safetensors", "clip_l.safetensors", "flux", "default"
+        )
         for l in lora_list:
             model, clip = LoraLoader(model, clip, l["id"], l["styleStrength"], 1)
         model = ModelSamplingFlux(model, 1.12, 0.5000000000000001, 1024, 1024)
         clip_text_encode_positive_prompt_conditioning = CLIPTextEncode(prompt, clip)
-        clip_text_encode_positive_prompt_conditioning = FluxGuidance(clip_text_encode_positive_prompt_conditioning, 3.5)
+        clip_text_encode_positive_prompt_conditioning = FluxGuidance(
+            clip_text_encode_positive_prompt_conditioning, 3.5
+        )
         guider = BasicGuider(model, clip_text_encode_positive_prompt_conditioning)
-        sampler = KSamplerSelect('euler')
-        sigmas = BasicScheduler(model, 'simple', 20, 1)
+        sampler = KSamplerSelect("euler")
+        sigmas = BasicScheduler(model, "simple", 20, 1)
         latent = EmptyLatentImage(1080, 1080, 1)
         latent, _ = SamplerCustomAdvanced(noise, guider, sampler, sigmas, latent)
-        vae = VAELoader('ae.safetensors')
+        vae = VAELoader("ae.safetensors")
         image = VAEDecode(latent, vae)
         filename = f"{clean_prompt_name}_stacked_lora_{seed}"
         _, _ = GregSaveImageWithSuffix(
@@ -290,6 +319,30 @@ def stacked_lora(prompt_name, prompt, lora_list, seed, ratio):
             "true",
             "false",
         )
+        if ratio == "1:1":
+            new_filename = f"{filename}_1_1"
+            _, _ = GregSaveImageWithSuffix(
+                image,
+                True,
+                preview_path,
+                new_filename,
+                "_",
+                "",
+                4,
+                "false",
+                "true",
+                "png",
+                300,
+                100,
+                "true",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "false",
+            )
+            return
         model2 = UnetLoaderGGUF("flux1-fill-dev-Q4_K_S.gguf")
         model2 = DifferentialDiffusion(model2)
         model3, processor = JanusModelLoader("deepseek-ai/Janus-Pro-1B")
@@ -421,7 +474,6 @@ def stacked_lora(prompt_name, prompt, lora_list, seed, ratio):
                 "false",
             )
         elif ratio == "9:16":
-            upscale_model = UpscaleModelLoader("RealESRGAN_x4plus.pth")
             _, mask2 = LayerMaskSegmentAnythingUltraV2(
                 image4,
                 "sam_vit_l (1.25GB)",
@@ -471,30 +523,31 @@ def stacked_lora(prompt_name, prompt, lora_list, seed, ratio):
                 "false",
             )
 
-def comfy_call_single_art(
-    prompt_name, prompt, art, seed, batch_size, ratio
-):
+
+def comfy_call_single_art(prompt_name, prompt, art, seed, batch_size, ratio):
     for i in range(batch_size):
         single_art(prompt_name, prompt, art, seed, ratio)
 
 
-def single_art(
-    prompt_name, prompt, art, seed,  ratio
-):
+def single_art(prompt_name, prompt, art, seed, ratio):
     clean_prompt_name = prompt_name.replace(".txt", "")
     with Workflow():
         noise = RandomNoise(313190674711926)
-        model = UNETLoader('flux1-dev-fp8.safetensors', 'default')
+        model, _, _ = CheckpointLoaderSimple("flux1-dev-fp8.safetensors")
         model = ModelSamplingFlux(model, 1.12, 0.5000000000000001, 1024, 1024)
-        clip = DualCLIPLoader('t5xxl_fp8_e4m3fn.safetensors', 'clip_l.safetensors', 'flux', 'default')
+        clip = DualCLIPLoader(
+            "t5xxl_fp8_e4m3fn.safetensors", "clip_l.safetensors", "flux", "default"
+        )
         clip_text_encode_positive_prompt_conditioning = CLIPTextEncode(prompt, clip)
-        clip_text_encode_positive_prompt_conditioning = FluxGuidance(clip_text_encode_positive_prompt_conditioning, 3.5)
+        clip_text_encode_positive_prompt_conditioning = FluxGuidance(
+            clip_text_encode_positive_prompt_conditioning, 3.5
+        )
         guider = BasicGuider(model, clip_text_encode_positive_prompt_conditioning)
-        sampler = KSamplerSelect('euler')
-        sigmas = BasicScheduler(model, 'simple', 20, 1)
+        sampler = KSamplerSelect("euler")
+        sigmas = BasicScheduler(model, "simple", 20, 1)
         latent = EmptyLatentImage(1080, 1080, 1)
         latent, _ = SamplerCustomAdvanced(noise, guider, sampler, sigmas, latent)
-        vae = VAELoader('ae.safetensors')
+        vae = VAELoader("ae.safetensors")
         image = VAEDecode(latent, vae)
         filename = f"{clean_prompt_name}_{art}_{seed}"
         _, _ = GregSaveImageWithSuffix(
@@ -518,6 +571,30 @@ def single_art(
             "true",
             "false",
         )
+        if ratio == "1:1":
+            new_filename = f"{filename}_1_1"
+            _, _ = GregSaveImageWithSuffix(
+                image,
+                True,
+                preview_path,
+                new_filename,
+                "_",
+                "",
+                4,
+                "false",
+                "true",
+                "png",
+                300,
+                100,
+                "true",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "false",
+            )
+            return
         model2 = UnetLoaderGGUF("flux1-fill-dev-Q4_K_S.gguf")
         model2 = DifferentialDiffusion(model2)
         model3, processor = JanusModelLoader("deepseek-ai/Janus-Pro-1B")
@@ -561,7 +638,7 @@ def single_art(
             conditioning, conditioning2, vae, image3, mask, False
         )
         latent2 = KSampler(
-            model3,
+            model2,
             785164945698779,
             20,
             3.5,
@@ -698,6 +775,7 @@ def single_art(
                 "false",
             )
 
+
 def comfy_call_stacked_art(prompt_name, prompt, seed, batch_size, ratio):
     for i in range(batch_size):
         stacked_art(prompt_name, prompt, seed, ratio)
@@ -707,17 +785,21 @@ def stacked_art(prompt_name, prompt, seed, ratio):
     clean_prompt_name = prompt_name.replace(".txt", "")
     with Workflow():
         noise = RandomNoise(313190674711926)
-        model = UNETLoader('flux1-dev-fp8.safetensors', 'default')
+        model, _, _ = CheckpointLoaderSimple("flux1-dev-fp8.safetensors")
         model = ModelSamplingFlux(model, 1.12, 0.5000000000000001, 1024, 1024)
-        clip = DualCLIPLoader('t5xxl_fp8_e4m3fn.safetensors', 'clip_l.safetensors', 'flux', 'default')
+        clip = DualCLIPLoader(
+            "t5xxl_fp8_e4m3fn.safetensors", "clip_l.safetensors", "flux", "default"
+        )
         clip_text_encode_positive_prompt_conditioning = CLIPTextEncode(prompt, clip)
-        clip_text_encode_positive_prompt_conditioning = FluxGuidance(clip_text_encode_positive_prompt_conditioning, 3.5)
+        clip_text_encode_positive_prompt_conditioning = FluxGuidance(
+            clip_text_encode_positive_prompt_conditioning, 3.5
+        )
         guider = BasicGuider(model, clip_text_encode_positive_prompt_conditioning)
-        sampler = KSamplerSelect('euler')
-        sigmas = BasicScheduler(model, 'simple', 20, 1)
+        sampler = KSamplerSelect("euler")
+        sigmas = BasicScheduler(model, "simple", 20, 1)
         latent = EmptyLatentImage(1080, 1080, 1)
         latent, _ = SamplerCustomAdvanced(noise, guider, sampler, sigmas, latent)
-        vae = VAELoader('ae.safetensors')
+        vae = VAELoader("ae.safetensors")
         image = VAEDecode(latent, vae)
         filename = f"{clean_prompt_name}_stacked_art_{seed}"
         _, _ = GregSaveImageWithSuffix(
@@ -741,6 +823,30 @@ def stacked_art(prompt_name, prompt, seed, ratio):
             "true",
             "false",
         )
+        if ratio == "1:1":
+            new_filename = f"{filename}_1_1"
+            _, _ = GregSaveImageWithSuffix(
+                image,
+                True,
+                preview_path,
+                new_filename,
+                "_",
+                "",
+                4,
+                "false",
+                "true",
+                "png",
+                300,
+                100,
+                "true",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "false",
+            )
+            return
         model2 = UnetLoaderGGUF("flux1-fill-dev-Q4_K_S.gguf")
         model2 = DifferentialDiffusion(model2)
         model3, processor = JanusModelLoader("deepseek-ai/Janus-Pro-1B")
@@ -780,11 +886,11 @@ def stacked_art(prompt_name, prompt, seed, ratio):
         image3, mask = ExtendCanvasByPercentage(
             image3, True, False, 5, 0, 8, 8, 8, "#7f7f7f", mask
         )
-        positive, negative, latent2 = InpaintModelConditioning(
+        positive, negative, latent = InpaintModelConditioning(
             conditioning, conditioning2, vae, image3, mask, False
         )
-        latent2 = KSampler(
-            model3,
+        latent = KSampler(
+            model2,
             785164945698779,
             20,
             3.5,
@@ -795,7 +901,7 @@ def stacked_art(prompt_name, prompt, seed, ratio):
             latent,
             1,
         )
-        image4 = VAEDecode(latent2, vae)
+        image4 = VAEDecode(latent, vae)
         upscale_model = UpscaleModelLoader("RealESRGAN_x4plus.pth")
         if ratio == "16:9":
             _, mask2 = LayerMaskTransparentBackgroundUltra(
@@ -925,8 +1031,9 @@ def get_generated_images():
     """Load all images from the resized_image folder and convert them to base64 strings."""
     images = []
     try:
-        image_files = [f for f in os.listdir(preview_path) if f.lower().endswith((".png"))]
-
+        image_files = [
+            f for f in os.listdir(preview_path) if f.lower().endswith((".png"))
+        ]
         for image_file in image_files:
             new_path = os.path.join(preview_path, image_file)
             with open(new_path, "rb") as img_file:
