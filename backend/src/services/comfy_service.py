@@ -7,7 +7,6 @@ from comfy_script.runtime import *
 
 load("http://127.0.0.1:8188/")
 from comfy_script.runtime.nodes import *
-from comfy_script.runtime import util
 
 # Locally for now
 file_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\base_image"
@@ -27,7 +26,7 @@ def single_lora(prompt_name, prompt, lora, seed, style_strength, ratio):
     clean_lora_name = lora.replace(".safetensors", "")
 
     with Workflow():
-        noise = RandomNoise(119501675105851)
+        noise = RandomNoise(seed)
         model, _, _ = CheckpointLoaderSimple("flux1-dev-fp8.safetensors")
         clip = DualCLIPLoader(
             "t5xxl_fp8_e4m3fn.safetensors", "clip_l.safetensors", "flux", "default"
@@ -281,7 +280,7 @@ def comfy_call_stacked_lora(prompt_name, prompt, lora_list, batch_size, ratio):
 def stacked_lora(prompt_name, prompt, lora_list, seed, ratio):
     clean_prompt_name = prompt_name.replace(".txt", "")
     with Workflow():
-        noise = RandomNoise(119501675105851)
+        noise = RandomNoise(seed)
         model, _, _ = CheckpointLoaderSimple("flux1-dev-fp8.safetensors")
         clip = DualCLIPLoader(
             "t5xxl_fp8_e4m3fn.safetensors", "clip_l.safetensors", "flux", "default"
@@ -536,7 +535,7 @@ def comfy_call_single_art(prompt_name, prompt, art, batch_size, ratio):
 def single_art(prompt_name, prompt, art, seed, ratio):
     clean_prompt_name = prompt_name.replace(".txt", "")
     with Workflow():
-        noise = RandomNoise(313190674711926)
+        noise = RandomNoise(seed)
         model, _, _ = CheckpointLoaderSimple("flux1-dev-fp8.safetensors")
         model = ModelSamplingFlux(model, 1.12, 0.5000000000000001, 1024, 1024)
         clip = DualCLIPLoader(
@@ -789,7 +788,7 @@ def comfy_call_stacked_art(prompt_name, prompt, batch_size, ratio):
 def stacked_art(prompt_name, prompt, seed, ratio):
     clean_prompt_name = prompt_name.replace(".txt", "")
     with Workflow():
-        noise = RandomNoise(313190674711926)
+        noise = RandomNoise(seed)
         model, _, _ = CheckpointLoaderSimple("flux1-dev-fp8.safetensors")
         model = ModelSamplingFlux(model, 1.12, 0.5000000000000001, 1024, 1024)
         clip = DualCLIPLoader(

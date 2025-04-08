@@ -175,7 +175,7 @@ def calculate_expected_images(prompt_list, lora_list, art_list, stack_loras):
     return expected_count
 
 
-def wait_for_images(expected_count, check_interval=120):
+def wait_for_images(expected_count, check_interval=90):
     """Wait for the expected number of images to be generated."""
     start_time = time.time()
     last_count = 0
@@ -239,7 +239,6 @@ async def generate_image(
                     style_str = " ".join(
                         [f"{l["id"]}:{l["styleStrength"]}" for l in lora_list]
                     )
-                    print(style_str)
                     prompt = prompt_content.replace("{art_style_list}", style_str)
                     messages = gpt_service.create_message(prompt)
                     output = gpt_service.make_api_call(messages)
