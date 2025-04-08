@@ -1,14 +1,12 @@
 import React from "react";
-import { Upload } from "lucide-react";
+import { Upload, Trash2 } from "lucide-react";
 import { Button } from "@/components/UI/PrimaryButton";
 import { Label } from "@/components/UI/Label";
 import { Checkbox } from "@/components/UI/Checkbox";
+import { showToast } from "@/lib/ShowToast";
+import { ApiService } from "@/lib/api";
 
-interface PromptFile {
-  id: string;
-  name: string;
-  selected: boolean;
-}
+import { PromptFile } from "@/lib/api";
 
 interface PromptSectionProps {
   hasPrompt: boolean;
@@ -17,6 +15,7 @@ interface PromptSectionProps {
   togglePromptSelection: (id: string) => void;
   promptFileInputRef: React.RefObject<HTMLInputElement>;
   handlePromptFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  loadPrompts: () => void;
 }
 
 const PromptSection: React.FC<PromptSectionProps> = ({
@@ -26,6 +25,7 @@ const PromptSection: React.FC<PromptSectionProps> = ({
   togglePromptSelection,
   promptFileInputRef,
   handlePromptFileUpload,
+  loadPrompts,
 }) => {
   return (
     <div className="space-y-3">
@@ -52,30 +52,63 @@ const PromptSection: React.FC<PromptSectionProps> = ({
       {hasPrompt ? (
         <div className="border rounded-lg p-4 bg-background">
           <div className="max-h-64 overflow-y-auto">
-            <div className="grid grid-cols-2 gap-2">
-              {promptFiles.map((file) => (
-                <div
-                  key={file.id}
-                  className="flex items-center gap-2 p-2 bg-muted/40 rounded-md"
-                >
-                  <Checkbox
-                    id={`prompt-${file.id}`}
-                    checked={file.selected}
-                    onCheckedChange={() => togglePromptSelection(file.id)}
-                  />
-                  <Label
-                    htmlFor={`prompt-${file.id}`}
-                    className="flex-1 font-medium truncate text-sm"
-                  >
-                    {file.name}
-                  </Label>
-                </div>
-              ))}
-            </div>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="text-left text-xs font-medium text-muted-foreground border-b">
+                  <th className="p-2 w-8"></th>
+                  <th className="p-2">Name</th>
+                  <th className="p-2">Created</th>
+                  <th className="p-2 w-8"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {promptFiles.map((file) => (
+                  <tr key={file.id} className="border-b border-muted/40 hover:bg-muted/20">
+                    <td className="p-2">
+                      <Checkbox
+                        id={`prompt-${file.id}`}
+                        checked={file.selected}
+                        onCheckedChange={() => togglePromptSelection(file.id)}
+                      />
+                    </td>
+                    <td className="p-2">
+                      <Label
+                        htmlFor={`prompt-${file.id}`}
+                        className="font-medium truncate text-sm cursor-pointer"
+                      >
+                        {file.name}
+                      </Label>
+                    </td>
+                    <td className="p-2 text-xs text-muted-foreground">
+                      {file.created_at ? new Date(file.created_at).toLocaleString() : 'N/A'}
+                    </td>
+                    <td className="p-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                        onClick={async () => {
+                          try {
+                            await ApiService.deletePrompt(file.id);
+                            showToast("Prompt deleted successfully");
+                            loadPrompts();
+                          } catch (error) {
+                            console.error("Error deleting prompt:", error);
+                            showToast("Failed to delete prompt");
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
           {promptFiles.length === 0 && (
             <div className="text-center py-4 text-muted-foreground">
-              No prompt files. Upload some to get started.
+              No prompts found. Upload some to get started.
             </div>
           )}
         </div>

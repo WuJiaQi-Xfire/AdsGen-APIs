@@ -35,6 +35,8 @@ const ImageGenerationTab: React.FC = () => {
     fileInputRef,
     loraStyles,
     artStyles,
+    loadPrompts,
+    isLoadingPrompts,
   } = ImageGeneration();
 
   const {
@@ -190,7 +192,7 @@ const ImageGenerationTab: React.FC = () => {
     selectedImages.forEach((image, index) => {
       const link = document.createElement("a");
       link.href = image.url;
-      link.download = `generated-image-${image.filename || index}.png`;
+      link.download = `${image.filename || index}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -222,6 +224,7 @@ const ImageGenerationTab: React.FC = () => {
               handlePromptUpload={handlePromptUpload}
               promptFileInputRef={promptFileInputRef}
               handlePromptFileUpload={handlePromptFileUpload}
+              loadPrompts={loadPrompts}
             />
           </div>
           <div className="bg-white rounded-lg shadow-soft p-5 border">

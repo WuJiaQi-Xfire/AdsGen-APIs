@@ -1,5 +1,6 @@
 import os
 import base64
+import random
 
 # For comfyui
 from comfy_script.runtime import *
@@ -14,10 +15,10 @@ preview_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\resized_image
 
 
 def comfy_call_single_lora(
-    prompt_name, prompt, lora, seed, batch_size, style_strength, ratio
+    prompt_name, prompt, lora, batch_size, style_strength, ratio
 ):
     for i in range(batch_size):
-        seed+=i
+        seed = random.randint(0, 4294967295)
         single_lora(prompt_name, prompt, lora, seed, style_strength, ratio)
 
 
@@ -271,9 +272,9 @@ def single_lora(prompt_name, prompt, lora, seed, style_strength, ratio):
             )
 
 
-def comfy_call_stacked_lora(prompt_name, prompt, lora_list, seed, batch_size, ratio):
+def comfy_call_stacked_lora(prompt_name, prompt, lora_list, batch_size, ratio):
     for i in range(batch_size):
-        seed+=i
+        seed = random.randint(0, 4294967295)
         stacked_lora(prompt_name, prompt, lora_list, seed, ratio)
 
 
@@ -526,9 +527,9 @@ def stacked_lora(prompt_name, prompt, lora_list, seed, ratio):
             )
 
 
-def comfy_call_single_art(prompt_name, prompt, art, seed, batch_size, ratio):
+def comfy_call_single_art(prompt_name, prompt, art, batch_size, ratio):
     for i in range(batch_size):
-        seed+=i
+        seed = random.randint(0, 4294967295)
         single_art(prompt_name, prompt, art, seed, ratio)
 
 
@@ -779,9 +780,9 @@ def single_art(prompt_name, prompt, art, seed, ratio):
             )
 
 
-def comfy_call_stacked_art(prompt_name, prompt, seed, batch_size, ratio):
+def comfy_call_stacked_art(prompt_name, prompt, batch_size, ratio):
     for i in range(batch_size):
-        seed+=i
+        seed = random.randint(0, 4294967295)
         stacked_art(prompt_name, prompt, seed, ratio)
 
 
@@ -1030,6 +1031,7 @@ def stacked_art(prompt_name, prompt, seed, ratio):
                 "true",
                 "false",
             )
+
 
 def get_generated_images():
     """Load all images from the resized_image folder and convert them to base64 strings."""
