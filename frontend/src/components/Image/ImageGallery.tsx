@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/UI/ScrollArea";
 
 export interface GeneratedImage {
   url: string;
-  seed?: number;
+  filename?: string;
   selected: boolean;
 }
 
@@ -75,9 +75,9 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 </div>
               )}
 
-              {image.seed !== undefined && (
+              {image.filename !== undefined && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-xs truncate">
-                  Seed: {image.seed}
+                  {image.filename}
                 </div>
               )}
             </div>

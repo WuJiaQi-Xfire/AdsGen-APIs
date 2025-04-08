@@ -7,13 +7,14 @@ export interface StyleSettings {
   name: string;
   styleStrength: number;
   batchSize: number;
-  width: number;
-  height: number;
+  aspectRatio: "1:1" | "16:9" | "9:16";
+  styleType: "lora" | "art";
 }
 
 export const ImagePresets = () => {
   const [keyword, setKeyword] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
+  const [stackLoRAs, setStackLoRAs] = useState(false);
 
   const [defaultSettings, setDefaultSettings] = useState(() => {
     const savedSettings = localStorage.getItem("defaultStyleSettings");
@@ -27,8 +28,7 @@ export const ImagePresets = () => {
     return {
       styleStrength: 1,
       batchSize: 1,
-      width: 1024,
-      height: 1024,
+      aspectRatio: "1:1",
     };
   });
 
@@ -74,7 +74,11 @@ export const ImagePresets = () => {
     setKeywords(keywords.filter((k) => k !== keywordToRemove));
   };
 
-  const addStyleSetting = (id: string, name: string) => {
+  const addStyleSetting = (
+    id: string,
+    name: string,
+    styleType: "lora" | "art"
+  ) => {
     const existingSetting = styleSettings.find((s) => s.id === id);
 
     if (existingSetting) {
@@ -86,8 +90,8 @@ export const ImagePresets = () => {
       name,
       styleStrength: defaultSettings.styleStrength,
       batchSize: defaultSettings.batchSize,
-      width: defaultSettings.width,
-      height: defaultSettings.height,
+      aspectRatio: defaultSettings.aspectRatio,
+      styleType,
     };
 
     setStyleSettings([...styleSettings, newStyleSetting]);
@@ -116,7 +120,7 @@ export const ImagePresets = () => {
   const updateStyleSetting = (
     id: string,
     setting: keyof Omit<StyleSettings, "id" | "name">,
-    value: number
+    value: number | "1:1" | "16:9" | "9:16" | "lora" | "art"
   ) => {
     setStyleSettings(
       styleSettings.map((s) => {
@@ -151,19 +155,14 @@ export const ImagePresets = () => {
     }
   };
 
-  const handleResolutionChange = (
-    dimension: "width" | "height",
-    value: string
-  ) => {
-    const numValue = parseInt(value, 10) || 512;
-
+  const handleResolutionChange = (aspectRatio: "1:1" | "16:9" | "9:16") => {
     setDefaultSettings((prev) => ({
       ...prev,
-      [dimension]: numValue,
+      aspectRatio,
     }));
 
     if (activeStyleId) {
-      updateStyleSetting(activeStyleId, dimension, numValue);
+      updateStyleSetting(activeStyleId, "aspectRatio", aspectRatio);
     }
   };
 
@@ -189,17 +188,6 @@ export const ImagePresets = () => {
     }
   };
 
-  const resolution = activeStyleId
-    ? {
-        width: getStyleSettings(activeStyleId)?.width || defaultSettings.width,
-        height:
-          getStyleSettings(activeStyleId)?.height || defaultSettings.height,
-      }
-    : {
-        width: defaultSettings.width,
-        height: defaultSettings.height,
-      };
-
   const styleStrength = activeStyleId
     ? getStyleSettings(activeStyleId)?.styleStrength ||
       defaultSettings.styleStrength
@@ -209,6 +197,11 @@ export const ImagePresets = () => {
     ? getStyleSettings(activeStyleId)?.batchSize || defaultSettings.batchSize
     : defaultSettings.batchSize;
 
+  const aspectRatio = activeStyleId
+    ? getStyleSettings(activeStyleId)?.aspectRatio ||
+      defaultSettings.aspectRatio
+    : defaultSettings.aspectRatio;
+
   return {
     keyword,
     setKeyword,
@@ -216,9 +209,10 @@ export const ImagePresets = () => {
     handleAddKeyword,
     handleRemoveKeyword,
     handleKeywordImageUpload,
-    styleStrength,
-    setStyleStrength,
-    resolution,
+    styleStrength: defaultSettings.styleStrength,
+    setStyleStrength: (value: number) =>
+      setDefaultSettings({ ...defaultSettings, styleStrength: value }),
+    aspectRatio,
     handleResolutionChange,
     batchSize,
     setBatchSize,
@@ -231,6 +225,8 @@ export const ImagePresets = () => {
     activeStyleId,
     setActiveStyleId,
     styleSettings,
+    stackLoRAs,
+    setStackLoRAs,
   };
 };
 

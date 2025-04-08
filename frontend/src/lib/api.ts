@@ -17,9 +17,13 @@ export interface KeywordExtractionResponse {
   keywords: string[];
 }
 
+export interface GeneratedImageData {
+  filename: string;
+  data: string;
+}
+
 export interface ImageGenerationResponse {
-  images: string[];
-  seeds: number[];
+  images: GeneratedImageData[];
 }
 
 export interface PromptFile {
@@ -27,10 +31,12 @@ export interface PromptFile {
   name: string;
   content: string;
   selected: boolean;
+  created_at?: string;
 }
 export interface Style {
   id: string;
   name: string;
+  styleType: "lora" | "art";
 }
 export interface StyleResponse {
   loraStyles: Style[];
@@ -41,11 +47,104 @@ export interface StyleSetting {
   id: string;
   styleStrength: number;
   batchSize: number;
-  width: number;
-  height: number;
+  aspectRatio: "1:1" | "16:9" | "9:16";
+  styleType: "lora" | "art";
+}
+
+export interface ImageGenerationRequest {
+  prompts: PromptFile[];
+  style_settings: StyleSetting[];
+  keywords: string[];
+  stack_loras: boolean;
 }
 
 export class ApiService {
+  // Database Prompt Management
+  static async savePrompt(promptName: string, content: string): Promise<{ id: number }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/prompts/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt_name: promptName,
+          content: content,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save prompt: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      return handleApiError(error, 'Failed to save prompt');
+    }
+  }
+
+  static async getPrompts(): Promise<PromptFile[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/prompts/`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get prompts: ${response.status}`);
+      }
+
+      const prompts = await response.json();
+      return prompts.map((prompt: any) => ({
+        id: prompt.id.toString(),
+        name: prompt.prompt_name,
+        content: prompt.content,
+        selected: false,
+        created_at: prompt.created_at,
+      }));
+    } catch (error) {
+      return handleApiError(error, 'Failed to get prompts');
+    }
+  }
+
+  static async getPrompt(id: string): Promise<PromptFile> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/prompts/${id}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get prompt: ${response.status}`);
+      }
+
+      const prompt = await response.json();
+      return {
+        id: prompt.id.toString(),
+        name: prompt.prompt_name,
+        content: prompt.content,
+        selected: false,
+        created_at: prompt.created_at,
+      };
+    } catch (error) {
+      return handleApiError(error, 'Failed to get prompt');
+    }
+  }
+
+  static async deletePrompt(id: string): Promise<{ message: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/prompts/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete prompt: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      return handleApiError(error, 'Failed to delete prompt');
+    }
+  }
+
   // Prompt Generation
   static async generatePrompt(
     description: string,
@@ -129,13 +228,15 @@ export class ApiService {
   static async generateImage(
     selectedPrompts: PromptFile[],
     styleSettings: StyleSetting[],
-    keywords: string[]
+    keywords: string[],
+    stackLoras: boolean
   ): Promise<ImageGenerationResponse> {
     try {
       const formData = new FormData();
       formData.append("prompts", JSON.stringify(selectedPrompts));
       formData.append("style_settings", JSON.stringify(styleSettings));
       formData.append("keywords", JSON.stringify(keywords));
+      formData.append("stack_loras", JSON.stringify(stackLoras));
 
       const response = await fetch(`${API_BASE_URL}/generate-image/`, {
         method: "POST",
@@ -149,6 +250,23 @@ export class ApiService {
       return await response.json();
     } catch (error) {
       return handleApiError(error, "Failed to generate image");
+    }
+  }
+
+  // Get Generated Images
+  static async getGeneratedImages(): Promise<{images: GeneratedImageData[]}> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/get-generated-images/`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get generated images: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      return handleApiError(error, "Failed to get generated images");
     }
   }
 }

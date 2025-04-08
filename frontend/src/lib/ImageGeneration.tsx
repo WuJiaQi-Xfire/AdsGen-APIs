@@ -30,6 +30,7 @@ export const ImageGeneration = () => {
   const promptFileInputRef = useRef<HTMLInputElement>(null);
   const [loraStyles, setLoraStyles] = useState<Style[]>([]);
   const [artStyles, setArtStyles] = useState<Style[]>([]);
+  const [isLoadingPrompts, setIsLoadingPrompts] = useState(false);
 
   useEffect(() => {
     const fetchStyles = async () => {
@@ -42,7 +43,22 @@ export const ImageGeneration = () => {
       }
     };
     fetchStyles();
+    loadPrompts();
   }, []);
+  
+  const loadPrompts = async () => {
+    setIsLoadingPrompts(true);
+    try {
+      const prompts = await ApiService.getPrompts();
+      setPromptFiles(prompts);
+      setHasPrompt(prompts.length > 0);
+    } catch (error) {
+      console.error("Error loading prompts:", error);
+      showToast("Failed to load prompts from the database");
+    } finally {
+      setIsLoadingPrompts(false);
+    }
+  };
 
   const currentStyles = styleType === "lora" ? loraStyles : artStyles;
 
@@ -52,40 +68,46 @@ export const ImageGeneration = () => {
       )
     : currentStyles;
 
-  const handlePromptFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePromptFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const filesArray = Array.from(e.target.files);
-    const newPromptFiles: PromptFile[] = [];
     let filesProcessed = 0;
-    filesArray.forEach((file) => {
+    const totalFiles = filesArray.length;
+    
+    for (const file of filesArray) {
+      try {
+        const content = await readFileAsText(file);
+        const promptName = file.name.replace(/\.txt$/, '');
+        
+        // Save to database
+        await ApiService.savePrompt(promptName, content);
+        filesProcessed++;
+        
+        if (filesProcessed === totalFiles) {
+          showToast("Upload successful. Prompts saved to database.");
+          // Reload prompts from database
+          await loadPrompts();
+        }
+      } catch (error) {
+        console.error(`Error processing file ${file.name}:`, error);
+        showToast(`There was an error processing the file ${file.name}.`);
+        filesProcessed++;
+      }
+    }
+  };
+  
+  const readFileAsText = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
-          const newFile: PromptFile = {
-            id: uuidv4(),
-            name: file.name,
-            content: event.target.result as string,
-            selected: false,
-          };
-
-          newPromptFiles.push(newFile);
-          filesProcessed++;
-          if (filesProcessed === filesArray.length) {
-            setPromptFiles((prev) => [...prev, ...newPromptFiles]);
-            setHasPrompt(true);
-            showToast(
-              "Upload successful. Please select the prompts you want to use."
-            );
-          }
+          resolve(event.target.result as string);
+        } else {
+          reject(new Error('Failed to read file'));
         }
       };
-
-      reader.onerror = () => {
-        showToast("There was an error reading the file ${file.name}.");
-        filesProcessed++;
-      };
-
+      reader.onerror = () => reject(new Error(`Error reading file ${file.name}`));
       reader.readAsText(file);
     });
   };
@@ -113,7 +135,16 @@ export const ImageGeneration = () => {
   };
 
   const selectAllStyles = () => {
-    setSelectedStyles(filteredStyles.map((style) => style.id));
+    // Get all currently filtered styles
+    const filteredStyleIds = filteredStyles.map((style) => style.id);
+    
+    // Keep existing selections that aren't in the current filtered list
+    const existingSelections = selectedStyles.filter(
+      (id) => !currentStyles.some((style) => style.id === id)
+    );
+    
+    // Combine with all filtered styles
+    setSelectedStyles([...existingSelections, ...filteredStyleIds]);
   };
 
   const clearStyleSelection = () => {
@@ -148,5 +179,7 @@ export const ImageGeneration = () => {
     togglePromptSelection,
     loraStyles,
     artStyles,
+    loadPrompts,
+    isLoadingPrompts,
   };
 };

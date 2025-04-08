@@ -6,13 +6,11 @@ import { StyleSettings } from "@/lib/ImagePresets";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Style } from "@/lib/ImageGeneration";
+import Select from "@/components/UI/Select";
 
 interface ImageSettingsProps {
-  resolution: { width: number; height: number };
-  handleResolutionChange: (
-    dimension: "width" | "height",
-    value: string
-  ) => void;
+  aspectRatio: "1:1" | "16:9" | "9:16";
+  handleAspectRatioChange: (aspectRatio: "1:1" | "16:9" | "9:16") => void;
   batchSize: number;
   styleStrength: number;
   setStyleStrength: (value: number) => void;
@@ -24,17 +22,18 @@ interface ImageSettingsProps {
   updateStyleSetting: (
     id: string,
     setting: keyof Omit<StyleSettings, "id" | "name">,
-    value: number
+    value: number | "1:1" | "16:9" | "9:16"
   ) => void;
   setActiveStyleId: (id: string | null) => void;
   filteredStyles: Style[];
+  stackLoRAs: boolean;
 }
 
 const ImageSettings: React.FC<ImageSettingsProps> = ({
   styleStrength,
   setStyleStrength,
-  resolution,
-  handleResolutionChange,
+  aspectRatio,
+  handleAspectRatioChange,
   batchSize,
   setBatchSize,
   activeStyleId,
@@ -44,6 +43,7 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
   updateStyleSetting,
   setActiveStyleId,
   filteredStyles,
+  stackLoRAs,
 }) => {
   const [expandedStyleId, setExpandedStyleId] = useState<string | null>(null);
 
@@ -66,8 +66,7 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
       styleSettings.find((s) => s.id === styleId) || {
         styleStrength: 1,
         batchSize: 1,
-        width: 1024,
-        height: 1024,
+        aspectRatio: "1:1",
       }
     );
   };
@@ -82,9 +81,14 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
         {selectedStyles.length > 0 ? (
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground mb-2">
-              Click on a style to customize its settings
+              {stackLoRAs
+                ? (
+                  <span className="flex items-center gap-1">
+                    For each stacked style type (Lora/Art), only the first style's settings will be used
+                  </span>
+                )
+                : "Click on a style to customize its settings"}
             </p>
-
             <div className="space-y-2 max-h-[400px] overflow-y-auto">
               {selectedStyles.map((styleId) => {
                 const settings = getSettingsForStyle(styleId);
@@ -119,6 +123,7 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
                           {getStyleName(styleId)}
                         </span>
                       </div>
+
                       {isExpanded ? (
                         <ChevronUp className="h-4 w-4 text-muted-foreground" />
                       ) : (
@@ -137,6 +142,7 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
                               {settings.styleStrength}
                             </span>
                           </div>
+
                           <Slider
                             value={[settings.styleStrength]}
                             min={0}
@@ -174,50 +180,27 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
 
                         <div className="space-y-1">
                           <label className="text-xs text-muted-foreground">
-                            Resolution
+                            Aspect Ratio
                           </label>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <label className="text-xs text-muted-foreground mb-1 block">
-                                Width
-                              </label>
-                              <Input
-                                type="number"
-                                value={settings.width}
-                                onChange={(e) =>
-                                  updateStyleSetting(
-                                    styleId,
-                                    "width",
-                                    parseInt(e.target.value, 10) || 512
-                                  )
-                                }
-                                min={64}
-                                max={2048}
-                                step={64}
-                                className="text-xs"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-muted-foreground mb-1 block">
-                                Height
-                              </label>
-                              <Input
-                                type="number"
-                                value={settings.height}
-                                onChange={(e) =>
-                                  updateStyleSetting(
-                                    styleId,
-                                    "height",
-                                    parseInt(e.target.value, 10) || 512
-                                  )
-                                }
-                                min={64}
-                                max={2048}
-                                step={64}
-                                className="text-xs"
-                              />
-                            </div>
-                          </div>
+                          <Select
+                            value={settings.aspectRatio}
+                            onValueChange={(value) => {
+                              updateStyleSetting(
+                                styleId,
+                                "aspectRatio",
+                                value as "1:1" | "16:9" | "9:16"
+                              );
+                              handleAspectRatioChange(
+                                value as "1:1" | "16:9" | "9:16"
+                              );
+                            }}
+                            options={[
+                              { value: "1:1", label: "1:1 (Square)" },
+                              { value: "16:9", label: "16:9 (Landscape)" },
+                              { value: "9:16", label: "9:16 (Portrait)" },
+                            ]}
+                            className="text-xs"
+                          />
                         </div>
                       </div>
                     )}

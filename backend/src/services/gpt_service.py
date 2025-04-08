@@ -56,9 +56,15 @@ def create_message(content, image_url=None, image_base64=None):
     return messages
 
 
-def make_api_call(data):
+def make_api_call(message):
     """Function to make a POST request to the API."""
     try:
+        data = {
+        "temperature": 0.8,
+        "top_p": 0.6,
+        "max_tokens": 4000,
+        "messages": message,
+        }
         response = requests.post(api_endpoint, headers=headers, json=data, timeout=25)
         response.raise_for_status()
         response_data = response.json()
@@ -86,14 +92,7 @@ def create_prompt(description, image_base64=None, image_url=None):
     prompt = load_prompt_from_file(template_path) + "\n\nDescription:\n" + description
     messages = create_message(prompt, image_url, image_base64)
 
-    data = {
-        "temperature": 0.8,
-        "top_p": 0.6,
-        "max_tokens": 4000,
-        "messages": messages,
-    }
-
-    return make_api_call(data)
+    return make_api_call(messages)
 
 
 def extract_keywords(image_base64=None, image_url=None):

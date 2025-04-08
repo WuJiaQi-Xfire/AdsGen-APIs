@@ -1,9 +1,11 @@
 """Module for file operations"""
 
 import os
-import base64
 import pandas as pd
-from PIL import Image
+
+
+file_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\base_image"
+preview_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\resized_image"
 
 
 def load_prompt_from_file(file_path: str) -> str:
@@ -25,7 +27,10 @@ def read_art_file():
     base_dir = os.path.dirname(os.path.dirname(__file__))
     template_path = os.path.join(base_dir, "styles", "game_art_styles.csv")
     df = pd.read_csv(template_path, header=None)
-    styles = [{"id": row[0], "name": row[0]} for index, row in df.iterrows()]
+    styles = [
+        {"id": row[0], "name": row[0], "styleType": "art"}
+        for index, row in df.iterrows()
+    ]
     return styles
 
 
@@ -47,3 +52,24 @@ def file_name(prompt_name, style_name, seed):
     os.makedirs(style_folder, exist_ok=True)
     image_path = os.path.join(style_folder, f"{seed}.png")
     return image_path
+
+
+def clear_image_folders():
+    """Clear all images from the base_image and resized_image folders."""
+    os.makedirs(file_path, exist_ok=True)
+    os.makedirs(preview_path, exist_ok=True)
+
+    try:
+        for file in os.listdir(file_path):
+            file_path_to_remove = os.path.join(file_path, file)
+            if os.path.isfile(file_path_to_remove) and file.lower().endswith((".png")):
+                os.remove(file_path_to_remove)
+
+        for file in os.listdir(preview_path):
+            file_path_to_remove = os.path.join(preview_path, file)
+            if os.path.isfile(file_path_to_remove) and file.lower().endswith((".png")):
+                os.remove(file_path_to_remove)
+
+        print("Successfully cleared image folders")
+    except Exception as e:
+        print(f"Error clearing image folders: {str(e)}")
