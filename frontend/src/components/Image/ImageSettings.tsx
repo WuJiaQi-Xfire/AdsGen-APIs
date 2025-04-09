@@ -9,8 +9,8 @@ import { Style } from "@/lib/ImageGeneration";
 import Select from "@/components/UI/Select";
 
 interface ImageSettingsProps {
-  aspectRatio: "1:1" | "16:9" | "9:16";
-  handleAspectRatioChange: (aspectRatio: "1:1" | "16:9" | "9:16") => void;
+  //aspectRatio: "1:1" | "16:9" | "9:16";
+  //handleAspectRatioChange: (aspectRatio: "1:1" | "16:9" | "9:16") => void;
   batchSize: number;
   styleStrength: number;
   setStyleStrength: (value: number) => void;
@@ -22,7 +22,7 @@ interface ImageSettingsProps {
   updateStyleSetting: (
     id: string,
     setting: keyof Omit<StyleSettings, "id" | "name">,
-    value: number | "1:1" | "16:9" | "9:16"
+    value: number
   ) => void;
   setActiveStyleId: (id: string | null) => void;
   filteredStyles: Style[];
@@ -32,8 +32,8 @@ interface ImageSettingsProps {
 const ImageSettings: React.FC<ImageSettingsProps> = ({
   styleStrength,
   setStyleStrength,
-  aspectRatio,
-  handleAspectRatioChange,
+  //aspectRatio,
+  //handleAspectRatioChange,
   batchSize,
   setBatchSize,
   activeStyleId,
@@ -66,7 +66,7 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
       styleSettings.find((s) => s.id === styleId) || {
         styleStrength: 1,
         batchSize: 1,
-        aspectRatio: "1:1",
+        //aspectRatio: "1:1",
       }
     );
   };
@@ -81,13 +81,14 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
         {selectedStyles.length > 0 ? (
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground mb-2">
-              {stackLoRAs
-                ? (
-                  <span className="flex items-center gap-1">
-                    For each stacked style type (Lora/Art), only the first style's settings will be used
-                  </span>
-                )
-                : "Click on a style to customize its settings"}
+              {stackLoRAs ? (
+                <span className="flex items-center gap-1">
+                  For each stacked style type (Lora/Art), only the first style's
+                  settings will be used
+                </span>
+              ) : (
+                "Click on a style to customize its settings"
+              )}
             </p>
             <div className="space-y-2 max-h-[400px] overflow-y-auto">
               {selectedStyles.map((styleId) => {
@@ -147,7 +148,7 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
                             value={[settings.styleStrength]}
                             min={0}
                             max={2}
-                            step={0.1}
+                            step={0.01}
                             onValueChange={(values) =>
                               updateStyleSetting(
                                 styleId,
@@ -177,7 +178,7 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
                             className="text-xs"
                           />
                         </div>
-
+                        {/*
                         <div className="space-y-1">
                           <label className="text-xs text-muted-foreground">
                             Aspect Ratio
@@ -202,6 +203,7 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({
                             className="text-xs"
                           />
                         </div>
+                        */}
                       </div>
                     )}
                   </div>

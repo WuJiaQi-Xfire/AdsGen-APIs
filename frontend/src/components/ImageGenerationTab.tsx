@@ -48,8 +48,8 @@ const ImageGenerationTab: React.FC = () => {
     handleKeywordImageUpload,
     styleStrength,
     setStyleStrength,
-    aspectRatio,
-    handleResolutionChange,
+    //aspectRatio,
+    //handleResolutionChange,
     batchSize,
     setBatchSize,
     isLoadingKeywords,
@@ -121,7 +121,7 @@ const ImageGenerationTab: React.FC = () => {
             id: setting.id,
             styleStrength: setting.styleStrength,
             batchSize: setting.batchSize,
-            aspectRatio: setting.aspectRatio,
+            //aspectRatio: setting.aspectRatio,
             styleType: styleType || "art",
           };
         });
@@ -140,7 +140,7 @@ const ImageGenerationTab: React.FC = () => {
             id: styleId,
             styleStrength,
             batchSize,
-            aspectRatio,
+            //aspectRatio,
             styleType,
           });
         } else {
@@ -293,8 +293,8 @@ const ImageGenerationTab: React.FC = () => {
             />
 
             <ImageSettings
-              aspectRatio={aspectRatio}
-              handleAspectRatioChange={handleResolutionChange}
+              //aspectRatio={aspectRatio}
+              //handleAspectRatioChange={handleResolutionChange}
               styleStrength={styleStrength}
               setStyleStrength={setStyleStrength}
               batchSize={batchSize}
