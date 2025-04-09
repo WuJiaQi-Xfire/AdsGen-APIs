@@ -47,7 +47,7 @@ export interface StyleSetting {
   id: string;
   styleStrength: number;
   batchSize: number;
-  aspectRatio: "1:1" | "16:9" | "9:16";
+  //aspectRatio: "1:1" | "16:9" | "9:16";
   styleType: "lora" | "art";
 }
 
@@ -60,12 +60,15 @@ export interface ImageGenerationRequest {
 
 export class ApiService {
   // Database Prompt Management
-  static async savePrompt(promptName: string, content: string): Promise<{ id: number }> {
+  static async savePrompt(
+    promptName: string,
+    content: string
+  ): Promise<{ id: number }> {
     try {
       const response = await fetch(`${API_BASE_URL}/prompts/`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           prompt_name: promptName,
@@ -79,14 +82,14 @@ export class ApiService {
 
       return await response.json();
     } catch (error) {
-      return handleApiError(error, 'Failed to save prompt');
+      return handleApiError(error, "Failed to save prompt");
     }
   }
 
   static async getPrompts(): Promise<PromptFile[]> {
     try {
       const response = await fetch(`${API_BASE_URL}/prompts/`, {
-        method: 'GET',
+        method: "GET",
       });
 
       if (!response.ok) {
@@ -102,14 +105,14 @@ export class ApiService {
         created_at: prompt.created_at,
       }));
     } catch (error) {
-      return handleApiError(error, 'Failed to get prompts');
+      return handleApiError(error, "Failed to get prompts");
     }
   }
 
   static async getPrompt(id: string): Promise<PromptFile> {
     try {
       const response = await fetch(`${API_BASE_URL}/prompts/${id}`, {
-        method: 'GET',
+        method: "GET",
       });
 
       if (!response.ok) {
@@ -125,14 +128,14 @@ export class ApiService {
         created_at: prompt.created_at,
       };
     } catch (error) {
-      return handleApiError(error, 'Failed to get prompt');
+      return handleApiError(error, "Failed to get prompt");
     }
   }
 
   static async deletePrompt(id: string): Promise<{ message: string }> {
     try {
       const response = await fetch(`${API_BASE_URL}/prompts/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!response.ok) {
@@ -141,7 +144,7 @@ export class ApiService {
 
       return await response.json();
     } catch (error) {
-      return handleApiError(error, 'Failed to delete prompt');
+      return handleApiError(error, "Failed to delete prompt");
     }
   }
 
@@ -254,7 +257,7 @@ export class ApiService {
   }
 
   // Get Generated Images
-  static async getGeneratedImages(): Promise<{images: GeneratedImageData[]}> {
+  static async getGeneratedImages(): Promise<{ images: GeneratedImageData[] }> {
     try {
       const response = await fetch(`${API_BASE_URL}/get-generated-images/`, {
         method: "GET",

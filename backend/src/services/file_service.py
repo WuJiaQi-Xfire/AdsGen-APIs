@@ -62,12 +62,12 @@ def clear_image_folders():
     try:
         for file in os.listdir(file_path):
             file_path_to_remove = os.path.join(file_path, file)
-            if os.path.isfile(file_path_to_remove) and file.lower().endswith((".png")):
+            if os.path.isfile(file_path_to_remove):
                 os.remove(file_path_to_remove)
 
         for file in os.listdir(preview_path):
             file_path_to_remove = os.path.join(preview_path, file)
-            if os.path.isfile(file_path_to_remove) and file.lower().endswith((".png")):
+            if os.path.isfile(file_path_to_remove):
                 os.remove(file_path_to_remove)
 
         print("Successfully cleared image folders")

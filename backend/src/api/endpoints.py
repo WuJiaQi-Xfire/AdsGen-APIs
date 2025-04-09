@@ -5,15 +5,13 @@ import json
 import time
 import os
 from typing import Optional, List
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
 import requests
-from typing import Optional
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
-from src.services.comfy_service import preview_path
+from src.services.comfy_service import file_path
 from ..services import gpt_service, file_service, comfy_service
 from ..database.database import DatabaseManager
-from datetime import datetime
 
 router = APIRouter()
 
@@ -175,7 +173,7 @@ def calculate_expected_images(prompt_list, lora_list, art_list, stack_loras):
     return expected_count
 
 
-def wait_for_images(expected_count, check_interval=90):
+def wait_for_images(expected_count, check_interval=110):
     """Wait for the expected number of images to be generated."""
     start_time = time.time()
     last_count = 0
@@ -186,7 +184,7 @@ def wait_for_images(expected_count, check_interval=90):
     while True:
         try:
             image_files = [
-                f for f in os.listdir(preview_path) if f.lower().endswith((".png"))
+                f for f in os.listdir(file_path) if f.lower().endswith((".png"))
             ]
             current_count = len(image_files)
             current_time = time.time()
@@ -228,7 +226,7 @@ async def generate_image(
         style_settings_list = json.loads(style_settings)
         lora_list = [l for l in style_settings_list if l["styleType"] == "lora"]
         art_list = [l for l in style_settings_list if l["styleType"] == "art"]
-        
+
         file_service.clear_image_folders()
 
         for prompt in prompt_list:
@@ -242,12 +240,12 @@ async def generate_image(
                     prompt = prompt_content.replace("{art_style_list}", style_str)
                     messages = gpt_service.create_message(prompt)
                     output = gpt_service.make_api_call(messages)
-                    output+=keywords
+                    output += keywords
                     first_style = lora_list[0]
                     batch_size = int(first_style["batchSize"])
-                    ratio = first_style["aspectRatio"]
+                    # ratio = first_style["aspectRatio"]
                     comfy_service.comfy_call_stacked_lora(
-                        prompt_name, output, lora_list, batch_size, ratio
+                        prompt_name, output, lora_list, batch_size
                     )
                 else:
                     for l in lora_list:
@@ -256,9 +254,10 @@ async def generate_image(
                         )
                         messages = gpt_service.create_message(prompt)
                         output = gpt_service.make_api_call(messages)
-                        output+=keywords
+                        output += keywords
+                        print("prompt name: ", prompt_name, ": ", output)
                         batch_size = int(l["batchSize"])
-                        ratio = l["aspectRatio"]
+                        # ratio = l["aspectRatio"]
                         style_strength = float(l["styleStrength"])
                         comfy_service.comfy_call_single_lora(
                             prompt_name,
@@ -266,7 +265,6 @@ async def generate_image(
                             l["id"],
                             batch_size,
                             style_strength,
-                            ratio,
                         )
             if art_list:
                 if stack_loras:
@@ -276,12 +274,14 @@ async def generate_image(
                     prompt = prompt_content.replace("{art_style_list}", style_str)
                     messages = gpt_service.create_message(prompt)
                     output = gpt_service.make_api_call(messages)
-                    output+=keywords
+                    output += keywords
                     first_style = art_list[0]
                     batch_size = int(first_style["batchSize"])
-                    ratio = first_style["aspectRatio"]
+                    # ratio = first_style["aspectRatio"]
                     comfy_service.comfy_call_stacked_art(
-                        prompt_name, output, batch_size, ratio
+                        prompt_name,
+                        output,
+                        batch_size,
                     )
                 else:
                     for a in art_list:
@@ -290,11 +290,14 @@ async def generate_image(
                         )
                         messages = gpt_service.create_message(prompt)
                         output = gpt_service.make_api_call(messages)
-                        output+=keywords
+                        output += keywords
                         batch_size = int(a["batchSize"])
-                        ratio = a["aspectRatio"]
+                        # ratio = a["aspectRatio"]
                         comfy_service.comfy_call_single_art(
-                            prompt_name, output, a["id"], batch_size, ratio
+                            prompt_name,
+                            output,
+                            a["id"],
+                            batch_size,
                         )
 
         expected_images = calculate_expected_images(
