@@ -48,11 +48,11 @@ app.include_router(test, prefix="/api/test", tags=["Test"])
 
 # run app: integrate Ngrok and Uvicorn, one-click start
 if __name__ == "__main__":
+    from src.utils.ngrok_client import start_daemon, get_tunnel_url, stop_daemon
     import uvicorn
     import atexit
     import signal
     import time
-    from utils.ngrok_client import start_daemon, get_tunnel_url, stop_daemon
 
     PORT = 8080
 

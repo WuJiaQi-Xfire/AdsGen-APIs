@@ -10,7 +10,7 @@ import requests
 from typing import Optional
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
-from src.services.comfy_service import preview_path
+from ..services.comfy_service import preview_path
 from ..services import gpt_service, file_service, comfy_service
 from ..database.database import DatabaseManager
 from datetime import datetime
