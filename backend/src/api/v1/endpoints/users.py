@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
-from typing import List, Dict, Any
+'''
+Endpoints for user rout
+Inherent from CRUD router
+'''
+from typing import List
+from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from crud.user import user as user_crud
-from models.user import User as UserModel
 from schemas.user import User as UserSchema, UserCreate, UserUpdate
 from api.deps import CRUDRouter, get_db
 
@@ -12,7 +15,8 @@ user_router = CRUDRouter[UserSchema, UserCreate, UserUpdate](user_crud)
 router = user_router.router
 
 # Add route description
-router.description = "User Management API, providing functions for creating, querying, updating, and deleting users"
+router.description = "User Management API, " \
+                     "providing functions for creating, querying, updating, and deleting users"
 # Redefine routes to apply schema examples
 @router.post("/", response_model=UserSchema, summary="Create New User")
 async def create_user(item_in: UserCreate, db: AsyncSession = Depends(get_db)):
@@ -32,7 +36,7 @@ async def create_user(item_in: UserCreate, db: AsyncSession = Depends(get_db)):
         raise HTTPException(
             status_code=500,
             detail=f"创建用户失败: {str(e)}"
-        )
+        ) from e
 
 @router.get("/{item_id}", response_model=UserSchema, summary="Read a Single User")
 async def read_user(item_id: int, db: AsyncSession = Depends(get_db)):
@@ -46,10 +50,10 @@ async def read_user(item_id: int, db: AsyncSession = Depends(get_db)):
     try:
         return await user_router.read_item(item_id, db)
     except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"查找用户失败: {str(e)}"
-            )
+        raise HTTPException(
+            status_code=500,
+            detail=f"查找用户失败: {str(e)}"
+        ) from e
 
 @router.put("/{item_id}", response_model=UserSchema, summary="Update User Information")
 async def update_user(item_id: int, item_in: UserUpdate, db: AsyncSession = Depends(get_db)):
@@ -81,7 +85,7 @@ async def delete_user(item_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(
             status_code=500,
             detail=f"删除用户失败: {str(e)}"
-        )
+        ) from e
 
 @router.get("/", response_model=List[UserSchema], summary="Read User List")
 async def read_users(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
@@ -102,10 +106,4 @@ async def read_users(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(
         raise HTTPException(
             status_code=500,
             detail=f"获取用户列表失败: {str(e)+str(users)}"
-        )
-        return users
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"获取用户列表失败: {str(e)+str(users)}"
-        )
+        ) from e

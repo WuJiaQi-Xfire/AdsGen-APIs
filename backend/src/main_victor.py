@@ -86,7 +86,7 @@ if __name__ == "__main__":
         print("WARNING: unable to start ngrok daemon")
     try:
         # start Uvicorn server
-        uvicorn.run("main:app", host="0.0.0.0", port=PORT, reload=True)
+        uvicorn.run("main_victor:app", host="0.0.0.0", port=PORT, reload=True)
     except KeyboardInterrupt:
         # ensure ngrok daemon is stopped when KeyboardInterrupt occurs
         print("closing ngrok tunnel...")

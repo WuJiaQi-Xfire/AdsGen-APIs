@@ -37,7 +37,6 @@ class UserCreate(UserBase):
     full_name: Optional[str] = None
     is_active: bool = True
     is_superuser: bool = False
-    
     model_config = ConfigDict(
         from_attributes=True,
         json_schema_extra={

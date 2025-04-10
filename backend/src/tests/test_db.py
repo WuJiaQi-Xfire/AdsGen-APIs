@@ -7,8 +7,8 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-from main import app
 from db.session import  engine
+from backend.src.main_victor import app
 
 # add project root directory to Python import path
 ROOT_DIR = Path(__file__).parent.parent.parent
@@ -27,15 +27,12 @@ async def test_db_connection():
             # get PostgreSQL version
             version_result = await connection.execute(text("SELECT version()"))
             version_result = version_result.fetchone()
-            
             # get current database name
             db_name_result = await connection.execute(text("SELECT current_database()"))
             db_name_result = db_name_result.fetchone()
-            
             #  get current user
             user_result = await connection.execute(text("SELECT current_user"))
             user_result = user_result.fetchone()
-            
             # get all table names
             tables_result = await connection.execute(
                 text("""
@@ -45,9 +42,7 @@ async def test_db_connection():
                 """)
             )
             tables_result = tables_result.fetchall()
-            
             tables = [table[0] for table in tables_result]
-            
             return {
                 "status": "success",
                 "database": {
@@ -75,7 +70,6 @@ def test_db_api():
     """
     response = client.get("/test/db")
     assert response.status_code == 200
-    
     data = response.json()
     assert data["status"] == "success"
     assert "database" in data
@@ -83,10 +77,8 @@ def test_db_api():
     assert "name" in data["database"]
     assert "user" in data["database"]
     assert "tables" in data["database"]
-    
     # 验证数据库名称是否正确
     assert data["database"]["name"] == os.getenv("POSTGRES_DB_Test", "testdb")
-    
     print("数据库连接测试成功!")
     print(f"数据库版本: {data['database']['version']}")
     print(f"数据库名称: {data['database']['name']}")
