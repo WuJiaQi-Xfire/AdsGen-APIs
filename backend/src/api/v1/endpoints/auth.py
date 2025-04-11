@@ -6,11 +6,11 @@ from datetime import timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.deps import get_db
-from src.core.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from src.core.security import create_access_token, decode_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from src.crud.user import user as user_crud
 from src.schemas.user import User as UserSchema, UserCreate
 from src.schemas.auth import Token, LoginResponse, LogoutResponse
@@ -21,6 +21,8 @@ router = APIRouter()
 # Add route description
 router.description = "Authentication API, providing user registration, login, and logout functionality"
 
+# OAuth2 scheme for token authentication
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 @router.post("/register", response_model=UserSchema, summary="User Registration")
 async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> Any:
@@ -63,7 +65,6 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> A
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Registration failed: {str(e)}",
         ) from e
-
 
 @router.post("/login", response_model=LoginResponse, summary="User Login")
 async def login(
@@ -125,7 +126,6 @@ async def login(
             detail=f"Login failed: {str(e)}",
         ) from e
 
-
 @router.post("/logout", response_model=LogoutResponse, summary="User Logout")
 async def logout() -> LogoutResponse:
     """
@@ -137,3 +137,38 @@ async def logout() -> LogoutResponse:
     Returns a successful logout message
     """
     return {"detail": "Successfully logged out"}
+
+@router.get("/me", response_model=UserSchema, summary="Get Current User")
+async def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: AsyncSession = Depends(get_db),
+) -> UserSchema:
+    """
+    Get Current User API
+    
+    Retrieves the current authenticated user's information based on the provided JWT token.
+    
+    Returns the user information (excluding password)
+    """
+    user_id = decode_access_token(token)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user = await user_crud.get_by_attribute(db, attribute="user_id", value=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    
+    if not user_crud.is_active(user):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Inactive user",
+        )
+    
+    return user
