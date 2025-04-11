@@ -4,12 +4,9 @@ import { Button } from "@/components/UI/PrimaryButton";
 import { Input } from "@/components/UI/Input";
 import { Label } from "@/components/UI/Label";
 import { AuthLayout } from "./AuthLayout";
-import { signupUser } from "@/lib/api/auth";
 
 export function SignupPage() {
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -24,22 +21,14 @@ export function SignupPage() {
     }
 
     setIsLoading(true);
-    
-    const result = await signupUser({
-      email, 
-      username,
-      full_name: fullName,
-      password 
-    });
 
-    if (!result.error) {
-      localStorage.setItem('authToken', result.token);
+    // TODO: Replace with actual API call
+    console.log({ email, password });
+
+    setTimeout(() => {
+      setIsLoading(false);
       navigate("/");
-    } else {
-      alert(result.message);
-    }
-    
-    setIsLoading(false);
+    }, 1000);
   };
 
   return (
@@ -60,33 +49,6 @@ export function SignupPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="username">Username</Label>
-          <Input
-            id="username"
-            name="username"
-            type="text"
-            autoComplete="username"
-            required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="mt-1"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="fullName">Full Name (Optional)</Label>
-          <Input
-            id="fullName"
-            name="fullName"
-            type="text"
-            autoComplete="name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
             className="mt-1"
           />
         </div>

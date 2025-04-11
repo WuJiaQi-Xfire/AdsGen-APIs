@@ -4,7 +4,6 @@ import { Button } from "@/components/UI/PrimaryButton";
 import { Input } from "@/components/UI/Input";
 import { Label } from "@/components/UI/Label";
 import { AuthLayout } from "./AuthLayout";
-import { loginUser } from "@/lib/api/auth";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,16 +15,13 @@ export function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    const result = await loginUser(email, password);
-    
-    if (!result.error) {
-      localStorage.setItem('authToken', result.token);
+    // TODO: Replace with actual API call
+    console.log({ email, password });
+
+    setTimeout(() => {
+      setIsLoading(false);
       navigate("/");
-    } else {
-      alert(result.message);
-    }
-    
-    setIsLoading(false);
+    }, 1000);
   };
 
   return (
