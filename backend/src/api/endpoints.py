@@ -172,7 +172,6 @@ def calculate_expected_images(prompt_list, lora_list, art_list, stack_loras):
 
     return expected_count
 
-
 def wait_for_images(expected_count, check_interval=110):
     """Wait for the expected number of images to be generated."""
     start_time = time.time()
