@@ -10,7 +10,8 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.v1.endpoints import default, users, test
+from src.api.v1.endpoints import default, users, test, auth
+from src.api.v1.endpoints import prompts
 
 
 logging.getLogger('sqlalchemy.engine.Engine').disabled = True
@@ -35,24 +36,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# define root route
-@app.get("/")
-def read_root():
-    """Return a welcome message for the API root endpoint."""
-    return {"message": "Welcome to AdsGen API Service"}
-
 # include routes
 app.include_router(default, prefix="/api/default", tags=["Default"])
 app.include_router(users, prefix="/api/users", tags=["Users"])
+app.include_router(auth, prefix="/api/auth", tags=["Authentication"])
+app.include_router(prompts.router, prefix="/api/prompts", tags=["Prompts"])
 app.include_router(test, prefix="/api/test", tags=["Test"])
 
 # run app: integrate Ngrok and Uvicorn, one-click start
 if __name__ == "__main__":
+    from src.utils.ngrok_client import start_daemon, get_tunnel_url, stop_daemon
     import uvicorn
     import atexit
     import signal
     import time
-    from utils.ngrok_client import start_daemon, get_tunnel_url, stop_daemon
 
     PORT = 8080
 

@@ -1,7 +1,17 @@
+'''
+Abby's main
+'''
+import sys
+from pathlib import Path
+
+# add project root directory to Python import path
+ROOT_DIR = Path(__file__).parent.parent
+sys.path.append(str(ROOT_DIR))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .api.endpoints import router as api_router
-from .services import file_service
+from src.api.endpoints import router as api_router
+from src.services import file_service
 
 app = FastAPI()
 
