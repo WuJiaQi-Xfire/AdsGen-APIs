@@ -1,8 +1,9 @@
-# 路由模块初始化文件
-# 这个文件允许Python将目录视为包
-# 并允许从app.routers导入模块
+# Route module initialization file
+# This file allows Python to treat the directory as a package
+# and allows importing modules from app.routers
 
-# 导入各个路由模块的router对象
+# Import router objects from each route module
 from src.api.v1.endpoints.default import router as default
 from src.api.v1.endpoints.users import router as users
 from src.api.v1.endpoints.test import router as test
+from src.api.v1.endpoints.auth import router as auth
