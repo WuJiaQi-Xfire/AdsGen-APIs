@@ -6,9 +6,9 @@ from typing import List
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from crud.user import user as user_crud
-from schemas.user import User as UserSchema, UserCreate, UserUpdate
-from api.deps import CRUDRouter, get_db
+from src.crud.user import user as user_crud
+from src.schemas.user import User as UserSchema, UserCreate, UserUpdate
+from src.api.deps import CRUDRouter, get_db
 
 # 使用CRUDRouter创建基本的CRUD路由
 user_router = CRUDRouter[UserSchema, UserCreate, UserUpdate](user_crud)

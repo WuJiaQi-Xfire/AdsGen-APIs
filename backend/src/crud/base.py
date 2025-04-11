@@ -2,7 +2,7 @@ from typing import Generic, Type, TypeVar, Optional, List
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from db.base import Base
+from src.db.base import Base
 
 # 定义模型类型和创建/更新模型类型
 ModelType = TypeVar("ModelType", bound=Base)

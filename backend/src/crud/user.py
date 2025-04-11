@@ -1,10 +1,10 @@
 from typing import Any, Dict, Optional, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from core.security import get_password_hash, verify_password
-from crud.base import CRUDBase
-from models.user import User as UserModel
-from schemas.user import UserCreate, UserUpdate
+from src.core.security import get_password_hash, verify_password
+from src.crud.base import CRUDBase
+from src.models.user import User as UserModel
+from src.schemas.user import UserCreate, UserUpdate
 
 class CRUDUser(CRUDBase[UserModel, UserCreate, UserUpdate]):
     async def get_by_attribute(self, db: AsyncSession, *, attribute: str, value: Any) -> Optional[UserModel]:

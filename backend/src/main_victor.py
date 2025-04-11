@@ -10,7 +10,8 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.v1.endpoints import default, users, test
+from src.api.v1.endpoints import default, users, test
+from src.api.v1.endpoints import prompts
 
 
 logging.getLogger('sqlalchemy.engine.Engine').disabled = True
@@ -44,6 +45,7 @@ def read_root():
 # include routes
 app.include_router(default, prefix="/api/default", tags=["Default"])
 app.include_router(users, prefix="/api/users", tags=["Users"])
+app.include_router(prompts.router, prefix="/api/prompts", tags=["Prompts"])
 app.include_router(test, prefix="/api/test", tags=["Test"])
 
 # run app: integrate Ngrok and Uvicorn, one-click start
