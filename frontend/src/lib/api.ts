@@ -273,3 +273,22 @@ export class ApiService {
     }
   }
 }
+
+// Auth API services
+export async function login(email: string, password: string) {
+  // TODO: Replace with actual API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ token: 'dummy-token', user: { email } });
+    }, 1000);
+  });
+}
+
+export async function signup(email: string, password: string) {
+  // TODO: Replace with actual API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ token: 'dummy-token', user: { email } });
+    }, 1000);
+  });
+}
