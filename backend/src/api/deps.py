@@ -2,9 +2,9 @@ from typing import Type, TypeVar, Generic, List
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
-from crud.base import CRUDBase
-from db.session import get_db
-from schemas.user import User as UserSchema
+from src.crud.base import CRUDBase
+from src.db.session import get_db
+from src.schemas.user import User as UserSchema
 
 # 泛型参数定义：
 ModelType = TypeVar("ModelType", bound=BaseModel)

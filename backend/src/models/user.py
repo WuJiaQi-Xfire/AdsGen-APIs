@@ -4,12 +4,15 @@ User models
 import uuid
 from sqlalchemy import Boolean, Column, Integer, String, DateTime
 import sqlalchemy.sql.functions
-from db.base import Base
+from src.db.base import Base
 
 class User(Base):
     """
     User Models
     """
+    __tablename__ = "users"  # 明确指定表名
+    __table_args__ = {"schema": "user"}  # 指定schema为user
+    
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, unique=True, index=True, nullable=False,
                     default=lambda: str(uuid.uuid4()))
