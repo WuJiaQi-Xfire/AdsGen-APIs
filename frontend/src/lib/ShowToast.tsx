@@ -4,6 +4,6 @@ export function showToast(message: string) {
   toast.show({
     id: "my-id",
     message,
-    duration: 1500,
+    duration: 1700,
   });
 }
