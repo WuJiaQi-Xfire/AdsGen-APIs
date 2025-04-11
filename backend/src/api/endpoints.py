@@ -5,14 +5,16 @@ import json
 import time
 import os
 from typing import Optional, List
-from datetime import datetime
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
 import requests
-from pydantic import BaseModel
-from src.services.comfy_service import preview_path
 from src.services import gpt_service, file_service, comfy_service
-from src.database.database import DatabaseManager
-from datetime import datetime
+
+# Import the new prompt schemas and CRUD operations
+from src.schemas.prompt import Prompt as PromptSchema, PromptCreate, PromptUpdate
+from src.crud.prompt import prompt as prompt_crud
+from src.db.session import get_db as get_async_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.services.comfy_service import file_path
 
 router = APIRouter()
 
@@ -75,15 +77,11 @@ async def get_styles():
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-# Import the new prompt schemas and CRUD operations
-from src.schemas.prompt import Prompt as PromptSchema, PromptCreate, PromptUpdate
-from src.crud.prompt import prompt as prompt_crud
-from src.db.session import get_db as get_async_db
-from sqlalchemy.ext.asyncio import AsyncSession
-
 # Redirect to the new prompt endpoints
 @router.post("/prompts/", response_model=dict)
-async def create_prompt_redirect(prompt: PromptCreate, db: AsyncSession = Depends(get_async_db)):
+async def create_prompt_redirect(
+    prompt: PromptCreate, db: AsyncSession = Depends(get_async_db)
+):
     """
     Create a new prompt in the database
     This endpoint redirects to the new prompt API
@@ -98,7 +96,9 @@ async def create_prompt_redirect(prompt: PromptCreate, db: AsyncSession = Depend
 
 
 @router.get("/prompts/", response_model=List[PromptSchema])
-async def get_prompts_redirect(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_async_db)):
+async def get_prompts_redirect(
+    skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_async_db)
+):
     """
     Get all prompts from the database
     This endpoint redirects to the new prompt API
@@ -132,7 +132,9 @@ async def get_prompt_redirect(prompt_id: int, db: AsyncSession = Depends(get_asy
 
 
 @router.delete("/prompts/{prompt_id}")
-async def delete_prompt_redirect(prompt_id: int, db: AsyncSession = Depends(get_async_db)):
+async def delete_prompt_redirect(
+    prompt_id: int, db: AsyncSession = Depends(get_async_db)
+):
     """
     Delete a prompt by ID
     This endpoint redirects to the new prompt API
@@ -142,7 +144,7 @@ async def delete_prompt_redirect(prompt_id: int, db: AsyncSession = Depends(get_
         prompt = await prompt_crud.get(db=db, id=prompt_id)
         if not prompt:
             raise HTTPException(status_code=404, detail="Prompt not found")
-        
+
         # Delete prompt using the new CRUD operations
         await prompt_crud.remove(db=db, id=prompt_id)
         return {"message": "Prompt deleted successfully"}
@@ -174,6 +176,7 @@ def calculate_expected_images(prompt_list, lora_list, art_list, stack_loras):
             expected_count += prompt_count * int(a.get("batchSize", 1))
 
     return expected_count
+
 
 def wait_for_images(expected_count, check_interval=110):
     """Wait for the expected number of images to be generated."""

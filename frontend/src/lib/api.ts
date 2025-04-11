@@ -1,7 +1,12 @@
 import { showToast } from "@/lib/ShowToast";
+import axios from "axios";
 
 // Base API URL - can be replaced with env variable in production
 const API_BASE_URL = "http://127.0.0.1:8000/api";
+
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+});
 
 const handleApiError = (error: any, customMessage?: string) => {
   console.error("API Error:", error);
@@ -27,10 +32,10 @@ export interface ImageGenerationResponse {
 }
 
 export interface PromptFile {
-  id: string;
+  id: number;
   name: string;
   content: string;
-  selected: boolean;
+  selected?: boolean;
   created_at?: string;
 }
 export interface Style {
@@ -59,95 +64,6 @@ export interface ImageGenerationRequest {
 }
 
 export class ApiService {
-  // Database Prompt Management
-  static async savePrompt(
-    promptName: string,
-    content: string
-  ): Promise<{ id: number }> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/prompts/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          prompt_name: promptName,
-          content: content,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to save prompt: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      return handleApiError(error, "Failed to save prompt");
-    }
-  }
-
-  static async getPrompts(): Promise<PromptFile[]> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/prompts/`, {
-        method: "GET",
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to get prompts: ${response.status}`);
-      }
-
-      const prompts = await response.json();
-      return prompts.map((prompt: any) => ({
-        id: prompt.id.toString(),
-        name: prompt.prompt_name,
-        content: prompt.content,
-        selected: false,
-        created_at: prompt.created_at,
-      }));
-    } catch (error) {
-      return handleApiError(error, "Failed to get prompts");
-    }
-  }
-
-  static async getPrompt(id: string): Promise<PromptFile> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/prompts/${id}`, {
-        method: "GET",
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to get prompt: ${response.status}`);
-      }
-
-      const prompt = await response.json();
-      return {
-        id: prompt.id.toString(),
-        name: prompt.prompt_name,
-        content: prompt.content,
-        selected: false,
-        created_at: prompt.created_at,
-      };
-    } catch (error) {
-      return handleApiError(error, "Failed to get prompt");
-    }
-  }
-
-  static async deletePrompt(id: string): Promise<{ message: string }> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/prompts/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete prompt: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      return handleApiError(error, "Failed to delete prompt");
-    }
-  }
-
   // Prompt Generation
   static async generatePrompt(
     description: string,
@@ -279,7 +195,7 @@ export async function login(email: string, password: string) {
   // TODO: Replace with actual API call
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve({ token: 'dummy-token', user: { email } });
+      resolve({ token: "dummy-token", user: { email } });
     }, 1000);
   });
 }
@@ -288,7 +204,99 @@ export async function signup(email: string, password: string) {
   // TODO: Replace with actual API call
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve({ token: 'dummy-token', user: { email } });
+      resolve({ token: "dummy-token", user: { email } });
     }, 1000);
   });
 }
+
+//Prompt database CRUD
+export const promptApi = {
+  getPrompts: async (skip = 0, limit = 100): Promise<PromptFile[]> => {
+    try {
+      const response = await apiClient.get("/prompts/", {
+        params: { skip, limit },
+      });
+      return response.data.map((prompt) => ({
+        ...prompt,
+        name: prompt.prompt_name,
+        selected: false,
+      }));
+    } catch (error) {
+      console.error("Failed to fetch prompts", error);
+      return [];
+    }
+  },
+
+  getPrompt: async (id: number): Promise<PromptFile | null> => {
+    try {
+      const response = await apiClient.get(`/prompts/${id}`);
+      return {
+        ...response.data,
+        name: response.data.prompt_name,
+        selected: false,
+      };
+    } catch (error) {
+      console.error(`Failed to fetch prompt with ID ${id}`, error);
+      return null;
+    }
+  },
+
+  createPrompt: async (data: {
+    name: string;
+    content: string;
+  }): Promise<{
+    id: number;
+    message: string;
+    success: boolean;
+  }> => {
+    try {
+      const response = await apiClient.post<{ id: number; message: string }>(
+        "/prompts/",
+        {
+          prompt_name: data.name,
+          content: data.content,
+        }
+      );
+      return {
+        ...response.data,
+        success: true,
+      };
+    } catch (error) {
+      console.error("Failed to create prompt", error);
+      return {
+        id: -1,
+        message: "Failed to create prompt",
+        success: false,
+      };
+    }
+  },
+
+  deletePrompt: async (
+    id: number
+  ): Promise<{
+    success: boolean;
+    message: string;
+  }> => {
+    try {
+      const response = await apiClient.delete<{ message: string }>(
+        `/prompts/${id}`
+      );
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } catch (error: any) {
+      if (error.response && error.response.status === 404) {
+        return {
+          success: true,
+          message: "Prompt already deleted",
+        };
+      }
+      console.error(`Failed to delete prompt with ID ${id}`, error);
+      return {
+        success: false,
+        message: `Failed to delete prompt with ID ${id}`,
+      };
+    }
+  },
+};

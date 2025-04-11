@@ -12,15 +12,14 @@ from comfy_script.runtime.nodes import *
 file_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\base_image"
 # preview_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\resized_image"
 
-
 def comfy_call_single_lora(prompt_name, prompt, lora, batch_size, style_strength):
     for i in range(batch_size):
         single_lora(prompt_name, prompt, lora, style_strength)
 
-
 def single_lora(prompt_name, prompt, lora, style_strength):
     clean_prompt_name = prompt_name.replace(".txt", "")
     clean_lora_name = lora.replace(".safetensors", "")
+
 
     with Workflow():
         n = random.randint(0, 18446744073709551615)

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { showToast } from "@/lib/ShowToast";
-import { v4 as uuidv4 } from "uuid";
-import { ApiService, PromptFile } from "@/lib/api";
+import { ApiService, PromptFile, promptApi } from "@/lib/api";
 
 export interface Style {
   id: string;
@@ -45,18 +44,15 @@ export const ImageGeneration = () => {
     fetchStyles();
     loadPrompts();
   }, []);
-  
+
   const loadPrompts = async () => {
-    setIsLoadingPrompts(true);
     try {
-      const prompts = await ApiService.getPrompts();
+      const prompts = await promptApi.getPrompts();
       setPromptFiles(prompts);
       setHasPrompt(prompts.length > 0);
     } catch (error) {
       console.error("Error loading prompts:", error);
-      showToast("Failed to load prompts from the database");
-    } finally {
-      setIsLoadingPrompts(false);
+      showToast("Failed to load prompts");
     }
   };
 
@@ -68,25 +64,33 @@ export const ImageGeneration = () => {
       )
     : currentStyles;
 
-  const handlePromptFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePromptFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const filesArray = Array.from(e.target.files);
     let filesProcessed = 0;
     const totalFiles = filesArray.length;
-    
+
     for (const file of filesArray) {
       try {
         const content = await readFileAsText(file);
-        const promptName = file.name.replace(/\.txt$/, '');
-        
-        // Save to database
-        await ApiService.savePrompt(promptName, content);
+        const promptName = file.name.replace(/\.txt$/, "");
+
+        const result = await promptApi.createPrompt({
+          name: promptName,
+          content: content,
+        });
+
         filesProcessed++;
-        
+
         if (filesProcessed === totalFiles) {
-          showToast("Upload successful. Prompts saved to database.");
-          // Reload prompts from database
+          showToast(
+            result.success
+              ? "Upload successful. Prompts saved to database."
+              : result.message
+          );
           await loadPrompts();
         }
       } catch (error) {
@@ -96,21 +100,6 @@ export const ImageGeneration = () => {
       }
     }
   };
-  
-  const readFileAsText = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          resolve(event.target.result as string);
-        } else {
-          reject(new Error('Failed to read file'));
-        }
-      };
-      reader.onerror = () => reject(new Error(`Error reading file ${file.name}`));
-      reader.readAsText(file);
-    });
-  };
 
   const handlePromptUpload = () => {
     if (promptFileInputRef.current) {
@@ -118,12 +107,28 @@ export const ImageGeneration = () => {
     }
   };
 
-  const togglePromptSelection = (id: string) => {
+  const togglePromptSelection = (id: number) => {
     setPromptFiles((prev) =>
       prev.map((file) =>
         file.id === id ? { ...file, selected: !file.selected } : file
       )
     );
+  };
+
+  const readFileAsText = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          resolve(event.target.result as string);
+        } else {
+          reject(new Error("Failed to read file"));
+        }
+      };
+      reader.onerror = () =>
+        reject(new Error(`Error reading file ${file.name}`));
+      reader.readAsText(file);
+    });
   };
 
   const toggleStyleSelection = (styleId: string) => {
@@ -137,12 +142,12 @@ export const ImageGeneration = () => {
   const selectAllStyles = () => {
     // Get all currently filtered styles
     const filteredStyleIds = filteredStyles.map((style) => style.id);
-    
+
     // Keep existing selections that aren't in the current filtered list
     const existingSelections = selectedStyles.filter(
       (id) => !currentStyles.some((style) => style.id === id)
     );
-    
+
     // Combine with all filtered styles
     setSelectedStyles([...existingSelections, ...filteredStyleIds]);
   };

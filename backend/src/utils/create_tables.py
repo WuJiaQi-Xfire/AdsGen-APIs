@@ -10,10 +10,10 @@ load_dotenv(dotenv_path=env_path)
 
 # 数据库连接参数 - 使用Database-Victor的参数
 DB_USER = os.getenv("POSTGRES_USER")
-DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("POSTGRES_SERVER")
 DB_PORT = os.getenv("POSTGRES_PORT")
-DB_NAME = os.getenv("POSTGRES_DB_Test")  # 使用testdb数据库
+DB_NAME = os.getenv("DB_NAME")  # 使用testdb数据库
 def create_tables():
     """创建user和prompts表"""
     try:

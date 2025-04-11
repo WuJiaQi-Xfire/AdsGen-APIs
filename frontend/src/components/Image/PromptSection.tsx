@@ -4,18 +4,16 @@ import { Button } from "@/components/UI/PrimaryButton";
 import { Label } from "@/components/UI/Label";
 import { Checkbox } from "@/components/UI/Checkbox";
 import { showToast } from "@/lib/ShowToast";
-import { ApiService } from "@/lib/api";
-
-import { PromptFile } from "@/lib/api";
+import { ApiService, PromptFile, promptApi } from "@/lib/api";
 
 interface PromptSectionProps {
   hasPrompt: boolean;
   promptFiles: PromptFile[];
   handlePromptUpload: () => void;
-  togglePromptSelection: (id: string) => void;
+  togglePromptSelection: (id: number) => void;
   promptFileInputRef: React.RefObject<HTMLInputElement>;
   handlePromptFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  loadPrompts: () => void;
+  loadPrompts: () => Promise<void>;
 }
 
 const PromptSection: React.FC<PromptSectionProps> = ({
@@ -27,6 +25,13 @@ const PromptSection: React.FC<PromptSectionProps> = ({
   handlePromptFileUpload,
   loadPrompts,
 }) => {
+  const handleDeletePrompt = async (id: number) => {
+    const result = await promptApi.deletePrompt(id);
+    if (result.success) {
+      await loadPrompts();
+    }
+    showToast(result.message);
+  };
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -63,7 +68,10 @@ const PromptSection: React.FC<PromptSectionProps> = ({
               </thead>
               <tbody>
                 {promptFiles.map((file) => (
-                  <tr key={file.id} className="border-b border-muted/40 hover:bg-muted/20">
+                  <tr
+                    key={file.id}
+                    className="border-b border-muted/40 hover:bg-muted/20"
+                  >
                     <td className="p-2">
                       <Checkbox
                         id={`prompt-${file.id}`}
@@ -80,23 +88,16 @@ const PromptSection: React.FC<PromptSectionProps> = ({
                       </Label>
                     </td>
                     <td className="p-2 text-xs text-muted-foreground">
-                      {file.created_at ? new Date(file.created_at).toLocaleString() : 'N/A'}
+                      {file.created_at
+                        ? new Date(file.created_at).toLocaleString()
+                        : "N/A"}
                     </td>
                     <td className="p-2">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                        onClick={async () => {
-                          try {
-                            await ApiService.deletePrompt(file.id);
-                            showToast("Prompt deleted successfully");
-                            loadPrompts();
-                          } catch (error) {
-                            console.error("Error deleting prompt:", error);
-                            showToast("Failed to delete prompt");
-                          }
-                        }}
+                        onClick={() => handleDeletePrompt(file.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
