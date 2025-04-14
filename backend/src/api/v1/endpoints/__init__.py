@@ -7,3 +7,4 @@ from src.api.v1.endpoints.default import router as default
 from src.api.v1.endpoints.users import router as users
 from src.api.v1.endpoints.test import router as test
 from src.api.v1.endpoints.auth import router as auth
+from src.api.v1.endpoints.teams import router as teams

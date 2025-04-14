@@ -9,8 +9,8 @@ class Template(Base):
     """
     Template Models
     """
-    __tablename__ = "template"  # 明确指定表名
-    __table_args__ = {"schema": "template"}  # 指定schema为template
+    __tablename__ = "template" 
+    __table_args__ = {"schema": "template"} 
     
     id = Column(Integer, primary_key=True, index=True)
     template_name = Column(String(255), nullable=False)

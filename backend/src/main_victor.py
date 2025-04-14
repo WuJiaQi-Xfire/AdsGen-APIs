@@ -6,12 +6,14 @@ sets up logging, and manages project imports.
 import sys
 from pathlib import Path
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.v1.endpoints import default, users, test, auth
+from src.api.v1.endpoints import default, users, test, auth, teams
 from src.api.v1.endpoints import prompts
+from src.utils.create_tables import create_tables
 
 
 logging.getLogger('sqlalchemy.engine.Engine').disabled = True
@@ -20,11 +22,20 @@ logging.getLogger('sqlalchemy.engine.Engine').disabled = True
 ROOT_DIR = Path(__file__).parent.parent
 sys.path.append(str(ROOT_DIR))
 
-# buidl app for fast api
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan event handler for the application."""
+    # Check and create tables on startup
+    create_tables()
+    yield
+    # Cleanup on shutdown (if needed)
+
+# build app for fast api
 app = FastAPI(
     title="AdsGen API Service",
     description="This is an API service for advertising generation",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 # configure CORS
@@ -41,15 +52,20 @@ app.include_router(default, prefix="/api/default", tags=["Default"])
 app.include_router(users, prefix="/api/users", tags=["Users"])
 app.include_router(auth, prefix="/api/auth", tags=["Authentication"])
 app.include_router(prompts.router, prefix="/api/prompts", tags=["Prompts"])
+app.include_router(teams, prefix="/api/teams", tags=["Teams"])
 app.include_router(test, prefix="/api/test", tags=["Test"])
-
+'''
 # run app: integrate Ngrok and Uvicorn, one-click start
 if __name__ == "__main__":
     from src.utils.ngrok_client import start_daemon, get_tunnel_url, stop_daemon
+    from src.utils.create_tables import create_tables
     import uvicorn
     import atexit
     import signal
     import time
+
+    # Check and create tables if needed
+    create_tables()
 
     PORT = 8080
 
@@ -93,3 +109,4 @@ if __name__ == "__main__":
         stop_daemon()
         # wait for a while to ensure all cleanup operations are completed
         time.sleep(0.5)
+'''
