@@ -316,3 +316,4 @@ async def generate_image(
     except Exception as e:
         print(f"Error in endpoints.py: generate_image: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e)) from e
+

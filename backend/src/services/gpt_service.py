@@ -4,7 +4,9 @@ import os
 import json
 import requests
 from dotenv import load_dotenv
-from .file_service import load_prompt_from_file
+from src.services.file_service import load_prompt_from_file
+from src.utils.image_utils import validate_image_url
+
 
 # Load env variables
 env_path = os.path.join(os.path.dirname(__file__), "../.env")
@@ -19,18 +21,6 @@ headers = {
     "model": "gpt-4o-mini",
     "api-version": "2024-02-01",
 }
-
-
-def validate_image_url(image_url):
-    """Function to validate image url"""
-    try:
-        response = requests.head(image_url, timeout=10)
-        response.raise_for_status()
-        content_length = response.headers.get("Content-Length")
-        if content_length and int(content_length) > 20971520:
-            raise ValueError("The image size is larger than 20 MB.")
-    except requests.exceptions.RequestException as e:
-        raise ValueError(f"Invalid or inaccessible image URL: {e}") from e
 
 
 def create_message(content, image_url=None, image_base64=None):
@@ -60,15 +50,15 @@ def make_api_call(message):
     """Function to make a POST request to the API."""
     try:
         data = {
-        "temperature": 0.8,
-        "top_p": 0.6,
-        "max_tokens": 4000,
-        "messages": message,
+            "temperature": 0.8,
+            "top_p": 0.6,
+            "max_tokens": 4000,
+            "messages": message,
         }
         response = requests.post(api_endpoint, headers=headers, json=data, timeout=25)
         response.raise_for_status()
         response_data = response.json()
-        #print("Full Response Data:", response_data)  # Debugging
+        # print("Full Response Data:", response_data)  # Debugging
 
         if "choices" in response_data:
             return response_data["choices"][0]["message"]["content"]

@@ -1,8 +1,8 @@
 """Module for file operations"""
 
 import os
+import base64
 import pandas as pd
-
 
 file_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\base_image"
 preview_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\resized_image"
@@ -42,16 +42,25 @@ def sanitize_filename(filename: str) -> str:
     return filename.strip()
 
 
-def file_name(prompt_name, style_name, seed):
-    """Save the image locally and return the path"""
-    prompt_name = sanitize_filename(prompt_name)
-    style_name = sanitize_filename(style_name)
-    output_folder = f"{prompt_name}_output"
-    os.makedirs(output_folder, exist_ok=True)
-    style_folder = os.path.join(output_folder, style_name)
-    os.makedirs(style_folder, exist_ok=True)
-    image_path = os.path.join(style_folder, f"{seed}.png")
-    return image_path
+def get_generated_images():
+    """Load all images from the base_image folder and convert them to base64 strings."""
+    images = []
+    try:
+        image_files = [f for f in os.listdir(file_path) if f.lower().endswith((".png"))]
+        for image_file in image_files:
+            new_path = os.path.join(file_path, image_file)
+            with open(new_path, "rb") as img_file:
+                img_data = base64.b64encode(img_file.read()).decode("utf-8")
+                image_obj = {
+                    "filename": image_file,
+                    "data": f"data:image/png;base64,{img_data}",
+                }
+                images.append(image_obj)
+
+        return images
+    except Exception as e:
+        print(f"Error loading generated images: {str(e)}")
+        return []
 
 
 def clear_image_folders():

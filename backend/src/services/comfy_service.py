@@ -1,25 +1,22 @@
-import os
-import base64
-import random
+"""Module for comfyui api calls"""
 
-# For comfyui
+import random
+from src.services.file_service import file_path
 from comfy_script.runtime import *
 
 load("http://127.0.0.1:8188/")
 from comfy_script.runtime.nodes import *
 
-# Locally for now
-file_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\base_image"
-# preview_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\resized_image"
 
 def comfy_call_single_lora(prompt_name, prompt, lora, batch_size, style_strength):
+    """Function to call single lora"""
     for i in range(batch_size):
         single_lora(prompt_name, prompt, lora, style_strength)
+
 
 def single_lora(prompt_name, prompt, lora, style_strength):
     clean_prompt_name = prompt_name.replace(".txt", "")
     clean_lora_name = lora.replace(".safetensors", "")
-
 
     with Workflow():
         n = random.randint(0, 18446744073709551615)
@@ -46,6 +43,7 @@ def single_lora(prompt_name, prompt, lora, style_strength):
 
 
 def comfy_call_stacked_lora(prompt_name, prompt, lora_list, batch_size):
+    """Function to call stacked loras"""
     for i in range(batch_size):
         stacked_lora(prompt_name, prompt, lora_list)
 
@@ -78,6 +76,7 @@ def stacked_lora(prompt_name, prompt, lora_list):
 
 
 def comfy_call_single_art(prompt_name, prompt, art, batch_size):
+    """Function to call single art"""
     for i in range(batch_size):
         single_art(prompt_name, prompt, art)
 
@@ -108,6 +107,7 @@ def single_art(prompt_name, prompt, art):
 
 
 def comfy_call_stacked_art(prompt_name, prompt, batch_size):
+    """Function to call stacked arts"""
     for i in range(batch_size):
         stacked_art(prompt_name, prompt)
 
@@ -135,24 +135,3 @@ def stacked_art(prompt_name, prompt):
         image = VAEDecode(latent, vae)
         filename = f"{clean_prompt_name}_stacked_art_{n}"
         _ = SaveImageKJ(image, filename, file_path, ".txt", "")
-
-
-def get_generated_images():
-    """Load all images from the resized_image folder and convert them to base64 strings."""
-    images = []
-    try:
-        image_files = [f for f in os.listdir(file_path) if f.lower().endswith((".png"))]
-        for image_file in image_files:
-            new_path = os.path.join(file_path, image_file)
-            with open(new_path, "rb") as img_file:
-                img_data = base64.b64encode(img_file.read()).decode("utf-8")
-                image_obj = {
-                    "filename": image_file,
-                    "data": f"data:image/png;base64,{img_data}",
-                }
-                images.append(image_obj)
-
-        return images
-    except Exception as e:
-        print(f"Error loading generated images: {str(e)}")
-        return []

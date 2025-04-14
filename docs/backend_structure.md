@@ -53,13 +53,15 @@ backend/
     │   ├── template.py       # Template schemas
     │   └── user.py           # User schemas
     ├── services/             # External services
-    │   ├── image_service.py  # Image processing service
-    │   └── llm_service.py    # Language model service
+    │   ├── comfy_service.py  # Comfyui service
+    │   └── gpt_service.py    # GPT service
+    │   └── file_service.py   # File service
     ├── tests/                # Tests
     │   ├── test_db.py        # Database tests
     │   └── test_user.py      # User tests
     └── utils/                # Utilities
         ├── file_utils.py     # File utilities
+        ├── image_utils.py    # Image utilities
         ├── ngrok_client.py   # Ngrok client
         └── ngrok_manager.py  # Ngrok manager
 ```
