@@ -1,6 +1,7 @@
-'''
+"""
 Abby's main
-'''
+"""
+
 import sys
 from pathlib import Path
 
@@ -11,6 +12,7 @@ sys.path.append(str(ROOT_DIR))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.api.endpoints import router as api_router
+from src.api.v1.endpoints.prompts import router as prompt
 from src.services import file_service
 
 app = FastAPI()
@@ -30,6 +32,7 @@ app.add_middleware(
 
 # Include the API router
 app.include_router(api_router, prefix="/api")
+app.include_router(prompt, prefix="/api/prompts", tags=["Prompts"])
 
 
 # Clear image folders on startup

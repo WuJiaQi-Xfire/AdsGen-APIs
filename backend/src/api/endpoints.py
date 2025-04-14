@@ -1,22 +1,17 @@
 """Module for routing different endpoints"""
 
 import json
-from typing import Optional, List
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
+from typing import Optional
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 
 import requests
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.schemas.prompt import Prompt as PromptSchema, PromptCreate, PromptUpdate
-from src.crud.prompt import prompt as prompt_crud
-from src.db.session import get_db as get_async_db
 from src.services import gpt_service, file_service, comfy_service
 from src.utils.image_utils import process_image
 from src.services.image_service import calculate_expected_images, wait_for_images
 
 
 router = APIRouter()
-
 
 @router.post("/generate-prompt/")
 async def generate_prompt(
@@ -65,84 +60,6 @@ async def get_styles():
         return {"loraStyles": lora_styles, "artStyles": art_styles}
     except Exception as e:
         print(f"Error fetching styles: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-
-# Redirect to the new prompt endpoints
-@router.post("/prompts/", response_model=dict)
-async def create_prompt_redirect(
-    prompt: PromptCreate, db: AsyncSession = Depends(get_async_db)
-):
-    """
-    Create a new prompt in the database
-    This endpoint redirects to the new prompt API
-    """
-    try:
-        # Create prompt using the new CRUD operations
-        db_prompt = await prompt_crud.create(db=db, obj_in=prompt)
-        return {"id": db_prompt.id, "message": "Prompt saved successfully"}
-    except Exception as e:
-        print(f"Error saving prompt: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-
-@router.get("/prompts/", response_model=List[PromptSchema])
-async def get_prompts_redirect(
-    skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_async_db)
-):
-    """
-    Get all prompts from the database
-    This endpoint redirects to the new prompt API
-    """
-    try:
-        # Get prompts using the new CRUD operations
-        prompts = await prompt_crud.get_multi(db=db, skip=skip, limit=limit)
-        return [PromptSchema.model_validate(p) for p in prompts]
-    except Exception as e:
-        print(f"Error getting prompts: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-
-@router.get("/prompts/{prompt_id}", response_model=PromptSchema)
-async def get_prompt_redirect(prompt_id: int, db: AsyncSession = Depends(get_async_db)):
-    """
-    Get a prompt by ID
-    This endpoint redirects to the new prompt API
-    """
-    try:
-        # Get prompt using the new CRUD operations
-        prompt = await prompt_crud.get(db=db, id=prompt_id)
-        if not prompt:
-            raise HTTPException(status_code=404, detail="Prompt not found")
-        return PromptSchema.model_validate(prompt)
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"Error getting prompt: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-
-@router.delete("/prompts/{prompt_id}")
-async def delete_prompt_redirect(
-    prompt_id: int, db: AsyncSession = Depends(get_async_db)
-):
-    """
-    Delete a prompt by ID
-    This endpoint redirects to the new prompt API
-    """
-    try:
-        # Get prompt first to check if it exists
-        prompt = await prompt_crud.get(db=db, id=prompt_id)
-        if not prompt:
-            raise HTTPException(status_code=404, detail="Prompt not found")
-
-        # Delete prompt using the new CRUD operations
-        await prompt_crud.remove(db=db, id=prompt_id)
-        return {"message": "Prompt deleted successfully"}
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"Error deleting prompt: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
