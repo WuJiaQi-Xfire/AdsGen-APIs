@@ -129,7 +129,7 @@ export class ApiService {
   //Get lora and art styles
   static async getStyles(): Promise<StyleResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/get-styles/`, {
+      const response = await fetch(`${API_BASE_URL}/styles/`, {
         method: "GET",
       });
 

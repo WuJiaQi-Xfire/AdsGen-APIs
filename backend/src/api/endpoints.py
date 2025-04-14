@@ -4,14 +4,13 @@ import json
 from typing import Optional
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 
-import requests
-
 from src.services import gpt_service, file_service, comfy_service
 from src.utils.image_utils import process_image
 from src.services.image_service import calculate_expected_images, wait_for_images
 
 
 router = APIRouter()
+
 
 @router.post("/generate-prompt/")
 async def generate_prompt(
@@ -41,25 +40,6 @@ async def extract_keywords(
         return {"keywords": keywords}
     except Exception as e:
         print(f"Error in endpoints.py: extract_keywords: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-
-@router.get("/get-styles/")
-async def get_styles():
-    """Method to get Lora and Art styles."""
-    try:
-        response = requests.get("http://127.0.0.1:8188/models/loras")
-        loras = response.json()
-        lora_styles = [
-            {"id": lora, "name": lora, "styleType": "lora"} for lora in loras
-        ]
-        if response.status_code != 200:
-            raise ConnectionError("Could not connect to ComfyUI server")
-
-        art_styles = file_service.read_art_file()
-        return {"loraStyles": lora_styles, "artStyles": art_styles}
-    except Exception as e:
-        print(f"Error fetching styles: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
