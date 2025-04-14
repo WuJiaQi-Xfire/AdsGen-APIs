@@ -5,8 +5,7 @@ import json
 import requests
 from dotenv import load_dotenv
 from src.services.file_service import load_prompt_from_file
-from src.utils.image_utils import validate_image_url
-
+from src.services.llm_service import create_message
 
 # Load env variables
 env_path = os.path.join(os.path.dirname(__file__), "../.env")
@@ -21,29 +20,6 @@ headers = {
     "model": "gpt-4o-mini",
     "api-version": "2024-02-01",
 }
-
-
-def create_message(content, image_url=None, image_base64=None):
-    """Function to create messages for API requests."""
-    messages = [
-        {"role": "system", "content": "You are a creative assistant."},
-        {"role": "user", "content": [{"type": "text", "text": content}]},
-    ]
-
-    if image_url:
-        validate_image_url(image_url)
-        messages[1]["content"].append(
-            {"type": "image_url", "image_url": {"url": image_url, "detail": "high"}}
-        )
-    elif image_base64:
-        messages[1]["content"].append(
-            {
-                "type": "image_url",
-                "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
-            }
-        )
-
-    return messages
 
 
 def make_api_call(message):
@@ -75,7 +51,7 @@ def create_prompt(description, image_base64=None, image_url=None):
     base_dir = os.path.dirname(os.path.dirname(__file__))
     template_path = os.path.join(
         base_dir,
-        "templates",
+        "instructions",
         "image_prompt.txt" if image_base64 or image_url else "text_prompt.txt",
     )
 
@@ -88,7 +64,7 @@ def create_prompt(description, image_base64=None, image_url=None):
 def extract_keywords(image_base64=None, image_url=None):
     """Method for extracting keywords from reference image."""
     base_dir = os.path.dirname(os.path.dirname(__file__))
-    template_path = os.path.join(base_dir, "templates", "keyword_prompt.txt")
+    template_path = os.path.join(base_dir, "instructions", "keyword_prompt.txt")
     prompt = load_prompt_from_file(template_path)
 
     messages = create_message(prompt, image_url, image_base64)

@@ -34,14 +34,6 @@ def read_art_file():
     return styles
 
 
-def sanitize_filename(filename: str) -> str:
-    """Replace invalid characters in filenames"""
-    invalid_chars = '<>:"/\\|?*'
-    for char in invalid_chars:
-        filename = filename.replace(char, "_")
-    return filename.strip()
-
-
 def get_generated_images():
     """Load all images from the base_image folder and convert them to base64 strings."""
     images = []
