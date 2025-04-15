@@ -5,7 +5,7 @@ import json
 from typing import Optional, Dict, Any, Union, List
 import requests
 from dotenv import load_dotenv
-from src.services.file_service import load_prompt_from_file
+from src.services.file_service import file_service
 from src.services.llm_service import llm_service
 
 # Load env variables
@@ -57,7 +57,7 @@ class GPTService:
         # Load template
         base_dir = os.path.dirname(os.path.dirname(__file__))
         template_path = os.path.join(base_dir, "instructions", template_name)
-        prompt = load_prompt_from_file(template_path)
+        prompt = file_service.load_prompt_from_file(template_path)
 
         # Add description if provided
         if description:

@@ -5,7 +5,7 @@ Endpoint for getting styles
 from fastapi import APIRouter, HTTPException
 import requests
 
-from src.services.file_service import read_art_file
+from src.services.file_service import file_service
 
 router = APIRouter()
 router.description = (
@@ -26,7 +26,7 @@ async def get_styles():
         if response.status_code != 200:
             raise ConnectionError("Could not connect to ComfyUI server")
 
-        art_styles = read_art_file()
+        art_styles = file_service.read_art_file()
         return {"loraStyles": lora_styles, "artStyles": art_styles}
     except Exception as e:
         print(f"Error fetching styles: {str(e)}")

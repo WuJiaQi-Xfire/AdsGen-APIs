@@ -1,7 +1,7 @@
 """Module for comfyui api calls"""
 
 import random
-from src.services.file_service import file_path
+from src.services.file_service import file_service
 from comfy_script.runtime import *
 
 load("http://127.0.0.1:8188/")
@@ -39,7 +39,7 @@ def single_lora(prompt_name, prompt, lora, style_strength):
         vae = VAELoader("ae.safetensors")
         image = VAEDecode(latent, vae)
         filename = f"{clean_prompt_name}_{clean_lora_name}_{n}"
-        _ = SaveImageKJ(image, filename, file_path, ".txt", "")
+        _ = SaveImageKJ(image, filename, file_service.file_path, ".txt", "")
 
 
 def comfy_call_stacked_lora(prompt_name, prompt, lora_list, batch_size):
@@ -72,7 +72,7 @@ def stacked_lora(prompt_name, prompt, lora_list):
         vae = VAELoader("ae.safetensors")
         image = VAEDecode(latent, vae)
         filename = f"{clean_prompt_name}_stackedLora_{n}"
-        _ = SaveImageKJ(image, filename, file_path, ".txt", "")
+        _ = SaveImageKJ(image, filename, file_service.file_path, ".txt", "")
 
 
 def comfy_call_single_art(prompt_name, prompt, art, batch_size):
@@ -103,7 +103,7 @@ def single_art(prompt_name, prompt, art):
         vae = VAELoader("ae.safetensors")
         image = VAEDecode(latent, vae)
         filename = f"{clean_prompt_name}_{art}_{n}"
-        _ = SaveImageKJ(image, filename, file_path, ".txt", "")
+        _ = SaveImageKJ(image, filename, file_service.file_path, ".txt", "")
 
 
 def comfy_call_stacked_art(prompt_name, prompt, batch_size):
@@ -134,4 +134,4 @@ def stacked_art(prompt_name, prompt):
         vae = VAELoader("ae.safetensors")
         image = VAEDecode(latent, vae)
         filename = f"{clean_prompt_name}_stacked_art_{n}"
-        _ = SaveImageKJ(image, filename, file_path, ".txt", "")
+        _ = SaveImageKJ(image, filename, file_service.file_path, ".txt", "")
