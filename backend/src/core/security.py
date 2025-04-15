@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Any, Union, Optional
 
 from passlib.context import CryptContext
-from jose import jwt
+from jose import jwt, JWTError
 
 # 密码上下文，用于哈希和验证密码
 # 使用pbkdf2_sha256替代bcrypt，避免bcrypt版本兼容性问题
@@ -62,3 +62,20 @@ def create_access_token(
     to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def decode_access_token(token: str) -> Optional[str]:
+    """
+    Decode JWT access token
+    
+    Args:
+        token: JWT token
+        
+    Returns:
+        User ID from token subject or None if token is invalid
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload.get("sub")
+    except JWTError:
+        return None
