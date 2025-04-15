@@ -7,7 +7,7 @@ export interface StyleSettings {
   name: string;
   styleStrength: number;
   batchSize: number;
-  aspectRatio: "1:1" | "16:9" | "9:16";
+  //aspectRatio: "1:1" | "16:9" | "9:16";
   styleType: "lora" | "art";
 }
 
@@ -28,7 +28,7 @@ export const ImagePresets = () => {
     return {
       styleStrength: 1,
       batchSize: 1,
-      aspectRatio: "1:1",
+      //aspectRatio: "1:1",
     };
   });
 
@@ -90,7 +90,7 @@ export const ImagePresets = () => {
       name,
       styleStrength: defaultSettings.styleStrength,
       batchSize: defaultSettings.batchSize,
-      aspectRatio: defaultSettings.aspectRatio,
+      //aspectRatio: defaultSettings.aspectRatio,
       styleType,
     };
 
@@ -154,7 +154,7 @@ export const ImagePresets = () => {
       setIsLoadingKeywords(false);
     }
   };
-
+  /*
   const handleResolutionChange = (aspectRatio: "1:1" | "16:9" | "9:16") => {
     setDefaultSettings((prev) => ({
       ...prev,
@@ -165,7 +165,7 @@ export const ImagePresets = () => {
       updateStyleSetting(activeStyleId, "aspectRatio", aspectRatio);
     }
   };
-
+  */
   const setStyleStrength = (value: number) => {
     setDefaultSettings((prev) => ({
       ...prev,
@@ -197,11 +197,12 @@ export const ImagePresets = () => {
     ? getStyleSettings(activeStyleId)?.batchSize || defaultSettings.batchSize
     : defaultSettings.batchSize;
 
-  const aspectRatio = activeStyleId
+  /*
+    const aspectRatio = activeStyleId
     ? getStyleSettings(activeStyleId)?.aspectRatio ||
       defaultSettings.aspectRatio
     : defaultSettings.aspectRatio;
-
+  */
   return {
     keyword,
     setKeyword,
@@ -212,8 +213,8 @@ export const ImagePresets = () => {
     styleStrength: defaultSettings.styleStrength,
     setStyleStrength: (value: number) =>
       setDefaultSettings({ ...defaultSettings, styleStrength: value }),
-    aspectRatio,
-    handleResolutionChange,
+    //aspectRatio,
+    //handleResolutionChange,
     batchSize,
     setBatchSize,
     isLoadingKeywords,

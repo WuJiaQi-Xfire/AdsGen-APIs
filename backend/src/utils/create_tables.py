@@ -10,12 +10,14 @@ load_dotenv(dotenv_path=env_path)
 
 # database connection variables
 DB_USER = os.getenv("POSTGRES_USER")
-DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("POSTGRES_SERVER")
 DB_PORT = os.getenv("POSTGRES_PORT")
 DB_NAME = os.getenv("POSTGRES_DB_Test")
+
 def check_tables_exist():
     """Check if tables exist in the database"""
+
     try:
         print("**********DATABASE SELF-CHECKING START**********")
         # Print connection parameters (excluding password)

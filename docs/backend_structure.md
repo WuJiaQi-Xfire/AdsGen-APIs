@@ -53,15 +53,23 @@ backend/
     │   ├── template.py       # Template schemas
     │   └── user.py           # User schemas
     ├── services/             # External services
-    │   ├── image_service.py  # Image processing service
+    │   ├── comfy_service.py  # Comfyui service
+    │   └── gpt_service.py    # GPT service
+    │   └── file_service.py   # File service
+    │   └── image_service.py  # Image processing service
     │   └── llm_service.py    # Language model service
     ├── tests/                # Tests
     │   ├── test_db.py        # Database tests
     │   └── test_user.py      # User tests
     └── utils/                # Utilities
-        ├── file_utils.py     # File utilities
-        ├── ngrok_client.py   # Ngrok client
-        └── ngrok_manager.py  # Ngrok manager
+    │   ├── file_utils.py     # File utilities
+    |   ├── image_utils.py    # Image utilities
+    |   ├── ngrok_client.py   # Ngrok client
+    |   └── ngrok_manager.py  # Ngrok manager
+    └── instructions/         # Master instructions
+    │   ├── image_prompt.txt  # Instruction for templates with reference image
+    │   └── text_prompt.txt   # Instruction for templates without reference image
+    │   └── keyword_prompt.txt# Instruction to extract keywords based on input image
 ```
 
 ## Key Components
