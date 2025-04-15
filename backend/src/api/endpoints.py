@@ -1,46 +1,14 @@
 """Module for routing different endpoints"""
 
 import json
-from typing import Optional
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, Form
 
-from src.services import gpt_service, file_service, comfy_service
-from src.utils.image_utils import process_image
+from src.services import file_service, comfy_service
+from src.services.gpt_service import gpt_service
 from src.services.image_service import calculate_expected_images, wait_for_images
 
 
 router = APIRouter()
-
-
-@router.post("/generate-prompt/")
-async def generate_prompt(
-    description: str = Form(...),
-    image: Optional[UploadFile] = File(None),
-    image_url: Optional[str] = Form(None),
-):
-    """Method to handle prompt generation request"""
-    try:
-        image_base64 = await process_image(image)
-        output = gpt_service.create_prompt(description, image_base64, image_url)
-        return {"generated_prompt": output}
-    except Exception as e:
-        print(f"Error in endpoints.py: generate_prompt: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-
-@router.post("/extract-keywords/")
-async def extract_keywords(
-    image: Optional[UploadFile] = File(None),
-    image_url: Optional[str] = Form(None),
-):
-    """Method to extract keywords from image"""
-    try:
-        image_base64 = await process_image(image)
-        keywords = gpt_service.extract_keywords(image_base64, image_url)
-        return {"keywords": keywords}
-    except Exception as e:
-        print(f"Error in endpoints.py: extract_keywords: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/generate-image/")
@@ -68,8 +36,7 @@ async def generate_image(
                         [f"{l["id"]}:{l["styleStrength"]}" for l in lora_list]
                     )
                     prompt = prompt_content.replace("{art_style_list}", style_str)
-                    messages = gpt_service.create_message(prompt)
-                    output = gpt_service.make_api_call(messages)
+                    output = gpt_service.create_prompt(prompt)
                     output += keywords
                     first_style = lora_list[0]
                     batch_size = int(first_style["batchSize"])
@@ -82,8 +49,7 @@ async def generate_image(
                         prompt = prompt_content.replace(
                             "{art_style_list}", f"{l["id"]}:{l["styleStrength"]}"
                         )
-                        messages = gpt_service.create_message(prompt)
-                        output = gpt_service.make_api_call(messages)
+                        output = gpt_service.create_prompt(prompt)
                         output += keywords
                         print("prompt name: ", prompt_name, ": ", output)
                         batch_size = int(l["batchSize"])
@@ -102,8 +68,7 @@ async def generate_image(
                         [f"{a["id"]}:{a["styleStrength"]}" for a in art_list]
                     )
                     prompt = prompt_content.replace("{art_style_list}", style_str)
-                    messages = gpt_service.create_message(prompt)
-                    output = gpt_service.make_api_call(messages)
+                    output = gpt_service.create_prompt(prompt)
                     output += keywords
                     first_style = art_list[0]
                     batch_size = int(first_style["batchSize"])
@@ -118,8 +83,7 @@ async def generate_image(
                         prompt = prompt_content.replace(
                             "{art_style_list}", f"{a["id"]}:{a["styleStrength"]}"
                         )
-                        messages = gpt_service.create_message(prompt)
-                        output = gpt_service.make_api_call(messages)
+                        output = gpt_service.create_prompt(prompt)
                         output += keywords
                         batch_size = int(a["batchSize"])
                         # ratio = a["aspectRatio"]

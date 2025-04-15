@@ -12,7 +12,7 @@ sys.path.append(str(ROOT_DIR))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.api.endpoints import router as api_router
-from src.api.v1.endpoints import prompts, styles
+from src.api.v1.endpoints import prompts, styles, generation
 from src.services import file_service
 
 app = FastAPI()
@@ -34,6 +34,7 @@ app.add_middleware(
 app.include_router(api_router, prefix="/api")
 app.include_router(prompts.router, prefix="/api/prompts", tags=["Prompts"])
 app.include_router(styles.router, prefix="/api/styles", tags=["Styles"])
+app.include_router(generation.router, prefix="/api/generate", tags=["Generation"])
 
 
 # Clear image folders on startup

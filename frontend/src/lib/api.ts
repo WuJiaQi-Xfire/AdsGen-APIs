@@ -80,7 +80,7 @@ export class ApiService {
         formData.append("image_url", image_url);
       }
 
-      const response = await fetch(`${API_BASE_URL}/generate-prompt/`, {
+      const response = await fetch(`${API_BASE_URL}/generate/prompt/`, {
         method: "POST",
         body: formData,
       });
@@ -111,7 +111,7 @@ export class ApiService {
         throw new Error("No image provided");
       }
 
-      const response = await fetch(`${API_BASE_URL}/extract-keywords/`, {
+      const response = await fetch(`${API_BASE_URL}/generate/keywords/`, {
         method: "POST",
         body: formData,
       });
