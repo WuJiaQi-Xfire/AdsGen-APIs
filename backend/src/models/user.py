@@ -10,8 +10,8 @@ class User(Base):
     """
     User Models
     """
-    __tablename__ = "users"  # 明确指定表名
-    __table_args__ = {"schema": "user"}  # 指定schema为user
+    __tablename__ = "users"
+    __table_args__ = {"schema": "user"}
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, unique=True, index=True, nullable=False,

@@ -35,7 +35,7 @@ async def create_user(item_in: UserCreate, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"创建用户失败: {str(e)}"
+            detail=f"Failed to create user: {str(e)}"
         ) from e
 
 @router.get("/{item_id}", response_model=UserSchema, summary="Read a Single User")
@@ -52,7 +52,7 @@ async def read_user(item_id: int, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"查找用户失败: {str(e)}"
+            detail=f"Faild to found user: {str(e)}"
         ) from e
 
 @router.put("/{item_id}", response_model=UserSchema, summary="Update User Information")
@@ -84,7 +84,7 @@ async def delete_user(item_id: int, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"删除用户失败: {str(e)}"
+            detail=f"Failed to delete user: {str(e)}"
         ) from e
 
 @router.get("/", response_model=List[UserSchema], summary="Read User List")
@@ -98,12 +98,11 @@ async def read_users(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(
     Returns a list of users, paginated according to skip and limit parameters.
     """
     try:
-        # 获取 ORM 对象列表
         users = await user_router.read_items(skip=skip, limit=limit, db=db)
         users = [UserSchema.model_validate(user) for user in users]
         return users
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"获取用户列表失败: {str(e)+str(users)}"
+            detail=f"Failed to get user list: {str(e)+str(users)}"
         ) from e
