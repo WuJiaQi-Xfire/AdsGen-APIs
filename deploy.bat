@@ -22,20 +22,22 @@ if %ERRORLEVEL% neq 0 (
 echo Please select an operation:
 echo 1. First-time deployment
 echo 2. Update application
-echo 3. View logs
-echo 4. Stop services
-echo 5. Restart services
-echo 6. Exit
+echo 3. Start with existing images (no rebuild)
+echo 4. View logs
+echo 5. Stop services
+echo 6. Restart services
+echo 7. Exit
 echo.
 
-set /p choice=Enter option (1-6): 
+set /p choice=Enter option (1-7): 
 
 if "%choice%"=="1" goto deploy
 if "%choice%"=="2" goto update
-if "%choice%"=="3" goto logs
-if "%choice%"=="4" goto stop
-if "%choice%"=="5" goto restart
-if "%choice%"=="6" goto end
+if "%choice%"=="3" goto start_existing
+if "%choice%"=="4" goto logs
+if "%choice%"=="5" goto stop
+if "%choice%"=="6" goto restart
+if "%choice%"=="7" goto end
 
 echo Invalid option, please try again.
 goto menu
@@ -63,7 +65,12 @@ echo.
 REM Pull latest code
 git pull
 
+REM Stop running containers first
+echo Stopping running containers...
+%COMPOSE_CMD% down
+
 REM Rebuild and start containers
+echo Rebuilding and starting containers...
 %COMPOSE_CMD% up -d --build
 
 echo.
@@ -120,6 +127,26 @@ echo === Restarting services ===
 echo.
 %COMPOSE_CMD% restart
 echo All services have been restarted.
+echo.
+goto menu
+
+:start_existing
+echo.
+echo === Starting with existing images (no rebuild) ===
+echo.
+
+REM Stop running containers first
+echo Stopping running containers...
+%COMPOSE_CMD% down
+
+REM Start containers without rebuilding
+echo Starting containers with existing images...
+%COMPOSE_CMD% up -d
+
+echo.
+echo Start complete! Application is running with existing images.
+echo Frontend URL: http://localhost
+echo Backend API URL: http://localhost/api
 echo.
 goto menu
 

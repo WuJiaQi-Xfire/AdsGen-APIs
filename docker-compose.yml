@@ -6,6 +6,7 @@ services:
     build:
       context: ./backend
       dockerfile: container/Dockerfile
+    image: adsgem-apis-main-backend:latest
     ports:
       - "8000:8000"
     depends_on:
@@ -19,6 +20,7 @@ services:
       - AZURE_GPT_API_KEY=${AZURE_GPT_API_KEY}
       - AZURE_GPT_API_ENDPOINT=${AZURE_GPT_API_ENDPOINT}
       - OLLAMA_MODEL=${OLLAMA_MODEL}
+      - COMFY_SERVER_URL=${COMFY_SERVER_URL}
     volumes:
       - ./backend/src:/app/src
       - ./backend/alembic:/app/alembic
@@ -29,6 +31,7 @@ services:
     build:
       context: ./frontend
       dockerfile: container/Dockerfile
+    image: adsgem-apis-main-frontend:latest
     ports:
       - "80:80"
     depends_on:
