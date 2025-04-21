@@ -2,13 +2,14 @@
 
 import time
 import asyncio
-import os
 import json
+from io import BytesIO
+import base64
 from typing import List, Dict, Any
-from fastapi import HTTPException
 from src.services.gpt_service import gpt_service
 from src.services.file_service import file_service
 from src.services import comfy_service
+from PIL import Image
 
 
 class ImageService:
@@ -17,6 +18,28 @@ class ImageService:
     def __init__(self):
         self.gpt_service = gpt_service
         self.file_service = file_service
+
+    def layer_template_over_base(
+        self, base_image_path: str, template_png_path: str
+    ) -> str:
+        """
+        Composite a PNG template over a base PNG image and return the result as a base64 PNG string.
+        """
+
+        # Open both images as RGBA
+        base_img = Image.open(base_image_path).convert("RGBA")
+        template_img = (
+            Image.open(template_png_path).convert("RGBA").resize(base_img.size)
+        )
+
+        # Composite the template over the base image
+        result_img = Image.alpha_composite(base_img, template_img)
+
+        # Encode as base64 PNG
+        buffer = BytesIO()
+        result_img.save(buffer, format="PNG")
+        img_b64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        return f"data:image/png;base64,{img_b64}"
 
     def process_lora_styles(
         self,

@@ -209,6 +209,120 @@ export async function signup(email: string, password: string) {
   });
 }
 
+//Fetch template psd files:
+export async function getPsdTemplates(): Promise<
+  { name: string; url: string }[]
+> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/psd-templates/`, {
+      method: "GET",
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to get templates: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return (data.templates || []).map((t: any) => ({
+      name: t.name,
+      url: t.path,
+    }));
+  } catch (error) {
+    return handleApiError(error, "Failed to fetch PSD templates");
+  }
+}
+// Generate template for multiple base images
+export async function generateTemplateMulti({
+  images,
+  psdFile,
+  psdTemplateName,
+}: {
+  images: File[];
+  psdFile?: File;
+  psdTemplateName?: string;
+}): Promise<{ url: string; filename?: string }[]> {
+  const formData = new FormData();
+  images.forEach((file) => {
+    formData.append("base_images", file);
+  });
+  if (psdFile) {
+    formData.append("template_image", psdFile);
+  }
+  if (psdTemplateName) {
+    formData.append("template_name", psdTemplateName);
+  }
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate-template/`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to generate template: ${response.status}`);
+    }
+    const data = await response.json();
+    if (data.images) {
+      return data.images.map((img: any) => ({
+        url: img.imageBase64,
+        filename: img.filename,
+      }));
+    }
+    return [];
+  } catch (error) {
+    return handleApiError(error, "Failed to generate template");
+  }
+}
+
+//Generate template
+export async function generateTemplate({
+  image,
+  psdFile,
+  psdTemplateName,
+}: {
+  image: File;
+  psdFile?: File;
+  psdTemplateName?: string;
+}): Promise<string> {
+  const formData = new FormData();
+  formData.append("base_image", image);
+  if (psdFile) {
+    formData.append("template_image", psdFile);
+  }
+  if (psdTemplateName) {
+    formData.append("template_name", psdTemplateName);
+  }
+
+  console.log("[generateTemplate] FormData payload:");
+  for (const [key, value] of formData.entries()) {
+    if (value instanceof File) {
+      console.log(`  ${key}: [File] name=${value.name}, type=${value.type}`);
+    } else {
+      console.log(`  ${key}: ${value}`);
+    }
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate-template/`, {
+      method: "POST",
+      body: formData,
+    });
+
+    console.log(`[generateTemplate] Response status: ${response.status}`);
+    let data;
+    try {
+      data = await response.json();
+      console.log("[generateTemplate] Response body:", data);
+    } catch (e) {
+      console.error("[generateTemplate] Failed to parse JSON response", e);
+      data = null;
+    }
+    if (!response.ok) {
+      throw new Error(`Failed to generate template: ${response.status}`);
+    }
+    return data?.imageBase64 || data?.resultUrl || "";
+  } catch (error) {
+    return handleApiError(error, "Failed to generate template");
+  }
+}
+
 //Prompt database CRUD
 export const promptApi = {
   getPrompts: async (skip = 0, limit = 100): Promise<PromptFile[]> => {

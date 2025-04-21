@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ImageIcon, FileText, Menu, X } from "lucide-react";
+import { ImageIcon, FileText, Menu, X, Layers2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -24,6 +24,12 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
       id: "image",
       name: "Image Generation",
       icon: <ImageIcon className="h-5 w-5" />,
+    },
+
+    {
+      id: "template",
+      name: "Template Generation",
+      icon: <Layers2 className="h-5 w-5" />,
     },
   ];
 
