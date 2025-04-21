@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/SideBar";
 import PromptGeneration from "@/components/PromptGenerationTab";
 import ImageGeneration from "@/components/ImageGenerationTab";
+import TemplateGeneration from "@/components/TemplateGenerationTab";
 
 const Index: React.FC = () => {
   const [activeTab, setActiveTab] = useState("prompt");
@@ -13,6 +14,7 @@ const Index: React.FC = () => {
         <main className="min-h-screen py-6 px-2">
           {activeTab === "prompt" && <PromptGeneration />}
           {activeTab === "image" && <ImageGeneration />}
+          {activeTab === "template" && <TemplateGeneration />}
         </main>
       </div>
     </div>

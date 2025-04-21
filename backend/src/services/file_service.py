@@ -8,10 +8,21 @@ import pandas as pd
 
 class FileService:
     def __init__(self):
-        self.file_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\base_image"
-        self.preview_path = (
-            r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\resized_image"
-        )
+        # Find the project root (the folder containing 'backend')
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        self.file_path = os.path.join(project_root, "Output", "base_image")
+        self.preview_path = os.path.join(project_root, "Output", "resized_image")
+        self.psd_templates_dir = os.path.join(project_root, "backend", "src", "templates")
+
+    def fetch_psd_templates(self):
+        """List all PSD files in the templates directory."""
+        psd_files = []
+        for fname in os.listdir(self.psd_templates_dir):
+            if fname.lower().endswith(".png"):
+                psd_files.append(
+                    {"name": fname, "path": os.path.join(self.psd_templates_dir, fname)}
+                )
+        return psd_files
 
     def load_prompt_from_file(self, file_path: str) -> str:
         """Load prompt from file"""
