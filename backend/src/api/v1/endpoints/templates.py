@@ -29,6 +29,7 @@ async def get_psd_templates():
 
 from typing import List
 
+
 @router.post("/generate-template/")
 async def generate_template(
     base_images: List[UploadFile] = File(...),
@@ -78,10 +79,9 @@ async def generate_template(
             with open(base_path, "wb") as f:
                 f.write(await base_image.read())
             img_b64 = image_service.layer_template_over_base(base_path, template_path)
-            result_images.append({
-                "imageBase64": img_b64,
-                "filename": base_image.filename
-            })
+            result_images.append(
+                {"imageBase64": img_b64, "filename": base_image.filename}
+            )
         return JSONResponse({"images": result_images})
     except Exception as e:
         raise HTTPException(

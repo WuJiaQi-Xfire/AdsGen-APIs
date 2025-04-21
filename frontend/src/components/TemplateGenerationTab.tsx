@@ -1,10 +1,9 @@
 import React, { useState, useRef } from "react";
-import { getPsdTemplates, generateTemplate } from "@/lib/api";
+import { getPsdTemplates, generateTemplateMulti } from "@/lib/api";
 import { Button } from "@/components/UI/PrimaryButton";
 import { Upload } from "lucide-react";
 import Select from "@/components/UI/Select"; // Use your custom Select
 import ImageGallery from "@/components/Image/ImageGallery";
-import { generateTemplateMulti } from "@/lib/api";
 
 interface PsdTemplate {
   name: string;
@@ -21,7 +20,9 @@ const TemplateGenerationTab: React.FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState<{ url: string; filename?: string; selected: boolean }[]>([]);
+  const [generatedImages, setGeneratedImages] = useState<
+    { url: string; filename?: string; selected: boolean }[]
+  >([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const psdInputRef = useRef<HTMLInputElement>(null);
@@ -60,7 +61,6 @@ const TemplateGenerationTab: React.FC = () => {
     setGeneratedImages([]);
 
     try {
-      // Use the new generateTemplateMulti API
       const images = await generateTemplateMulti({
         images: baseImages,
         psdFile,
@@ -78,7 +78,6 @@ const TemplateGenerationTab: React.FC = () => {
     }
   };
 
-  // Transform templates to select dropdown option format.
   const templateOptions = psdTemplates.map((tpl) => ({
     value: tpl.name,
     label: tpl.name,
@@ -183,7 +182,6 @@ const TemplateGenerationTab: React.FC = () => {
               </div>
             </div>
 
-            {/* Vertical or horizontal "OR" separator */}
             <div className="hidden md:flex items-center px-2 text-secondary/60 font-bold select-none">
               OR
             </div>
@@ -191,7 +189,6 @@ const TemplateGenerationTab: React.FC = () => {
               OR
             </div>
 
-            {/* Select PSD template (styled select like 'styles' list) */}
             <div className="flex-1 flex flex-col gap-2 min-w-[220px]">
               <label className="font-medium mb-1 ml-1 text-sm">
                 Or select a PNG Template
@@ -217,12 +214,13 @@ const TemplateGenerationTab: React.FC = () => {
           </div>
         </div>
 
-        {/* Generate Button */}
         <div>
           <Button
             className="mt-2 w-full bg-primary hover:bg-primary/90 text-white font-semibold shadow-soft text-base py-3 rounded-lg transition"
             disabled={
-              baseImages.length === 0 || (!psdFile && !selectedTemplate) || isGenerating
+              baseImages.length === 0 ||
+              (!psdFile && !selectedTemplate) ||
+              isGenerating
             }
             onClick={handleGenerate}
             size="lg"
@@ -240,7 +238,9 @@ const TemplateGenerationTab: React.FC = () => {
 
         {generatedImages.length > 0 && (
           <div className="my-8 mx-auto bg-white rounded-lg shadow-soft p-6 border max-w-2xl text-center">
-            <div className="mb-2 font-semibold text-lg">Generated Templates</div>
+            <div className="mb-2 font-semibold text-lg">
+              Generated Templates
+            </div>
             <ImageGallery
               images={generatedImages}
               onSelectImage={(idx) => {

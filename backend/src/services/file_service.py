@@ -8,13 +8,11 @@ import pandas as pd
 
 class FileService:
     def __init__(self):
-        self.file_path = r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\base_image"
-        self.preview_path = (
-            r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\Output\resized_image"
-        )
-        self.psd_templates_dir = (
-            r"C:\Users\GT0730-1\Documents\GitHub\Ads-Gen\backend\src\templates"
-        )
+        # Find the project root (the folder containing 'backend')
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        self.file_path = os.path.join(project_root, "Output", "base_image")
+        self.preview_path = os.path.join(project_root, "Output", "resized_image")
+        self.psd_templates_dir = os.path.join(project_root, "backend", "src", "templates")
 
     def fetch_psd_templates(self):
         """List all PSD files in the templates directory."""

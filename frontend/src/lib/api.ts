@@ -209,7 +209,7 @@ export async function signup(email: string, password: string) {
   });
 }
 
-//Fetch template psd files:
+//Fetch template files:
 export async function getPsdTemplates(): Promise<
   { name: string; url: string }[]
 > {
@@ -266,58 +266,6 @@ export async function generateTemplateMulti({
       }));
     }
     return [];
-  } catch (error) {
-    return handleApiError(error, "Failed to generate template");
-  }
-}
-
-//Generate template
-export async function generateTemplate({
-  image,
-  psdFile,
-  psdTemplateName,
-}: {
-  image: File;
-  psdFile?: File;
-  psdTemplateName?: string;
-}): Promise<string> {
-  const formData = new FormData();
-  formData.append("base_image", image);
-  if (psdFile) {
-    formData.append("template_image", psdFile);
-  }
-  if (psdTemplateName) {
-    formData.append("template_name", psdTemplateName);
-  }
-
-  console.log("[generateTemplate] FormData payload:");
-  for (const [key, value] of formData.entries()) {
-    if (value instanceof File) {
-      console.log(`  ${key}: [File] name=${value.name}, type=${value.type}`);
-    } else {
-      console.log(`  ${key}: ${value}`);
-    }
-  }
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/generate-template/`, {
-      method: "POST",
-      body: formData,
-    });
-
-    console.log(`[generateTemplate] Response status: ${response.status}`);
-    let data;
-    try {
-      data = await response.json();
-      console.log("[generateTemplate] Response body:", data);
-    } catch (e) {
-      console.error("[generateTemplate] Failed to parse JSON response", e);
-      data = null;
-    }
-    if (!response.ok) {
-      throw new Error(`Failed to generate template: ${response.status}`);
-    }
-    return data?.imageBase64 || data?.resultUrl || "";
   } catch (error) {
     return handleApiError(error, "Failed to generate template");
   }

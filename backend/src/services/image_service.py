@@ -25,7 +25,6 @@ class ImageService:
         """
         Composite a PNG template over a base PNG image and return the result as a base64 PNG string.
         """
-
         # Open both images as RGBA
         base_img = Image.open(base_image_path).convert("RGBA")
         template_img = (
@@ -129,7 +128,6 @@ class ImageService:
 
         self.file_service.clear_image_folders()
 
-        # Process prompts synchronously
         for prompt in prompt_list:
             prompt_content = prompt["content"]
             prompt_name = prompt["name"]
