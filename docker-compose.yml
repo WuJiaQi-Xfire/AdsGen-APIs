@@ -4,9 +4,9 @@ services:
   # 后端服务
   backend:
     build:
-      context: ./backend
-      dockerfile: container/Dockerfile
-    image: adsg-backend:0.1.0
+      context: ./backend # 无需修改
+      dockerfile: container/Dockerfile # 无需修改
+    image: adsg-backend:0.1.0 # 可能需要修改成实际的image名称
     ports:
       - "0.0.0.0:8000:8000" # 可修改映射到主机的端口
     depends_on:
@@ -39,7 +39,7 @@ services:
     build:
       context: ./frontend # 无需修改
       dockerfile: container/Dockerfile # 无需修改
-    image: adsg-frontend:0.1.0 # 无需修改
+    image: adsg-frontend:0.1.0 # 可能需要修改成实际的image名称
     ports:
       - "0.0.0.0:80:80" # 可修改映射到主机的端口
     depends_on:
@@ -48,7 +48,6 @@ services:
       - VITE_API_BASE_URL=${API_BASE_URL:-http://backend:8000/api} # 无需修改
     restart: unless-stopped # 可以修改为具体的规则
 
-# 下面代码仅用于本地开发测试，部署时请忽略
   # PostgreSQL数据库
   postgres:
     image: postgres:15-alpine
@@ -59,7 +58,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_DB=${POSTGRES_DB_Test:-testdb}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data # 需要修改成实际的挂载的卷
     restart: unless-stopped
 
 volumes:
