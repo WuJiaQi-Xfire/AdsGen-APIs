@@ -30,7 +30,6 @@ services:
       - SD_BASE_URL=${SD_BASE_URL}
     volumes:
       - ./backend/src:/app/src
-      - ./backend/alembic:/app/alembic
     restart: unless-stopped
 
   # 前端服务
@@ -43,6 +42,8 @@ services:
       - "80:80"
     depends_on:
       - backend
+    environment:
+      - VITE_API_BASE_URL=http://backend:8000/api
     restart: unless-stopped
 
   # PostgreSQL数据库
