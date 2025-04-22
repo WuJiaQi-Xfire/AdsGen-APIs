@@ -29,6 +29,7 @@ app.add_middleware(
         "http://localhost:8080",
         "http://10.10.205.180:8080",
         "http://2.0.1.1:8080/",
+        # for dockers
         "http://localhost:80",
         "http://localhost",
         "http://frontend",
