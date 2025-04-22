@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from src.services.file_service import file_service
 from comfy_script.runtime import *
 
-load_dotenv()
+load_dotenv(override=False)
 COMFY_URL = os.getenv("COMFY_URL")
 
 load(COMFY_URL)

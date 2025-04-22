@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 后端服务
   backend:
@@ -12,15 +10,24 @@ services:
     depends_on:
       - postgres
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      # Database
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_SERVER=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB_Test=testdb
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB_Test=${POSTGRES_DB_Test}  
+      # GPT
       - AZURE_GPT_API_KEY=${AZURE_GPT_API_KEY}
       - AZURE_GPT_API_ENDPOINT=${AZURE_GPT_API_ENDPOINT}
+      # Comfy UI
       - OLLAMA_MODEL=${OLLAMA_MODEL}
-      - COMFY_SERVER_URL=${COMFY_SERVER_URL}
+      - COMFY_URL=${COMFY_URL}
+      - LORA_URL=${LORA_URL}
+      # LM Studio
+      - LM_STUDIO_BASE_URL=${LM_STUDIO_BASE_URL}
+      - LM_STUDIO_API_KEY=${LM_STUDIO_API_KEY}
+      # Stable Diffusion
+      - SD_BASE_URL=${SD_BASE_URL}
     volumes:
       - ./backend/src:/app/src
       - ./backend/alembic:/app/alembic
@@ -44,9 +51,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=testdb
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB_Test}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped

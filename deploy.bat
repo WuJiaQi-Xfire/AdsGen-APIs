@@ -73,6 +73,10 @@ REM Rebuild and start containers
 echo Rebuilding and starting containers...
 %COMPOSE_CMD% up -d --build
 
+REM Remove dangling images (None:None)
+echo Removing dangling images...
+docker image prune -f
+
 echo.
 echo Update complete! Application has been restarted.
 echo.
@@ -153,5 +157,3 @@ goto menu
 :end
 echo.
 echo Thank you for using AdsGem APIs Deployment Script!
-echo.
-exit /b 0

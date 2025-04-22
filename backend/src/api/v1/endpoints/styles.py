@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from src.services.file_service import file_service
 
 
-load_dotenv()
+load_dotenv(override=False)
 LORA_URL = os.getenv("LORA_URL")
 
 router = APIRouter()

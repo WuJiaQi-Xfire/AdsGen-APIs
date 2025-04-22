@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
 # 加载.env文件中的环境变量
-load_dotenv()
+load_dotenv(override=False)
 
 # 从环境变量中获取数据库配置
 POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")

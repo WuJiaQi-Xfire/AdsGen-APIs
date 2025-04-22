@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 # env variables
 env_path = os.path.join(os.path.dirname(__file__), "../../../.env")
-load_dotenv(dotenv_path=env_path)
+load_dotenv(dotenv_path=env_path, override=False)
 
 # database connection variables
 DB_USER = os.getenv("POSTGRES_USER")
