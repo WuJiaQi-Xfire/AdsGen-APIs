@@ -4,8 +4,13 @@ Endpoint for getting styles
 
 from fastapi import APIRouter, HTTPException
 import requests
-
+import os
+from dotenv import load_dotenv
 from src.services.file_service import file_service
+
+
+load_dotenv()
+LORA_URL = os.getenv("LORA_URL")
 
 router = APIRouter()
 router.description = (
@@ -18,7 +23,7 @@ router.description = (
 async def get_styles():
     """Method to get Lora and Art styles."""
     try:
-        response = requests.get("http://127.0.0.1:8188/models/loras")
+        response = requests.get(LORA_URL)
         loras = response.json()
         lora_styles = [
             {"id": lora, "name": lora, "styleType": "lora"} for lora in loras

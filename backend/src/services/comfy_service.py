@@ -1,10 +1,15 @@
 """Module for comfyui api calls"""
 
 import random
+import os
+from dotenv import load_dotenv
 from src.services.file_service import file_service
 from comfy_script.runtime import *
 
-load("http://127.0.0.1:8188/")
+load_dotenv()
+COMFY_URL = os.getenv("COMFY_URL")
+
+load(COMFY_URL)
 from comfy_script.runtime.nodes import *
 
 
