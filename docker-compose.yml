@@ -1,60 +1,63 @@
+name: adsg # 项目名称，将替换默认的adsgem-apis-main
+
 services:
   # 后端服务
   backend:
     build:
       context: ./backend
       dockerfile: container/Dockerfile
-    image: adsgem-apis-main-backend:latest
+    image: adsg-backend:0.1.0
     ports:
-      - "0.0.0.0:8000:8000"
+      - "0.0.0.0:8000:8000" # 可修改映射到主机的端口
     depends_on:
       - postgres
     environment:
       # Database
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_SERVER=postgres
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_DB_Test=${POSTGRES_DB_Test}  
+      - POSTGRES_USER=${POSTGRES_USER:-postgres} # 必须修改成实际数据库的用户名
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres} # 必须修改成实际数据库的密码
+      - POSTGRES_SERVER=postgres # 必须修改成实际数据库的服务名
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432} # 必须修改成实际数据库的port
+      - POSTGRES_DB_Test=${POSTGRES_DB_Test:-testdb}  # 必须修改成实际数据库的名称
       # GPT
-      - AZURE_GPT_API_KEY=${AZURE_GPT_API_KEY}
-      - AZURE_GPT_API_ENDPOINT=${AZURE_GPT_API_ENDPOINT}
+      - AZURE_GPT_API_KEY=${AZURE_GPT_API_KEY:-6a254db632fb47b0b1fc3a02aad99f33} # 无需修改
+      - AZURE_GPT_API_ENDPOINT=${AZURE_GPT_API_ENDPOINT:-https://ai.goatgames.com/aiplus/proxy/chat/completions} # 无需修改
       # Comfy UI
-      - OLLAMA_MODEL=${OLLAMA_MODEL}
-      - COMFY_URL=${COMFY_URL}
-      - LORA_URL=${LORA_URL}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3} # 无需修改
+      - COMFY_URL=${COMFY_URL:-http://118.145.197.219} # 无需修改
+      - LORA_URL=${LORA_URL:-http://118.145.197.219/models/loras} # 无需修改
       # LM Studio
-      - LM_STUDIO_BASE_URL=${LM_STUDIO_BASE_URL}
-      - LM_STUDIO_API_KEY=${LM_STUDIO_API_KEY}
+      - LM_STUDIO_BASE_URL=${LM_STUDIO_BASE_URL:-http://localhost:1234/v1} # 无需修改
+      - LM_STUDIO_API_KEY=${LM_STUDIO_API_KEY:-lm-studio} # 无需修改
       # Stable Diffusion
-      - SD_BASE_URL=${SD_BASE_URL}
+      - SD_BASE_URL=${SD_BASE_URL:-http://127.0.0.1:7860/sdapi/v1/txt2img} # 无需修改
     volumes:
-      - ./backend/src:/app/backend/src
-    restart: unless-stopped
+      - ./backend/src:/app/backend/src # 无需修改
+    restart: unless-stopped # 可以修改为具体的规则
 
   # 前端服务
   frontend:
     build:
-      context: ./frontend
-      dockerfile: container/Dockerfile
-    image: adsgem-apis-main-frontend:latest
+      context: ./frontend # 无需修改
+      dockerfile: container/Dockerfile # 无需修改
+    image: adsg-frontend:0.1.0 # 无需修改
     ports:
-      - "0.0.0.0:80:80"
+      - "0.0.0.0:80:80" # 可修改映射到主机的端口
     depends_on:
-      - backend
+      - backend # 无需修改
     environment:
-      - VITE_API_BASE_URL=http://backend:8000/api
-    restart: unless-stopped
+      - VITE_API_BASE_URL=${API_BASE_URL:-http://backend:8000/api} # 无需修改
+    restart: unless-stopped # 可以修改为具体的规则
 
+# 下面代码仅用于本地开发测试，部署时请忽略
   # PostgreSQL数据库
   postgres:
     image: postgres:15-alpine
     ports:
-      - "127.0.0.1:5432:5432"  # 数据库只允许本地访问，保证安全性
+      - "127.0.0.1:5433:5432"  # 使用5433端口避免与本地PostgreSQL冲突
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB_Test}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB_Test:-testdb}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped

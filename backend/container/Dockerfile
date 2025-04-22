@@ -20,9 +20,5 @@ RUN python -m pip install --upgrade pip \
 # ─── 应用代码 ──────────────────────────────────────────────
 COPY . .
 
-# 使用环境变量设置端口
-ARG BACKEND_PORT=8000
-ENV BACKEND_PORT=${BACKEND_PORT}
-
-EXPOSE ${BACKEND_PORT}
-CMD uvicorn src.main:app --host 0.0.0.0 --port ${BACKEND_PORT}
+EXPOSE 8000
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
