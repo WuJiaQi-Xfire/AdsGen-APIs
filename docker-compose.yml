@@ -6,7 +6,7 @@ services:
       dockerfile: container/Dockerfile
     image: adsgem-apis-main-backend:latest
     ports:
-      - "8000:8000"
+      - "0.0.0.0:8000:8000"
     depends_on:
       - postgres
     environment:
@@ -29,7 +29,7 @@ services:
       # Stable Diffusion
       - SD_BASE_URL=${SD_BASE_URL}
     volumes:
-      - ./backend/src:/app/src
+      - ./backend/src:/app/backend/src
     restart: unless-stopped
 
   # 前端服务
@@ -39,7 +39,7 @@ services:
       dockerfile: container/Dockerfile
     image: adsgem-apis-main-frontend:latest
     ports:
-      - "80:80"
+      - "0.0.0.0:80:80"
     depends_on:
       - backend
     environment:
@@ -50,7 +50,7 @@ services:
   postgres:
     image: postgres:15-alpine
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"  # 数据库只允许本地访问，保证安全性
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}

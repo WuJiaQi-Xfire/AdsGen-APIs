@@ -1,7 +1,7 @@
 # 构建阶段
 FROM node:20-alpine as build
 
-WORKDIR /app
+WORKDIR /app/frontend
 
 # 复制依赖文件
 COPY package.json package-lock.json ./
@@ -19,7 +19,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # 复制构建产物到Nginx服务目录
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/frontend/dist /usr/share/nginx/html
 
 # 复制Nginx配置
 COPY container/nginx.conf /etc/nginx/conf.d/default.conf
