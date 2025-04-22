@@ -11,7 +11,13 @@ sys.path.append(str(ROOT_DIR))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.api.v1.endpoints import prompts, styles, generation, image_generation
+from src.api.v1.endpoints import (
+    prompts,
+    styles,
+    generation,
+    image_generation,
+    templates,
+)
 from src.services.file_service import file_service
 
 app = FastAPI()
@@ -31,6 +37,8 @@ app.add_middleware(
 
 app.include_router(prompts.router, prefix="/api/prompts", tags=["Prompts"])
 app.include_router(generation.router, prefix="/api/generate", tags=["Generation"])
+app.include_router(templates.router, prefix="/api", tags=["Templates"])
+
 # Comment this out if no comfyui running
 app.include_router(styles.router, prefix="/api/styles", tags=["Styles"])
 app.include_router(image_generation.router, prefix="/api", tags=["Image Generation"])

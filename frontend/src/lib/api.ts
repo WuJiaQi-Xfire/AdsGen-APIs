@@ -209,6 +209,68 @@ export async function signup(email: string, password: string) {
   });
 }
 
+//Fetch template files:
+export async function getPsdTemplates(): Promise<
+  { name: string; url: string }[]
+> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/psd-templates/`, {
+      method: "GET",
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to get templates: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return (data.templates || []).map((t: any) => ({
+      name: t.name,
+      url: t.path,
+    }));
+  } catch (error) {
+    return handleApiError(error, "Failed to fetch PSD templates");
+  }
+}
+// Generate template for multiple base images
+export async function generateTemplateMulti({
+  images,
+  psdFile,
+  psdTemplateName,
+}: {
+  images: File[];
+  psdFile?: File;
+  psdTemplateName?: string;
+}): Promise<{ url: string; filename?: string }[]> {
+  const formData = new FormData();
+  images.forEach((file) => {
+    formData.append("base_images", file);
+  });
+  if (psdFile) {
+    formData.append("template_image", psdFile);
+  }
+  if (psdTemplateName) {
+    formData.append("template_name", psdTemplateName);
+  }
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate-template/`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to generate template: ${response.status}`);
+    }
+    const data = await response.json();
+    if (data.images) {
+      return data.images.map((img: any) => ({
+        url: img.imageBase64,
+        filename: img.filename,
+      }));
+    }
+    return [];
+  } catch (error) {
+    return handleApiError(error, "Failed to generate template");
+  }
+}
+
 //Prompt database CRUD
 export const promptApi = {
   getPrompts: async (skip = 0, limit = 100): Promise<PromptFile[]> => {
