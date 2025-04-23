@@ -10,7 +10,7 @@ import threading
 # Global lock to serialize all ComfyUI Workflow calls
 comfy_lock = threading.Lock()
 
-load_dotenv()
+load_dotenv(override=False)
 COMFY_URL = os.getenv("COMFY_URL")
 
 load(COMFY_URL)
