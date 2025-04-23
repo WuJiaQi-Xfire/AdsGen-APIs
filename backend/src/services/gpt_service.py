@@ -86,6 +86,26 @@ class GPTService:
             description, template_name, image_base64, image_url
         )
 
+    def generate_with_prompt(
+        self,
+        description: str,
+        response_format: Optional[Dict[str, Any]] = None,
+    ) -> Union[str, Dict[str, Any]]:
+        """
+        Generate image prompt with template prompt
+        """
+        # Use the description directly as the prompt
+        prompt = description
+
+        # Create messages
+        messages = llm_service.create_message(prompt)
+
+        # Prepare request data
+        data = llm_service.prepare_request_data(messages, response_format)
+
+        # Make API call
+        return self.make_api_call(data)
+
     def extract_keywords(
         self, image_base64: Optional[str] = None, image_url: Optional[str] = None
     ) -> List[str]:
