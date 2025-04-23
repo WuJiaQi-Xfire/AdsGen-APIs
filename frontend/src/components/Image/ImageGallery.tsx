@@ -64,7 +64,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
               onClick={() => onSelectImage(index)}
             >
               <img
-                src={`data:image/png;base64,${image.url}`}
+                src={image.url.startsWith("data:image") ? image.url : `data:image/png;base64,${image.url}`}
                 alt={`Generated image ${index + 1}`}
                 className="w-full aspect-square object-cover"
               />

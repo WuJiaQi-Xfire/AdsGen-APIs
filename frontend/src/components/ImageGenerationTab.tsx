@@ -214,7 +214,10 @@ const ImageGenerationTab: React.FC = () => {
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
-      link.download = `${image.filename || index}${extension}`;
+      // Remove any existing extension from filename before appending the right one
+      let baseName = image.filename || `${index}`;
+      baseName = baseName.replace(/\.[a-zA-Z0-9]+$/, "");
+      link.download = `${baseName}${extension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
