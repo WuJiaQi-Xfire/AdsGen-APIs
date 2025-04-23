@@ -1,4 +1,5 @@
 @echo off
+setlocal EnableDelayedExpansion
 echo ===== AdsGem APIs Deployment Script =====
 echo.
 
@@ -26,10 +27,11 @@ echo 3. Start with existing images (no rebuild)
 echo 4. View logs
 echo 5. Stop services
 echo 6. Restart services
-echo 7. Exit
+echo 7. Push images to repository
+echo 8. Exit
 echo.
 
-set /p choice=Enter option (1-7): 
+set /p choice=Enter option (1-8): 
 
 if "%choice%"=="1" goto deploy
 if "%choice%"=="2" goto update
@@ -37,7 +39,8 @@ if "%choice%"=="3" goto start_existing
 if "%choice%"=="4" goto logs
 if "%choice%"=="5" goto stop
 if "%choice%"=="6" goto restart
-if "%choice%"=="7" goto end
+if "%choice%"=="7" goto push_images
+if "%choice%"=="8" goto end
 
 echo Invalid option, please try again.
 goto menu
@@ -151,6 +154,88 @@ echo.
 echo Start complete! Application is running with existing images.
 echo Frontend URL: http://localhost
 echo Backend API URL: http://localhost/api
+echo.
+goto menu
+
+:push_images
+echo.
+echo === Pushing images to repository ===
+echo.
+
+REM Login to Docker registry
+echo Logging in to Docker registry...
+echo kSNYCe45Qj | docker login gt-cn-harbor.goatgames.com -u grail-cn --password-stdin
+
+if %ERRORLEVEL% neq 0 (
+    echo Error: Failed to login to Docker registry. Please check your credentials and network connection.
+    echo You may need to configure Docker to use an insecure registry if there are certificate issues.
+    echo.
+    set /p "retry=Would you like to retry with insecure registry option? (y/n): "
+    if /i "%retry%"=="y" (
+        echo Retrying with insecure registry option...
+        docker logout gt-cn-harbor.goatgames.com 2>nul
+        echo Adding insecure registry to Docker daemon configuration...
+        echo This may require administrator privileges.
+        echo.
+        echo kSNYCe45Qj | docker login gt-cn-harbor.goatgames.com -u grail-cn --password-stdin
+        if %ERRORLEVEL% neq 0 (
+            echo Error: Still failed to login. Please check your network connection and try again later.
+            goto menu
+        )
+    ) else (
+        goto menu
+    )
+)
+
+rem --- image names & tags ---
+set "FRONTEND_SRC=adsg-frontend:0.1.0"
+set "FRONTEND_DEST=gt-cn-harbor.goatgames.com/grail-cn-comfyui/adsg-frontend:0.1.0"
+set "BACKEND_SRC=adsg-backend:0.1.0"
+set "BACKEND_DEST=gt-cn-harbor.goatgames.com/grail-cn-comfyui/adsg-backend:0.1.0"
+set "POSTGRES_SRC=postgres:15-alpine"
+set "POSTGRES_DEST=gt-cn-harbor.goatgames.com/grail-cn-comfyui/postgres:15-alpine"
+
+REM Tag and push frontend image
+echo Tagging and pushing frontend image...
+docker tag %FRONTEND_SRC% %FRONTEND_DEST%
+if %ERRORLEVEL% neq 0 (
+    echo Error: Failed to tag frontend image.
+    goto menu
+)
+docker push %FRONTEND_DEST%
+if %ERRORLEVEL% neq 0 (
+    echo Error: Failed to push frontend image.
+    goto menu
+)
+
+REM Tag and push backend image
+echo Tagging and pushing backend image...
+docker tag %BACKEND_SRC% %BACKEND_DEST%
+if %ERRORLEVEL% neq 0 (
+    echo Error: Failed to tag backend image.
+    goto menu
+)
+docker push %BACKEND_DEST%
+if %ERRORLEVEL% neq 0 (
+    echo Error: Failed to push backend image.
+    goto menu
+)
+
+REM Tag and push PostgreSQL image
+echo Tagging and pushing PostgreSQL image...
+docker tag %POSTGRES_SRC% %POSTGRES_DEST%
+if %ERRORLEVEL% neq 0 (
+    echo Error: Failed to tag PostgreSQL image.
+    goto menu
+)
+docker push %POSTGRES_DEST%
+if %ERRORLEVEL% neq 0 (
+    echo Error: Failed to push PostgreSQL image.
+    goto menu
+)
+
+echo.
+echo All images have been pushed to the repository.
 echo.
 goto menu
 
