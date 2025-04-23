@@ -190,12 +190,38 @@ const ImageGenerationTab: React.FC = () => {
     }
 
     selectedImages.forEach((image, index) => {
+      let base64Data = image.url;
+      let mimeType = "image/png";
+      let extension = ".png";
+      // If it's a data URL, extract the mime type and base64
+      if (base64Data.startsWith("data:")) {
+        const matches = base64Data.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.*)$/);
+        if (matches) {
+          mimeType = matches[1];
+          base64Data = matches[2];
+          if (mimeType === "image/jpeg") extension = ".jpg";
+          else if (mimeType === "image/webp") extension = ".webp";
+        }
+      }
+      // Convert base64 to Blob
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: mimeType });
+      const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = image.url;
-      link.download = `${image.filename || index}`;
+      link.href = blobUrl;
+      // Remove any existing extension from filename before appending the right one
+      let baseName = image.filename || `${index}`;
+      baseName = baseName.replace(/\.[a-zA-Z0-9]+$/, "");
+      link.download = `${baseName}${extension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
     });
 
     showToast(
@@ -204,6 +230,7 @@ const ImageGenerationTab: React.FC = () => {
       }`
     );
   };
+
 
   return (
     <div className="w-full max-w-5xl mx-auto p-6 animate-fade-in">

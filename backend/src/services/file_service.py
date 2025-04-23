@@ -1,6 +1,5 @@
 """Module for file operations"""
 
-import base64
 import os
 from typing import List, Dict
 import pandas as pd
@@ -9,10 +8,12 @@ import pandas as pd
 class FileService:
     def __init__(self):
         # Find the project root (the folder containing 'backend')
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-        self.file_path = os.path.join(project_root, "Output", "base_image")
-        self.preview_path = os.path.join(project_root, "Output", "resized_image")
-        self.psd_templates_dir = os.path.join(project_root, "backend", "src", "templates")
+        project_root = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "..")
+        )
+        self.psd_templates_dir = os.path.join(
+            project_root, "backend", "src", "templates"
+        )
 
     def fetch_psd_templates(self):
         """List all PSD files in the templates directory."""
@@ -46,43 +47,6 @@ class FileService:
             {"id": row[0], "name": row[0], "styleType": "art"}
             for index, row in df.iterrows()
         ]
-
-    def get_generated_images(self) -> List[Dict[str, str]]:
-        """Get generated images as base64 strings"""
-        images = []
-        try:
-            image_files = [
-                f for f in os.listdir(self.file_path) if f.lower().endswith((".png"))
-            ]
-            for image_file in image_files:
-                new_path = os.path.join(self.file_path, image_file)
-                with open(new_path, "rb") as img_file:
-                    img_data = base64.b64encode(img_file.read()).decode("utf-8")
-                    images.append(
-                        {
-                            "filename": image_file,
-                            "data": f"data:image/png;base64,{img_data}",
-                        }
-                    )
-            return images
-        except Exception as e:
-            print(f"Error loading generated images: {str(e)}")
-            return []
-
-    def clear_image_folders(self):
-        """Clear all images from output folders"""
-        os.makedirs(self.file_path, exist_ok=True)
-        os.makedirs(self.preview_path, exist_ok=True)
-
-        try:
-            for folder in [self.file_path, self.preview_path]:
-                for file in os.listdir(folder):
-                    file_path = os.path.join(folder, file)
-                    if os.path.isfile(file_path):
-                        os.remove(file_path)
-            print("Successfully cleared image folders")
-        except Exception as e:
-            print(f"Error clearing image folders: {str(e)}")
 
 
 file_service = FileService()
