@@ -1,5 +1,4 @@
 name: adsg # 项目名称，将替换默认的adsgem-apis-main
-
 services:
   # 后端服务
   backend:
@@ -8,7 +7,7 @@ services:
     build:
       context: ./backend # 无需修改
       dockerfile: container/Dockerfile # 无需修改
-    image: adsg-backend:0.1.0 # 可能需要修改成实际的image名称
+    image: docker pull gt-cn-harbor.goatgames.com/grail-cn-comfyui/adsg-backend:0.1.0 # 无需修改
     ports:
       - "0.0.0.0:8000:8000" # 可修改映射到主机的端口
     depends_on:
@@ -33,9 +32,8 @@ services:
       # Stable Diffusion
       - SD_BASE_URL=${SD_BASE_URL:-http://127.0.0.1:7860/sdapi/v1/txt2img} # 无需修改
     volumes:
-      - ./backend/src:/app/backend/src # 无需修改
+      - /data/www/adsg-backend/src:/app/backend/src # 无需修改
     restart: unless-stopped # 可以修改为具体的规则
-
   # 前端服务
   frontend:
     networks:
@@ -43,7 +41,7 @@ services:
     build:
       context: ./frontend # 无需修改
       dockerfile: container/Dockerfile # 无需修改
-    image: adsg-frontend:0.1.0 # 可能需要修改成实际的image名称
+    image: gt-cn-harbor.goatgames.com/grail-cn-comfyui/adsg-frontend:0.1.0 # 无需修改
     ports:
       - "0.0.0.0:80:80" # 可修改映射到主机的端口
     depends_on:
@@ -51,12 +49,11 @@ services:
     environment:
       - VITE_API_BASE_URL=${API_BASE_URL:-http://backend:8000/api} # 无需修改
     restart: unless-stopped # 可以修改为具体的规则
-
   # PostgreSQL数据库
   postgres:
     networks:
       - adsg-network
-    image: postgres:15-alpine
+    image: gt-cn-harbor.goatgames.com/grail-cn-comfyui/postgres:15-alpine
     ports:
       - "127.0.0.1:5433:5432"  # 使用5433端口避免与本地PostgreSQL冲突
     environment:
@@ -64,12 +61,8 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_DB=${POSTGRES_DB_Test:-testdb}
     volumes:
-      - postgres_data:/var/lib/postgresql/data # 需要修改成实际的挂载的卷
+      - /data/www/adsg-backend/postgresql/data:/var/lib/postgresql/data # 需要修改成实际的挂载的卷
     restart: unless-stopped
-
-volumes:
-  postgres_data:
-
 networks:
   adsg-network:
     driver: bridge

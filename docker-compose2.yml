@@ -1,5 +1,4 @@
 name: adsg # 项目名称，将替换默认的adsgem-apis-main
-
 services:
   # 后端服务
   backend:
@@ -8,7 +7,7 @@ services:
     build:
       context: ./backend # 无需修改
       dockerfile: container/Dockerfile # 无需修改
-    image: adsg-backend:0.1.0 # 可能需要修改成实际的image名称
+    image: adsg-backend:0.1.0 # 无需修改
     ports:
       - "0.0.0.0:8000:8000" # 可修改映射到主机的端口
     depends_on:
@@ -16,10 +15,10 @@ services:
     environment:
       # Database
       - POSTGRES_USER=${POSTGRES_USER:-postgres} # 必须修改成实际数据库的用户名
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres} # 必须修改成实际数据库的密码
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-r7UomIJvJO} # 必须修改成实际数据库的密码
       - POSTGRES_SERVER=postgres # 必须修改成实际数据库的服务名
       - POSTGRES_PORT=${POSTGRES_PORT:-5432} # 必须修改成实际数据库的port
-      - POSTGRES_DB_Test=${POSTGRES_DB_Test:-testdb}  # 必须修改成实际数据库的名称
+      - POSTGRES_DB_Test=${POSTGRES_DB_Test:-adsg}  # 必须修改成实际数据库的名称
       # GPT
       - AZURE_GPT_API_KEY=${AZURE_GPT_API_KEY:-6a254db632fb47b0b1fc3a02aad99f33} # 无需修改
       - AZURE_GPT_API_ENDPOINT=${AZURE_GPT_API_ENDPOINT:-https://ai.goatgames.com/aiplus/proxy/chat/completions} # 无需修改
@@ -32,10 +31,9 @@ services:
       - LM_STUDIO_API_KEY=${LM_STUDIO_API_KEY:-lm-studio} # 无需修改
       # Stable Diffusion
       - SD_BASE_URL=${SD_BASE_URL:-http://127.0.0.1:7860/sdapi/v1/txt2img} # 无需修改
-    volumes:
-      - ./backend/src:/app/backend/src # 无需修改
+    # volumes:
+    #   - /data/www/adsg-backend/src:/app/backend/src # 无需修改
     restart: unless-stopped # 可以修改为具体的规则
-
   # 前端服务
   frontend:
     networks:
@@ -43,33 +41,29 @@ services:
     build:
       context: ./frontend # 无需修改
       dockerfile: container/Dockerfile # 无需修改
-    image: adsg-frontend:0.1.0 # 可能需要修改成实际的image名称
+    image: adsg-frontend:0.1.0 # 无需修改
     ports:
-      - "0.0.0.0:80:80" # 可修改映射到主机的端口
+      - "0.0.0.0:9080:80" # 可修改映射到主机的端口
     depends_on:
       - backend # 无需修改
     environment:
       - VITE_API_BASE_URL=${API_BASE_URL:-http://backend:8000/api} # 无需修改
     restart: unless-stopped # 可以修改为具体的规则
-
   # PostgreSQL数据库
   postgres:
     networks:
       - adsg-network
-    image: postgres:15-alpine
+    image: gt-cn-harbor.goatgames.com/grail-cn-comfyui/postgres:15-alpine
     ports:
       - "127.0.0.1:5433:5432"  # 使用5433端口避免与本地PostgreSQL冲突
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_DB=${POSTGRES_DB_Test:-testdb}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-r7UomIJvJO}
+      - POSTGRES_DB=${POSTGRES_DB_Test:-adsg}
     volumes:
-      - postgres_data:/var/lib/postgresql/data # 需要修改成实际的挂载的卷
+      - /data/www/adsg-backend/postgresql/data:/var/lib/postgresql/data # 需要修改成实际的挂载的卷
+      - /data/www/adsg-backend/postgresql/initdb:/docker-entrypoint-initdb.d
     restart: unless-stopped
-
-volumes:
-  postgres_data:
-
 networks:
   adsg-network:
     driver: bridge
