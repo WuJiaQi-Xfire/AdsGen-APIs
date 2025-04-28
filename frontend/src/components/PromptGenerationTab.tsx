@@ -6,6 +6,7 @@ import ReferenceImage from "./Prompt/ReferenceImage";
 import PromptOutput from "./Prompt/PromptOutput";
 import { PromptGeneration } from "@/lib/PromptGeneration";
 import { showToast } from "@/lib/ShowToast";
+import PromptServiceAlert from "./UI/PromptServiceAlert";
 
 const PromptGenerationTab: React.FC = () => {
   const {
@@ -20,6 +21,7 @@ const PromptGenerationTab: React.FC = () => {
     handleGenerate,
     handleReferenceImageUpload,
     clearReferenceImage,
+    triggerHealthCheck,
   } = PromptGeneration();
 
   const validateAndGenerate = () => {
@@ -47,6 +49,8 @@ const PromptGenerationTab: React.FC = () => {
             setDescription={setDescription}
           />
         </div>
+        
+        <PromptServiceAlert triggerCheck={triggerHealthCheck} />
 
         <div className="bg-white rounded-lg shadow-soft p-5 border">
           <ReferenceImage

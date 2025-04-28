@@ -25,8 +25,8 @@ services:
       - AZURE_GPT_API_ENDPOINT=${AZURE_GPT_API_ENDPOINT:-https://ai.goatgames.com/aiplus/proxy/chat/completions} # 无需修改
       # Comfy UI
       - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3} # 无需修改
-      - COMFY_URL=${COMFY_URL:-http://118.145.197.219} # 无需修改
-      - LORA_URL=${LORA_URL:-http://118.145.197.219/models/loras} # 无需修改
+      - COMFY_URL=http://118.145.197.219 # 无需修改
+      - LORA_URL=http://118.145.197.219/models/loras # 无需修改
       # LM Studio
       - LM_STUDIO_BASE_URL=${LM_STUDIO_BASE_URL:-http://localhost:1234/v1} # 无需修改
       - LM_STUDIO_API_KEY=${LM_STUDIO_API_KEY:-lm-studio} # 无需修改

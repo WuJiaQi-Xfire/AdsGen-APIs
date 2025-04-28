@@ -10,6 +10,7 @@ export const PromptGeneration = () => {
   const [fileName, setFileName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [triggerHealthCheck, setTriggerHealthCheck] = useState(false);
 
   const handleGenerate = async () => {
     if (!description.trim()) {
@@ -28,6 +29,8 @@ export const PromptGeneration = () => {
       showToast("Your ad template prompt has been generated successfully.");
     } catch (error) {
       console.error("Error in handleGenerate:", error);
+      // Trigger health check when generation fails
+      setTriggerHealthCheck(prev => !prev);
     } finally {
       setIsGenerating(false);
     }
@@ -65,5 +68,6 @@ export const PromptGeneration = () => {
     handleGenerate,
     handleReferenceImageUpload,
     clearReferenceImage,
+    triggerHealthCheck,
   };
 };

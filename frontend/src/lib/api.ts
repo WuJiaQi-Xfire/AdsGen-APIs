@@ -20,6 +20,26 @@ export interface PromptGenerationResponse {
   generated_prompt: string;
 }
 
+export interface HealthCheckResponse {
+  database: {
+    status: "healthy" | "unhealthy";
+    message: string;
+  };
+  comfyui: {
+    status: "healthy" | "unhealthy";
+    message: string;
+  };
+  gpt: {
+    status: "healthy" | "unhealthy";
+    message: string;
+  };
+  frontend_backend: {
+    status: "healthy" | "unhealthy";
+    message: string;
+  };
+  all_healthy: boolean;
+}
+
 export interface KeywordExtractionResponse {
   keywords: string[];
 }
@@ -66,6 +86,31 @@ export interface ImageGenerationRequest {
 }
 
 export class ApiService {
+  // Health Check
+  static async checkHealth(): Promise<HealthCheckResponse> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/health`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to check health: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Health check failed", error);
+      // Return a default unhealthy response if the API call fails
+      return {
+        database: { status: "unhealthy", message: "Could not reach health check API" },
+        comfyui: { status: "unhealthy", message: "Could not reach health check API" },
+        gpt: { status: "unhealthy", message: "Could not reach health check API" },
+        frontend_backend: { status: "unhealthy", message: "Could not reach health check API" },
+        all_healthy: false
+      };
+    }
+  }
+
   // Prompt Generation
   static async generatePrompt(
     description: string,

@@ -10,10 +10,12 @@ import { showToast } from "@/lib/ShowToast";
 import { ImagePresets } from "@/lib/ImagePresets";
 import ImageGallery, { GeneratedImage } from "./Image/ImageGallery";
 import { ApiService, PromptFile } from "@/lib/api";
+import ImageServiceAlert from "./UI/ImageServiceAlert";
 
 const ImageGenerationTab: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
+  const [triggerHealthCheck, setTriggerHealthCheck] = useState(false);
 
   const {
     promptFiles,
@@ -164,10 +166,12 @@ const ImageGenerationTab: React.FC = () => {
         setGeneratedImages(images);
         showToast("Images generated successfully!");
       } else {
-        showToast("No images were generated. Please try again.");
+      showToast("No images were generated. Please try again.");
       }
     } catch (error: any) {
       console.error("Error generating images:", error);
+      // Trigger health check when generation fails
+      setTriggerHealthCheck(prev => !prev);
     } finally {
       setIsGenerating(false);
     }
@@ -254,6 +258,8 @@ const ImageGenerationTab: React.FC = () => {
               loadPrompts={loadPrompts}
             />
           </div>
+          
+          <ImageServiceAlert triggerCheck={triggerHealthCheck} />
           <div className="bg-white rounded-lg shadow-soft p-5 border">
             <StyleSection
               styleType={styleType}

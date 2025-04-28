@@ -1,6 +1,7 @@
 """Module for image processing function"""
 
 import json
+import logging
 from io import BytesIO
 import base64
 from typing import List, Dict, Any
@@ -8,6 +9,9 @@ from src.services.gpt_service import gpt_service
 from src.services.file_service import file_service
 from src.services import comfy_service
 from PIL import Image
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 
 class ImageService:
@@ -118,6 +122,30 @@ class ImageService:
         self, prompts: str, style_settings: str, keywords: str, stack_loras: bool
     ) -> list:
         """Generate images based on prompts and styles, return list of {filename, data}."""
+        
+        # Check if ComfyUI is available
+        if not comfy_service.check_comfy_available():
+            # 创建详细的错误信息
+            error_detail = {
+                "error_code": "COMFY_UNAVAILABLE",
+                "message": "ComfyUI service is not available. Please check the service status and try again.",
+                "request_data": {
+                    "prompts_count": len(json.loads(prompts)) if prompts else 0,
+                    "style_settings_count": len(json.loads(style_settings)) if style_settings else 0,
+                    "keywords": keywords,
+                    "stack_loras": stack_loras
+                },
+                "service_status": {
+                    "comfy_url": comfy_service.COMFY_URL,
+                    "comfy_available": comfy_service.comfy_available
+                }
+            }
+            
+            # 记录详细的错误信息到日志
+            logger.error(f"ComfyUI is not available, cannot generate images. Detailed error: {json.dumps(error_detail, indent=2)}")
+            
+            # 抛出简单的错误信息给前端
+            raise RuntimeError("ComfyUI service is not available. Please check the service status and try again.")
 
         prompt_list = json.loads(prompts)
         style_settings_list = json.loads(style_settings)
@@ -126,47 +154,71 @@ class ImageService:
         art_list = [l for l in style_settings_list if l["styleType"] == "art"]
 
         results = []
-        for prompt in prompt_list:
-            prompt_content = prompt["content"]
-            prompt_name = prompt["name"]
+        try:
+            for prompt in prompt_list:
+                prompt_content = prompt["content"]
+                prompt_name = prompt["name"]
 
-            if stack_loras:
-                if lora_list:
-                    gpt_prompt = self.gpt_service.generate_with_prompt(prompt_content)
-                    gpt_prompt += keywords
-                    images = comfy_service.comfy_call_stacked_lora(
-                        prompt_name,
-                        gpt_prompt,
-                        lora_list,
-                        batch_size=lora_list[0]["batchSize"],
-                    )
-                    results.extend(images)
-                if art_list:
-                    gpt_prompt = self.gpt_service.generate_with_prompt(prompt_content)
-                    gpt_prompt += keywords
-                    images = comfy_service.comfy_call_stacked_art(
-                        prompt_name, gpt_prompt, batch_size=art_list[0]["batchSize"]
-                    )
-                    results.extend(images)
-            else:
-                for l in lora_list:
-                    gpt_prompt = self.gpt_service.generate_with_prompt(prompt_content)
-                    gpt_prompt += keywords
-                    images = comfy_service.comfy_call_single_lora(
-                        prompt_name,
-                        gpt_prompt,
-                        l["id"],
-                        batch_size=l["batchSize"],
-                        style_strength=l["styleStrength"],
-                    )
-                    results.extend(images)
-                for a in art_list:
-                    gpt_prompt = self.gpt_service.generate_with_prompt(prompt_content)
-                    gpt_prompt += keywords
-                    images = comfy_service.comfy_call_single_art(
-                        prompt_name, gpt_prompt, a["id"], batch_size=a["batchSize"]
-                    )
-                    results.extend(images)
+                if stack_loras:
+                    if lora_list:
+                        gpt_prompt = self.gpt_service.generate_with_prompt(prompt_content)
+                        gpt_prompt += keywords
+                        images = comfy_service.comfy_call_stacked_lora(
+                            prompt_name,
+                            gpt_prompt,
+                            lora_list,
+                            batch_size=lora_list[0]["batchSize"],
+                        )
+                        results.extend(images)
+                    if art_list:
+                        gpt_prompt = self.gpt_service.generate_with_prompt(prompt_content)
+                        gpt_prompt += keywords
+                        images = comfy_service.comfy_call_stacked_art(
+                            prompt_name, gpt_prompt, batch_size=art_list[0]["batchSize"]
+                        )
+                        results.extend(images)
+                else:
+                    for l in lora_list:
+                        gpt_prompt = self.gpt_service.generate_with_prompt(prompt_content)
+                        gpt_prompt += keywords
+                        images = comfy_service.comfy_call_single_lora(
+                            prompt_name,
+                            gpt_prompt,
+                            l["id"],
+                            batch_size=l["batchSize"],
+                            style_strength=l["styleStrength"],
+                        )
+                        results.extend(images)
+                    for a in art_list:
+                        gpt_prompt = self.gpt_service.generate_with_prompt(prompt_content)
+                        gpt_prompt += keywords
+                        images = comfy_service.comfy_call_single_art(
+                            prompt_name, gpt_prompt, a["id"], batch_size=a["batchSize"]
+                        )
+                        results.extend(images)
+        except Exception as e:
+            # 创建详细的错误信息
+            error_detail = {
+                "error_code": "IMAGE_GENERATION_FAILED",
+                "message": str(e),
+                "request_data": {
+                    "prompts": prompt_list,
+                    "style_settings": style_settings_list,
+                    "keywords": keywords,
+                    "stack_loras": stack_loras
+                },
+                "service_status": {
+                    "comfy_url": comfy_service.COMFY_URL,
+                    "comfy_available": comfy_service.comfy_available
+                }
+            }
+            
+            # 记录详细的错误信息到日志
+            logger.error(f"Error generating images: {json.dumps(error_detail, indent=2)}")
+            
+            # 抛出简单的错误信息给前端
+            raise RuntimeError(f"Failed to generate images: {str(e)}")
+            
         return results
 
 

@@ -4,6 +4,8 @@ Abby's main
 
 import sys
 from pathlib import Path
+import logging
+logging.getLogger('sqlalchemy.engine.Engine').disabled = True
 
 # add project root directory to Python import path
 ROOT_DIR = Path(__file__).parent.parent
@@ -17,6 +19,7 @@ from src.api.v1.endpoints import (
     generation,
     image_generation,
     templates,
+    health,
 )
 
 app = FastAPI()
@@ -43,6 +46,7 @@ app.add_middleware(
 app.include_router(prompts.router, prefix="/api/prompts", tags=["Prompts"])
 app.include_router(generation.router, prefix="/api/generate", tags=["Generation"])
 app.include_router(templates.router, prefix="/api", tags=["Templates"])
+app.include_router(health.router, prefix="/api", tags=["Health"])
 
 # Comment this out if no comfyui running
 app.include_router(styles.router, prefix="/api/styles", tags=["Styles"])
