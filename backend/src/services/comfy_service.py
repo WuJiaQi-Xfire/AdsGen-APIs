@@ -4,7 +4,6 @@ import random
 import os
 import json
 import logging
-from dotenv import load_dotenv
 from src.utils import file_utils
 import threading
 import importlib.util
@@ -16,7 +15,6 @@ comfy_lock = threading.Lock()
 logger = logging.getLogger(__name__)
 
 # Load environment variables
-load_dotenv(override=False)
 COMFY_URL = os.getenv("COMFY_URL")
 
 # Flag to track if ComfyUI is available
@@ -40,7 +38,7 @@ try:
                     RandomNoise, UNETLoader, DualCLIPLoader, LoraLoader, 
                     ModelSamplingFlux, CLIPTextEncode, FluxGuidance, BasicGuider, 
                     KSamplerSelect, BasicScheduler, EmptyLatentImage, 
-                    SamplerCustomAdvanced, VAELoader, VAEDecode, SaveImage64
+                    SamplerCustomAdvanced, VAELoader, VAEDecode, SaveImage64, SaveImage
                 )
                 from comfy_script.runtime import util
             else:
@@ -161,7 +159,7 @@ def single_lora(prompt_name, prompt, lora, style_strength):
                 conditioning = FluxGuidance(conditioning, 3.5)
                 guider = BasicGuider(model, conditioning)
                 sampler = KSamplerSelect("euler")
-                sigmas = BasicScheduler(model, "simple", 30, 1)
+                sigmas = BasicScheduler(model, "simple", 1, 1)
                 latent = EmptyLatentImage(1088, 1088, 1)
                 latent, _ = SamplerCustomAdvanced(noise, guider, sampler, sigmas, latent)
                 vae = VAELoader("ae.safetensors")
@@ -169,7 +167,12 @@ def single_lora(prompt_name, prompt, lora, style_strength):
                 lora = file_utils.sanitize_filename(lora)
                 clean_lora_name = lora.replace(".safetensors", "")
                 filename = f"{clean_prompt_name}_{clean_lora_name}_{n}.png"
-                image_64 = SaveImage64(image, "ComfyUI")
+                image_64 = SaveImage(image, "ComfyUI")
+                def safe_get_str(value):
+                    import io, contextlib
+                    sio = io.StringIO()
+                    with contextlib.redirect_stdout(sio):
+                        return util.get_str(value)
                 img_str = util.get_str(image_64)
                 img_str = clean_base64(img_str)
                 return filename, img_str
